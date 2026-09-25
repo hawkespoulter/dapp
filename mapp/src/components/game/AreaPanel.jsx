@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import LockIcon from "@mui/icons-material/Lock";
-import PlaceIcon from "@mui/icons-material/Place";
 import { OWNER_LABELS } from "./gameRules";
 
 const OWNER_STYLES = {
@@ -9,9 +8,9 @@ const OWNER_STYLES = {
   villain: "bg-purple-700",
 };
 
-function AreaPanel({ area, here, busy, onMoveHere, villainName }) {
+function AreaPanel({ area, villainName }) {
   return (
-    <div className="flex items-center justify-between gap-2 bg-slate-800 px-3 py-2 text-white">
+    <div className="bg-slate-800 px-3 py-2 text-white">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <h2 className="truncate font-bold">{area.area}</h2>
@@ -27,15 +26,6 @@ function AreaPanel({ area, here, busy, onMoveHere, villainName }) {
           {area.neighbors.map((n) => n.replace(", U.S.A.", "")).join(", ")}
         </p>
       </div>
-      {here ? (
-        <span className="flex items-center gap-1 whitespace-nowrap text-xs font-bold text-emerald-400">
-          <PlaceIcon sx={{ fontSize: 16 }} /> You&apos;re here
-        </span>
-      ) : (
-        <button className="whitespace-nowrap rounded-lg bg-sky-600 px-3 py-2 text-sm font-bold disabled:opacity-40" disabled={busy} onClick={onMoveHere}>
-          I&apos;m here
-        </button>
-      )}
     </div>
   );
 }
@@ -44,8 +34,5 @@ export default AreaPanel;
 
 AreaPanel.propTypes = {
   area: PropTypes.object.isRequired,
-  here: PropTypes.bool,
-  busy: PropTypes.bool,
-  onMoveHere: PropTypes.func.isRequired,
   villainName: PropTypes.string.isRequired,
 };

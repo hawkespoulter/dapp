@@ -5,10 +5,8 @@ import GameMap from "./GameMap";
 import StatusBar from "./StatusBar";
 import AreaPanel from "./AreaPanel";
 import HandCard from "./HandCard";
-import EventFeed from "./EventFeed";
 import { errorMessage } from "./playerStorage";
 import {
-  useMoveToMutation,
   useCompleteChallengeMutation,
   useFailChallengeMutation,
   useUndoChallengeMutation,
@@ -24,15 +22,14 @@ function Section({ title, children }) {
 }
 
 function GameBoard({ state, refetch }) {
-  const { game, villain, areas, players, me, events } = state;
-  const [selected, setSelected] = useState(me?.current_area || null);
+  const { game, villain, areas, players, me } = state;
+  const [selected, setSelected] = useState(null);
   const [error, setError] = useState(null);
 
-  const [moveTo, moveStatus] = useMoveToMutation();
   const [complete, completeStatus] = useCompleteChallengeMutation();
   const [fail, failStatus] = useFailChallengeMutation();
   const [undo, undoStatus] = useUndoChallengeMutation();
-  const busy = [moveStatus, completeStatus, failStatus, undoStatus].some((s) => s.isLoading);
+  const busy = [completeStatus, failStatus, undoStatus].some((s) => s.isLoading);
 
   useEffect(() => {
     if (!error) return;
@@ -50,25 +47,12 @@ function GameBoard({ state, refetch }) {
         <StatusBar game={game} villain={villain} onVillainDue={refetch} />
       </div>
 
-      <GameMap
-        park={game.park}
-        areas={areas}
-        players={players}
-        villainKey={villain.key}
-        selected={selected}
-        onSelect={setSelected}
-      />
+      <GameMap park={game.park} areas={areas} villainKey={villain.key} onSelect={setSelected} />
 
       {selectedArea ? (
-        <AreaPanel
-          area={selectedArea}
-          here={me?.current_area === selected}
-          busy={busy}
-          villainName={villain.name}
-          onMoveHere={() => run(moveTo({ code, area: selected }))}
-        />
+        <AreaPanel area={selectedArea} villainName={villain.name} />
       ) : (
-        <p className="bg-slate-800 px-3 py-3 text-sm text-slate-300">Tap the area you&apos;re in to get started.</p>
+        <p className="bg-slate-800 px-3 py-3 text-sm text-slate-300">Tap an area on the map to select it.</p>
       )}
 
       {error && <div className="mx-3 mt-3 rounded-lg bg-red-900/80 px-3 py-2 text-sm text-red-100">{error}</div>}
@@ -94,8 +78,9 @@ function GameBoard({ state, refetch }) {
                 key={card.id}
                 card={card}
                 state={state}
+                selected={selected}
                 busy={busy}
-                onComplete={(c) => run(complete({ code, challengeId: c.id }))}
+                onComplete={(c) => run(complete({ code, challengeId: c.id, area: c.area || selected }))}
                 onFail={(c) => run(fail({ code, challengeId: c.id }))}
               />
             ))}
@@ -110,7 +95,7 @@ function GameBoard({ state, refetch }) {
           {players.map((p) => (
             <span key={p.id} className="rounded-full bg-slate-800 px-3 py-1 text-sm text-white">
               {p.name}
-              <span className="text-slate-400"> · {p.current_area?.replace(", U.S.A.", "") || "?"} · {p.coins}c</span>
+              <span className="text-slate-400"> � {p.coins} coins</span>
             </span>
           ))}
         </div>
@@ -122,10 +107,6 @@ function GameBoard({ state, refetch }) {
             <li key={rule}>{rule}</li>
           ))}
         </ul>
-      </Section>
-
-      <Section title="What's happening">
-        <EventFeed events={events} />
       </Section>
     </div>
   );

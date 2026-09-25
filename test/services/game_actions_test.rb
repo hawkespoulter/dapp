@@ -21,8 +21,8 @@ class GameActionsTest < ActiveSupport::TestCase
   end
 
   test "completing a challenge in a neutral area claims it and pays coins" do
-    give(@host, :anywhere_easy, area: "Adventureland")
-    act.complete!(challenges(:anywhere_easy).id, @now)
+    give(@host, :anywhere_easy)
+    act.complete!(challenges(:anywhere_easy).id, "Adventureland", @now)
 
     assert @game.area("Adventureland").reload.players?
     assert_equal 1, @host.reload.coins
@@ -32,8 +32,8 @@ class GameActionsTest < ActiveSupport::TestCase
 
   test "influence must be worn down before an area is claimed" do
     set_area(@game, "Adventureland", influence: 2)
-    give(@host, :anywhere_easy, area: "Adventureland")
-    act.complete!(challenges(:anywhere_easy).id, @now)
+    give(@host, :anywhere_easy)
+    act.complete!(challenges(:anywhere_easy).id, "Adventureland", @now)
 
     state = @game.area("Adventureland").reload
     assert state.neutral?
@@ -42,43 +42,51 @@ class GameActionsTest < ActiveSupport::TestCase
 
   test "an owned area is locked with a difficulty 2+ challenge" do
     set_area(@game, "Adventureland", owner: "players")
-    give(@host, :anywhere_easy, area: "Adventureland")
-    error = assert_raises(Games::Actions::Invalid) { act.complete!(challenges(:anywhere_easy).id, @now) }
+    give(@host, :anywhere_easy)
+    error = assert_raises(Games::Actions::Invalid) { act.complete!(challenges(:anywhere_easy).id, "Adventureland", @now) }
     assert_match "difficulty 2+", error.message
 
-    give(@host, :anywhere_medium, area: "Adventureland")
-    act.complete!(challenges(:anywhere_medium).id, @now)
+    give(@host, :anywhere_medium)
+    act.complete!(challenges(:anywhere_medium).id, "Adventureland", @now)
     assert @game.area("Adventureland").reload.locked?
   end
 
-  test "area challenges must be done in their area" do
-    give(@host, :adventureland_easy, area: "Frontierland")
-    error = assert_raises(Games::Actions::Invalid) { act.complete!(challenges(:adventureland_easy).id, @now) }
-    assert_match "Adventureland", error.message
+  test "area challenges count in their own area whatever is selected" do
+    give(@host, :adventureland_easy)
+    act.complete!(challenges(:adventureland_easy).id, "Frontierland", @now)
+
+    assert @game.area("Adventureland").reload.players?
+    assert @game.area("Frontierland").reload.neutral?
+  end
+
+  test "anywhere challenges need an area picked" do
+    give(@host, :anywhere_easy)
+    error = assert_raises(Games::Actions::Invalid) { act.complete!(challenges(:anywhere_easy).id, nil, @now) }
+    assert_match "Pick an area", error.message
   end
 
   test "attacking a villain area needs an adjacent players area" do
     set_area(@game, "Frontierland", owner: "villain", influence: 3)
-    give(@host, :anywhere_hard, area: "Frontierland")
-    assert_raises(Games::Actions::Invalid) { act.complete!(challenges(:anywhere_hard).id, @now) }
+    give(@host, :anywhere_hard)
+    assert_raises(Games::Actions::Invalid) { act.complete!(challenges(:anywhere_hard).id, "Frontierland", @now) }
 
     set_area(@game, "Adventureland", owner: "players")
-    act.complete!(challenges(:anywhere_hard).id, @now)
+    act.complete!(challenges(:anywhere_hard).id, "Frontierland", @now)
     assert @game.area("Frontierland").reload.players?
   end
 
   test "Thorn Wall blocks easy challenges next to a villain-held Fantasyland" do
-    give(@host, :anywhere_easy, area: "Tomorrowland")
+    give(@host, :anywhere_easy)
     set_area(@game, "Fantasyland", owner: "villain", influence: 3)
-    error = assert_raises(Games::Actions::Invalid) { act.complete!(challenges(:anywhere_easy).id, @now) }
+    error = assert_raises(Games::Actions::Invalid) { act.complete!(challenges(:anywhere_easy).id, "Tomorrowland", @now) }
     assert_match "difficulty 2+", error.message
   end
 
   test "locking every area wins the game" do
     @game.area_states.each { _1.update!(owner: "players", locked: true, influence: 0) }
     set_area(@game, "Adventureland", locked: false)
-    give(@host, :anywhere_medium, area: "Adventureland")
-    act.complete!(challenges(:anywhere_medium).id, @now)
+    give(@host, :anywhere_medium)
+    act.complete!(challenges(:anywhere_medium).id, "Adventureland", @now)
 
     assert @game.reload.finished?
     assert_equal "gold", @game.result
@@ -86,15 +94,15 @@ class GameActionsTest < ActiveSupport::TestCase
 
   test "villain turns that came due are played before a player's action" do
     @game.update!(villain_draw: Array.new(5) { "area:Adventureland" })
-    give(@host, :anywhere_easy, area: "Tomorrowland")
-    act.complete!(challenges(:anywhere_easy).id, @game.started_at + @game.tick_seconds + 60)
+    give(@host, :anywhere_easy)
+    act.complete!(challenges(:anywhere_easy).id, "Tomorrowland", @game.started_at + @game.tick_seconds + 60)
 
     assert_equal 1, @game.reload.tick_count
     assert_equal 1, @game.area("Adventureland").influence
   end
 
   test "failing a challenge swaps the card" do
-    give(@host, :anywhere_easy, area: "Adventureland")
+    give(@host, :anywhere_easy)
     act.fail!(challenges(:anywhere_easy).id, @now)
 
     assert_equal 1, @host.reload.hand.size
@@ -135,8 +143,8 @@ class GameUndoTest < ActiveSupport::TestCase
 
   test "undo reverses a claim, coins and the hand" do
     set_area(@game, "Adventureland", influence: 1)
-    give(@host, :anywhere_medium, area: "Adventureland")
-    act.complete!(challenges(:anywhere_medium).id, @now)
+    give(@host, :anywhere_medium)
+    act.complete!(challenges(:anywhere_medium).id, "Adventureland", @now)
     act.undo!(@now + 1.minute)
 
     state = @game.area("Adventureland").reload
@@ -149,8 +157,8 @@ class GameUndoTest < ActiveSupport::TestCase
   end
 
   test "undo is refused once the villain has touched the area" do
-    give(@host, :anywhere_easy, area: "Adventureland")
-    act.complete!(challenges(:anywhere_easy).id, @now)
+    give(@host, :anywhere_easy)
+    act.complete!(challenges(:anywhere_easy).id, "Adventureland", @now)
     Games::VillainEngine.new(@game).add_influence("Adventureland", 1, @now)
 
     error = assert_raises(Games::Actions::Invalid) { act.undo!(@now) }
@@ -160,8 +168,8 @@ class GameUndoTest < ActiveSupport::TestCase
   test "undo can take back a winning claim" do
     @game.area_states.each { _1.update!(owner: "players", locked: true, influence: 0) }
     set_area(@game, "Adventureland", locked: false)
-    give(@host, :anywhere_medium, area: "Adventureland")
-    act.complete!(challenges(:anywhere_medium).id, @now)
+    give(@host, :anywhere_medium)
+    act.complete!(challenges(:anywhere_medium).id, "Adventureland", @now)
     assert @game.reload.finished?
 
     act.undo!(@now)
@@ -173,7 +181,7 @@ class GameUndoTest < ActiveSupport::TestCase
   end
 
   test "undo restores a failed card" do
-    give(@host, :anywhere_easy, area: "Adventureland")
+    give(@host, :anywhere_easy)
     act.fail!(challenges(:anywhere_easy).id, @now)
     act.undo!(@now)
 

@@ -87,7 +87,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_25_000001) do
     t.string "name", null: false
     t.string "auth_token", null: false
     t.boolean "host", default: false, null: false
-    t.string "current_area"
     t.integer "coins", default: 0, null: false
     t.json "hand", default: [], null: false
     t.datetime "created_at", null: false

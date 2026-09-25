@@ -18,9 +18,9 @@ const CATEGORY_ICONS = {
   trivia: QuizIcon,
 };
 
-function HandCard({ card, state, busy, onComplete, onFail }) {
+function HandCard({ card, state, selected, busy, onComplete, onFail }) {
   const Icon = CATEGORY_ICONS[card.category] || SearchIcon;
-  const preview = previewChallenge(state, card);
+  const preview = previewChallenge(state, card, selected);
 
   return (
     <div className="rounded-xl bg-slate-800 p-3 text-white shadow">
@@ -64,6 +64,7 @@ export default HandCard;
 HandCard.propTypes = {
   card: PropTypes.object.isRequired,
   state: PropTypes.object.isRequired,
+  selected: PropTypes.string,
   busy: PropTypes.bool,
   onComplete: PropTypes.func.isRequired,
   onFail: PropTypes.func.isRequired,

@@ -56,18 +56,16 @@ module Games
       end
     end
 
-    def move!(area)
-      locked(playing: true) do
-        raise Invalid, "#{area} is not in #{game.park}" unless game.board.areas.include?(area)
-
-        me.update!(current_area: area)
-        game.log!("moved", "#{me.name} is in #{area}.", player: me, area:)
-      end
-    end
-
-    def complete!(challenge_id, now = Time.current)
+    # Area cards count in their own area; "anywhere" cards count in the area
+    # the player picked on the map.
+    def complete!(challenge_id, area = nil, now = Time.current)
       locked(now, playing: true) do
-        challenge, state = playable(challenge_id)
+        challenge = playable(challenge_id)
+        target = challenge.area || area
+        raise Invalid, "Pick an area on the map first" if target.blank?
+        raise Invalid, "#{target} is not in #{game.park}" unless game.board.areas.include?(target)
+
+        state = game.area(target)
         check_rules!(challenge, state)
 
         before = snapshot(state)
@@ -106,7 +104,7 @@ module Games
 
     def fail!(challenge_id, now = Time.current)
       locked(now, playing: true) do
-        challenge, = playable(challenge_id)
+        challenge = playable(challenge_id)
         drawn = replace_card(challenge)
         undo = game.rules["villain_on_fail"] ? nil : { "challenge_id" => challenge.id, "drawn" => drawn, "coins" => 0 }
         game.log!("failed", "#{me.name} failed \"#{challenge.title}\".", at: now, player: me, undo:)
@@ -174,17 +172,13 @@ module Games
     def playable(challenge_id)
       challenge_id = challenge_id.to_i
       raise Invalid, "That challenge isn't in your hand" unless me.hand.include?(challenge_id)
-      raise Invalid, "Tell us which area you're in first" if me.current_area.blank?
 
-      [Challenge.find(challenge_id), game.area(me.current_area)]
+      Challenge.find(challenge_id)
     end
 
     def check_rules!(challenge, state)
       area = state.area
       villain = game.villain
-      if challenge.area && challenge.area != area
-        raise Invalid, "\"#{challenge.title}\" has to be done in #{challenge.area}"
-      end
       if challenge.difficulty < villain.min_difficulty(area)
         raise Invalid, "#{villain.display_name} requires a difficulty #{villain.min_difficulty(area)}+ challenge in #{area}"
       end

@@ -13,6 +13,6 @@ class Player < ApplicationRecord
   end
 
   def as_json(*)
-    { id:, name:, host:, current_area:, coins: }
+    { id:, name:, host:, coins: }
   end
 end

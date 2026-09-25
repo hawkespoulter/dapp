@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import IMAGES from "~/images/Images";
 import { toCamelCase } from "~/constants.js";
 import GameMap from "./GameMap";
-import EventFeed from "./EventFeed";
 
 const RESULTS = {
   gold: { title: "Gold!", logo: "Gold", filter: "none" },
@@ -13,7 +12,7 @@ const RESULTS = {
 };
 
 function GameOver({ state }) {
-  const { game, villain, areas, players, events } = state;
+  const { game, villain, areas, events } = state;
   const result = RESULTS[game.result] || RESULTS.lost;
   const summary = events.find((e) => e.kind === "finished");
 
@@ -32,10 +31,7 @@ function GameOver({ state }) {
           New game
         </Link>
       </div>
-      <GameMap park={game.park} areas={areas} players={players} villainKey={villain.key} onSelect={() => {}} />
-      <div className="px-3 pt-4">
-        <EventFeed events={events} />
-      </div>
+      <GameMap park={game.park} areas={areas} villainKey={villain.key} />
     </div>
   );
 }

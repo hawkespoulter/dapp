@@ -1,11 +1,12 @@
 // Where each park sits inside its 1080x1920 map overlays. `crop` is the part
-// of the frame the board shows; `labels` are area centers in image pixels.
+// of the frame the board shows; `centers` are where each area's markers go,
+// in image pixels.
 export const IMAGE_SIZE = { width: 1080, height: 1920 };
 
 export const BOARD_LAYOUT = {
   "Magic Kingdom": {
     crop: { x: 20, y: 470, width: 1040, height: 740 },
-    labels: {
+    centers: {
       "Main Street, U.S.A.": [540, 1070],
       "Adventureland": [300, 960],
       "Frontierland": [175, 745],

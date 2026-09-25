@@ -26,7 +26,6 @@ class CreateParkGame < ActiveRecord::Migration[7.1]
       t.string :name, null: false
       t.string :auth_token, null: false
       t.boolean :host, null: false, default: false
-      t.string :current_area
       t.integer :coins, null: false, default: 0
       t.json :hand, null: false, default: []
       t.timestamps

@@ -1,9 +1,9 @@
 // Mirrors the server's challenge rules (app/services/games/actions.rb) so a
 // card can say what it would do before you play it. The server still decides.
-export function previewChallenge(state, card) {
-  const here = state.me?.current_area;
-  if (!here) return { ok: false, text: "Set where you are on the map first" };
-  if (card.area && card.area !== here) return { ok: false, text: `Go to ${card.area}` };
+// Area cards count in their own area; "anywhere" cards in the selected one.
+export function previewChallenge(state, card, selected) {
+  const here = card.area || selected;
+  if (!here) return { ok: false, text: "Select an area on the map" };
 
   const areas = Object.fromEntries(state.areas.map((a) => [a.area, a]));
   const area = areas[here];

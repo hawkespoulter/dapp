@@ -24,13 +24,10 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, state.dig("me", "hand").size
     assert_equal 6, state["areas"].size
 
-    patch move_api_v1_game_url(code), params: { area: "Adventureland" }, headers: { "X-Player-Token" => host_token }, as: :json
-    assert_equal "Adventureland", response.parsed_body.dig("me", "current_area")
-
     # Adventureland starts as ours, so a difficulty 2+ card locks it.
     card = response.parsed_body.dig("me", "hand").find { (_1["area"].nil? || _1["area"] == "Adventureland") && _1["difficulty"] >= 2 }
     if card
-      post complete_api_v1_game_url(code), params: { challenge_id: card["id"] }, headers: { "X-Player-Token" => host_token }, as: :json
+      post complete_api_v1_game_url(code), params: { challenge_id: card["id"], area: "Adventureland" }, headers: { "X-Player-Token" => host_token }, as: :json
       assert_response :success
       assert response.parsed_body["areas"].find { _1["area"] == "Adventureland" }["locked"]
     end

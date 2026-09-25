@@ -16,7 +16,6 @@ Rails.application.routes.draw do
         member do
           post :join
           post :start
-          patch :move
           post :complete
           post :fail, action: :fail_challenge
           post :undo

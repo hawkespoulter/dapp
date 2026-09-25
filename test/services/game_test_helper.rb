@@ -15,7 +15,7 @@ module GameTestHelper
     game.area(name).update!(**attrs)
   end
 
-  def give(player, challenge, area:)
-    player.update!(hand: [challenges(challenge).id], current_area: area)
+  def give(player, challenge)
+    player.update!(hand: [challenges(challenge).id])
   end
 end

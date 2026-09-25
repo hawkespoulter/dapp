@@ -44,15 +44,9 @@ class Api::V1::GamesController < ApplicationController
     render_state
   end
 
-  # PATCH /games/:code/move
-  def move
-    actions.move!(params.require(:area))
-    render_state
-  end
-
   # POST /games/:code/complete
   def complete
-    actions.complete!(params.require(:challenge_id))
+    actions.complete!(params.require(:challenge_id), params[:area])
     render_state
   end
 
