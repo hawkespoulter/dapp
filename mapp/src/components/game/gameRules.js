@@ -1,32 +1,49 @@
-// Mirrors the server's challenge rules (app/services/games/actions.rb) so a
-// card can say what it would do before you play it. The server still decides.
-// Area cards count in their own area; "anywhere" cards in the selected one.
-export function previewChallenge(state, card, selected) {
-  const here = card.area || selected;
-  if (!here) return { ok: false, text: "Select an area on the map" };
-
-  const areas = Object.fromEntries(state.areas.map((a) => [a.area, a]));
-  const area = areas[here];
-  const villain = state.villain.name;
-
-  if (card.difficulty < area.min_difficulty) {
-    return { ok: false, text: `${villain} requires difficulty ${area.min_difficulty}+ here` };
-  }
-  if (area.owner === "villain" && !area.neighbors.some((n) => areas[n].owner === "players")) {
-    return { ok: false, text: "Hold a neighboring area to attack here" };
-  }
-  if (area.owner === "players" && area.locked) return { ok: false, text: `${here} is already locked` };
-  if (area.owner === "players" && area.influence === 0) {
-    return card.difficulty < 2
-      ? { ok: false, text: "Locking takes difficulty 2+" }
-      : { ok: true, text: `Locks ${here}` };
-  }
-
-  const left = Math.max(area.influence - card.difficulty, 0);
-  if (left > 0) return { ok: true, text: `Weakens ${villain} here (${area.influence} → ${left})` };
-  if (area.owner === "villain") return { ok: true, text: `Takes back ${here}!` };
-  if (area.owner === "players") return { ok: true, text: `Clears influence from ${here}` };
-  return { ok: true, text: `Claims ${here}` };
-}
+// Mirrors the server's influence rules (app/services/games/actions.rb) so the
+// area panel can say what placing influence would do. The server decides.
 
 export const OWNER_LABELS = { players: "Yours", neutral: "Unclaimed", villain: "Villain" };
+
+// What the team is working toward in an area, and how much influence it
+// takes to get there.
+export function placementPlan(state, name) {
+  const { game, villain, areas } = state;
+  const byName = Object.fromEntries(areas.map((a) => [a.area, a]));
+  const area = byName[name];
+  const step = area.placement_cost;
+
+  let blocked = null;
+  let steps = 0;
+  let goal = "";
+  if (area.owner === "players" && area.locked) {
+    blocked = `Locked — safe from ${villain.name}`;
+  } else if (area.owner === "villain" && !area.neighbors.some((n) => byName[n].owner === "players")) {
+    blocked = "Hold an area next to it to attack";
+  } else if (area.owner === "villain") {
+    steps = area.influence + game.claim_cost;
+    goal = "take it back";
+  } else if (area.owner === "neutral") {
+    steps = area.influence + game.claim_cost - area.claim;
+    goal = "claim it";
+  } else if (area.influence > 0) {
+    steps = area.influence;
+    goal = `clear ${villain.name}'s influence`;
+  } else {
+    steps = game.lock_cost - area.claim;
+    goal = "lock it";
+  }
+
+  return { blocked, step, cost: steps * step, goal };
+}
+
+// A short description of where an area's meter sits.
+export function meterText(state, area) {
+  const { game, villain } = state;
+  if (area.owner === "villain") return `${villain.name}'s strength ${area.influence}/${game.max_influence}`;
+  const parts = [];
+  if (area.influence > 0) parts.push(`${villain.name}'s influence ${area.influence}/${game.max_influence}`);
+  if (area.claim > 0) {
+    parts.push(area.owner === "players" ? `lock ${area.claim}/${game.lock_cost}` : `claim ${area.claim}/${game.claim_cost}`);
+  }
+  if (area.locked) parts.push("locked");
+  return parts.join(" · ") || (area.owner === "players" ? "Not locked yet" : "No influence yet");
+}

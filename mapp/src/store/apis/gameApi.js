@@ -43,7 +43,9 @@ const gameApi = createApi({
         onQueryStarted: storeState((data) => data.state),
       }),
       startGame: action(builder, "start", "POST"),
-      completeChallenge: action(builder, "complete", "POST", ({ challengeId, area }) => ({ challenge_id: challengeId, area })),
+      completeChallenge: action(builder, "complete", "POST", ({ challengeId }) => ({ challenge_id: challengeId })),
+      buyInfluence: action(builder, "buy", "POST", ({ count }) => ({ count })),
+      placeInfluence: action(builder, "place", "POST", ({ area, count }) => ({ area, count })),
       failChallenge: action(builder, "fail", "POST", ({ challengeId }) => ({ challenge_id: challengeId })),
       undoChallenge: action(builder, "undo", "POST"),
     };
@@ -59,6 +61,8 @@ export const {
   useCompleteChallengeMutation,
   useFailChallengeMutation,
   useUndoChallengeMutation,
+  useBuyInfluenceMutation,
+  usePlaceInfluenceMutation,
 } = gameApi;
 
 export { gameApi };

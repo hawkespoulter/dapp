@@ -31,7 +31,7 @@ function GameOver({ state }) {
           New game
         </Link>
       </div>
-      <GameMap park={game.park} areas={areas} villainKey={villain.key} />
+      <GameMap park={game.park} areas={areas} villainKey={villain.key} claimCost={game.claim_cost} lockCost={game.lock_cost} />
     </div>
   );
 }

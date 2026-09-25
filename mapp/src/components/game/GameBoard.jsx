@@ -3,12 +3,15 @@ import PropTypes from "prop-types";
 import UndoIcon from "@mui/icons-material/Undo";
 import GameMap from "./GameMap";
 import StatusBar from "./StatusBar";
+import TeamPool from "./TeamPool";
 import AreaPanel from "./AreaPanel";
 import HandCard from "./HandCard";
 import { errorMessage } from "./playerStorage";
 import {
+  useBuyInfluenceMutation,
   useCompleteChallengeMutation,
   useFailChallengeMutation,
+  usePlaceInfluenceMutation,
   useUndoChallengeMutation,
 } from "~/store/apis/gameApi";
 
@@ -28,8 +31,10 @@ function GameBoard({ state, refetch }) {
 
   const [complete, completeStatus] = useCompleteChallengeMutation();
   const [fail, failStatus] = useFailChallengeMutation();
+  const [buy, buyStatus] = useBuyInfluenceMutation();
+  const [place, placeStatus] = usePlaceInfluenceMutation();
   const [undo, undoStatus] = useUndoChallengeMutation();
-  const busy = [completeStatus, failStatus, undoStatus].some((s) => s.isLoading);
+  const busy = [completeStatus, failStatus, buyStatus, placeStatus, undoStatus].some((s) => s.isLoading);
 
   useEffect(() => {
     if (!error) return;
@@ -39,21 +44,34 @@ function GameBoard({ state, refetch }) {
 
   const run = (promise) => promise.unwrap().catch((e) => setError(errorMessage(e)));
   const code = game.code;
-  const selectedArea = areas.find((a) => a.area === selected);
+
+  // Until someone taps the map, show an area one of your cards is in.
+  const cardArea = me?.hand.find((card) => areas.some((a) => a.area === card.area))?.area;
+  const current = selected || cardArea || areas[0].area;
+  const currentArea = areas.find((a) => a.area === current);
 
   return (
     <div className="min-h-screen bg-slate-950 pb-10">
       <div className="sticky top-[56px] z-40 shadow-lg">
         <StatusBar game={game} villain={villain} onVillainDue={refetch} />
+        <TeamPool game={game} busy={busy} onBuy={(count) => run(buy({ code, count }))} />
       </div>
 
-      <GameMap park={game.park} areas={areas} villainKey={villain.key} onSelect={setSelected} />
+      <GameMap
+        park={game.park}
+        areas={areas}
+        villainKey={villain.key}
+        claimCost={game.claim_cost}
+        lockCost={game.lock_cost}
+        onSelect={setSelected}
+      />
 
-      {selectedArea ? (
-        <AreaPanel area={selectedArea} villainName={villain.name} />
-      ) : (
-        <p className="bg-slate-800 px-3 py-3 text-sm text-slate-300">Tap an area on the map to select it.</p>
-      )}
+      <AreaPanel
+        state={state}
+        area={currentArea}
+        busy={busy || !me}
+        onPlace={(count) => run(place({ code, area: current, count }))}
+      />
 
       {error && <div className="mx-3 mt-3 rounded-lg bg-red-900/80 px-3 py-2 text-sm text-red-100">{error}</div>}
 
@@ -71,16 +89,14 @@ function GameBoard({ state, refetch }) {
       )}
 
       {me ? (
-        <Section title={`Your challenges · ${me.coins} coins`}>
+        <Section title="Your challenges">
           <div className="flex flex-col gap-3">
             {me.hand.map((card) => (
               <HandCard
                 key={card.id}
                 card={card}
-                state={state}
-                selected={selected}
                 busy={busy}
-                onComplete={(c) => run(complete({ code, challengeId: c.id, area: c.area || selected }))}
+                onComplete={(c) => run(complete({ code, challengeId: c.id }))}
                 onFail={(c) => run(fail({ code, challengeId: c.id }))}
               />
             ))}
@@ -95,7 +111,7 @@ function GameBoard({ state, refetch }) {
           {players.map((p) => (
             <span key={p.id} className="rounded-full bg-slate-800 px-3 py-1 text-sm text-white">
               {p.name}
-              <span className="text-slate-400"> � {p.coins} coins</span>
+              <span className="text-slate-400"> · earned {p.coins}</span>
             </span>
           ))}
         </div>

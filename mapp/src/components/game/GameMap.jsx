@@ -44,7 +44,7 @@ function useAreaHitTest(areaNames) {
     });
 }
 
-function GameMap({ park, areas, villainKey, onSelect }) {
+function GameMap({ park, areas, villainKey, claimCost, lockCost, onSelect }) {
   const layout = BOARD_LAYOUT[park];
   const color = villainColor(villainKey);
   const areaNames = areas.map((a) => a.area);
@@ -97,9 +97,10 @@ function GameMap({ park, areas, villainKey, onSelect }) {
         <img src={IMAGES[`${toCamelCase(park)}Lines`]} style={fill} alt="" draggable={false} />
 
         {areas
-          .filter((area) => area.locked || area.influence > 0)
+          .filter((area) => area.locked || area.influence > 0 || area.claim > 0)
           .map((area) => {
             const [x, y] = layout.centers[area.area];
+            const claimTarget = area.owner === "players" ? lockCost : claimCost;
             return (
               <div
                 key={area.area}
@@ -113,6 +114,14 @@ function GameMap({ park, areas, villainKey, onSelect }) {
                       key={i}
                       className="h-2 w-2 rounded-full border border-white/80"
                       style={{ backgroundColor: i < area.influence ? (area.owner === "villain" ? "white" : color) : "transparent" }}
+                    />
+                  ))}
+                {area.claim > 0 &&
+                  Array.from({ length: claimTarget }, (_, i) => (
+                    <span
+                      key={`claim-${i}`}
+                      className="h-2 w-2 rounded-full border border-sky-300"
+                      style={{ backgroundColor: i < area.claim ? "#38bdf8" : "transparent" }}
                     />
                   ))}
               </div>
@@ -129,5 +138,7 @@ GameMap.propTypes = {
   park: PropTypes.string.isRequired,
   areas: PropTypes.array.isRequired,
   villainKey: PropTypes.string.isRequired,
+  claimCost: PropTypes.number.isRequired,
+  lockCost: PropTypes.number.isRequired,
   onSelect: PropTypes.func,
 };

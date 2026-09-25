@@ -6,7 +6,6 @@ import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import SearchIcon from "@mui/icons-material/Search";
 import GroupsIcon from "@mui/icons-material/Groups";
 import QuizIcon from "@mui/icons-material/Quiz";
-import { previewChallenge } from "./gameRules";
 
 const CATEGORY_ICONS = {
   ride: AttractionsIcon,
@@ -18,9 +17,8 @@ const CATEGORY_ICONS = {
   trivia: QuizIcon,
 };
 
-function HandCard({ card, state, selected, busy, onComplete, onFail }) {
+function HandCard({ card, busy, onComplete, onFail }) {
   const Icon = CATEGORY_ICONS[card.category] || SearchIcon;
-  const preview = previewChallenge(state, card, selected);
 
   return (
     <div className="rounded-xl bg-slate-800 p-3 text-white shadow">
@@ -35,17 +33,16 @@ function HandCard({ card, state, selected, busy, onComplete, onFail }) {
             </span>
           </div>
           {card.description && <p className="mt-1 text-sm text-slate-300">{card.description}</p>}
-          <p className="mt-1 text-xs text-slate-400">{card.area || "Anywhere"}</p>
+          {card.area && <p className="mt-1 text-xs text-slate-400">{card.area}</p>}
         </div>
       </div>
-      <p className={`mt-2 text-xs font-semibold ${preview.ok ? "text-emerald-400" : "text-amber-400"}`}>{preview.text}</p>
       <div className="mt-2 flex gap-2">
         <button
           className="flex-1 rounded-lg bg-emerald-600 py-2 font-bold disabled:opacity-40"
-          disabled={!preview.ok || busy}
+          disabled={busy}
           onClick={() => onComplete(card)}
         >
-          Done
+          Done · +{card.difficulty} coin{card.difficulty > 1 ? "s" : ""}
         </button>
         <button
           className="rounded-lg bg-slate-700 px-4 py-2 text-sm disabled:opacity-40"
@@ -63,8 +60,6 @@ export default HandCard;
 
 HandCard.propTypes = {
   card: PropTypes.object.isRequired,
-  state: PropTypes.object.isRequired,
-  selected: PropTypes.string,
   busy: PropTypes.bool,
   onComplete: PropTypes.func.isRequired,
   onFail: PropTypes.func.isRequired,
