@@ -4,12 +4,10 @@ one:
   name: MyString
   park: MyString
   area: MyString
-  type: 
   completed: false
 
 two:
   name: MyString
   park: MyString
   area: MyString
-  type: 
   completed: false
