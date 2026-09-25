@@ -70,25 +70,36 @@ module Games
         challenge, state = playable(challenge_id)
         check_rules!(challenge, state)
 
+        before = snapshot(state)
         claimed_from = state.owner
         if state.players? && state.influence.zero?
           state.update!(locked: true)
-          game.log!("locked", "#{me.name} locked #{state.area} with \"#{challenge.title}\".", at: now, player: me, area: state.area)
+          kind = "locked"
+          message = "#{me.name} locked #{state.area} with \"#{challenge.title}\"."
         else
           influence = [state.influence - challenge.difficulty, 0].max
           state.update!(influence:, owner: influence.zero? ? "players" : state.owner)
+          kind = "claimed"
           message =
             if !state.players? then "#{me.name} weakened #{game.villain.display_name} in #{state.area} with \"#{challenge.title}\" (#{influence} influence left)."
             elsif claimed_from == "players" then "#{me.name} cleared #{game.villain.display_name}'s influence from #{state.area}."
             elsif claimed_from == "villain" then "#{me.name} took #{state.area} back from #{game.villain.display_name}!"
             else "#{me.name} claimed #{state.area} with \"#{challenge.title}\"!"
             end
-          game.log!("claimed", message, at: now, player: me, area: state.area)
         end
 
         me.coins += challenge.difficulty
-        replace_card(challenge)
+        drawn = replace_card(challenge)
+        next_tick_at = game.next_tick_at
+        event = game.log!(kind, message, at: now, player: me, area: state.area, undo: {
+          "challenge_id" => challenge.id, "drawn" => drawn, "coins" => challenge.difficulty,
+          "area" => state.area, "before" => before, "after" => snapshot(state),
+        })
         VillainEngine.new(game).check_player_win!(now)
+        if game.finished?
+          event.data["undo"].merge!("won" => true, "next_tick_at" => next_tick_at)
+          event.save!
+        end
         game.save!
       end
     end
@@ -96,9 +107,48 @@ module Games
     def fail!(challenge_id, now = Time.current)
       locked(now, playing: true) do
         challenge, = playable(challenge_id)
-        replace_card(challenge)
-        game.log!("failed", "#{me.name} failed \"#{challenge.title}\".", at: now, player: me)
+        drawn = replace_card(challenge)
+        undo = game.rules["villain_on_fail"] ? nil : { "challenge_id" => challenge.id, "drawn" => drawn, "coins" => 0 }
+        game.log!("failed", "#{me.name} failed \"#{challenge.title}\".", at: now, player: me, undo:)
         VillainEngine.new(game).handle(:challenge_failed, at: now)
+        game.save!
+      end
+    end
+
+    # Reverses the player's most recent completed or failed challenge, as long
+    # as nothing has touched that area since.
+    def undo!(now = Time.current)
+      locked(now) do
+        event = game.game_events.where(player_id: me.id, kind: %w[claimed locked failed]).last
+        undo = event&.data&.dig("undo")
+        raise Invalid, "Nothing to undo" if undo.nil? || event.data["undone"]
+
+        if undo["won"]
+          raise Invalid, "The game is over" if now >= game.ends_at
+
+          game.status = "active"
+          game.result = nil
+          game.next_tick_at = Time.zone.parse(undo["next_tick_at"].to_s)
+          game.game_events.where(kind: "finished").where("id > ?", event.id).destroy_all
+        elsif !game.active?
+          raise Invalid, "The game isn't running"
+        end
+
+        if undo["area"]
+          state = game.area(undo["area"])
+          unless snapshot(state) == undo["after"]
+            raise Invalid, "#{state.area} has changed since then, so this can't be undone"
+          end
+
+          state.update!(undo["before"])
+        end
+
+        me.coins -= undo["coins"]
+        me.hand = me.hand - undo["drawn"] + [undo["challenge_id"]]
+        me.save!
+        game.challenge_discard = game.challenge_discard - [undo["challenge_id"]]
+        event.update!(data: event.data.merge("undone" => true))
+        game.log!("undo", "#{me.name} undid: #{event.message}", at: now, player: me)
         game.save!
       end
     end
@@ -149,11 +199,18 @@ module Games
       end
     end
 
+    # Swaps a played card for a new one and returns the new card's ids.
     def replace_card(challenge)
       game.discard_challenge(challenge.id)
       me.hand = me.hand - [challenge.id]
-      me.hand = me.hand + game.draw_challenges(1)
+      drawn = game.draw_challenges(1)
+      me.hand = me.hand + drawn
       me.save!
+      drawn
+    end
+
+    def snapshot(state)
+      { "owner" => state.owner, "influence" => state.influence, "locked" => state.locked }
     end
 
     def windows_from(now)

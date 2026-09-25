@@ -19,6 +19,7 @@ Rails.application.routes.draw do
           patch :move
           post :complete
           post :fail, action: :fail_challenge
+          post :undo
         end
       end
     end

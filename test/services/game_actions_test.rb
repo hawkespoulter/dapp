@@ -119,3 +119,62 @@ class GameActionsTest < ActiveSupport::TestCase
     assert_equal Time.zone.parse("2026-10-02 09:10"), game.next_tick_at
   end
 end
+
+class GameUndoTest < ActiveSupport::TestCase
+  include GameTestHelper
+
+  setup do
+    @game, @host = start_game
+    @game.update!(villain_draw: [])
+    @now = @game.started_at + 1.minute
+  end
+
+  def act = Games::Actions.new(@game, @host)
+
+  test "undo reverses a claim, coins and the hand" do
+    set_area(@game, "Adventureland", influence: 1)
+    give(@host, :anywhere_medium, area: "Adventureland")
+    act.complete!(challenges(:anywhere_medium).id, @now)
+    act.undo!(@now + 1.minute)
+
+    state = @game.area("Adventureland").reload
+    assert state.neutral?
+    assert_equal 1, state.influence
+    assert_equal 0, @host.reload.coins
+    assert_equal [challenges(:anywhere_medium).id], @host.hand
+    assert_equal "undo", @game.game_events.last.kind
+    assert_raises(Games::Actions::Invalid) { act.undo!(@now + 2.minutes) }
+  end
+
+  test "undo is refused once the villain has touched the area" do
+    give(@host, :anywhere_easy, area: "Adventureland")
+    act.complete!(challenges(:anywhere_easy).id, @now)
+    Games::VillainEngine.new(@game).add_influence("Adventureland", 1, @now)
+
+    error = assert_raises(Games::Actions::Invalid) { act.undo!(@now) }
+    assert_match "changed", error.message
+  end
+
+  test "undo can take back a winning claim" do
+    @game.area_states.each { _1.update!(owner: "players", locked: true, influence: 0) }
+    set_area(@game, "Adventureland", locked: false)
+    give(@host, :anywhere_medium, area: "Adventureland")
+    act.complete!(challenges(:anywhere_medium).id, @now)
+    assert @game.reload.finished?
+
+    act.undo!(@now)
+    @game.reload
+    assert @game.active?
+    assert_nil @game.result
+    refute @game.area("Adventureland").locked?
+    assert @game.next_tick_at.present?
+  end
+
+  test "undo restores a failed card" do
+    give(@host, :anywhere_easy, area: "Adventureland")
+    act.fail!(challenges(:anywhere_easy).id, @now)
+    act.undo!(@now)
+
+    assert_equal [challenges(:anywhere_easy).id], @host.reload.hand
+  end
+end

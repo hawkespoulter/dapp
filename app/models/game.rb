@@ -85,7 +85,7 @@ class Game < ApplicationRecord
   end
 
   def log!(kind, message, at: Time.current, player: nil, **data)
-    game_events.create!(kind:, message:, player:, data:, occurred_at: at)
+    game_events.create!(kind:, message:, player:, data: data.deep_stringify_keys, occurred_at: at)
   end
 
   # Plays every villain turn that has come due, then ends the game if time is up.
@@ -130,12 +130,17 @@ class Game < ApplicationRecord
       villain: villain,
       areas: board.areas.map { |name| area(name).as_json.merge(neighbors: board.neighbors(name)) },
       players:,
-      me: player && player.as_json.merge(hand: player.hand_challenges),
+      me: player && player.as_json.merge(hand: player.hand_challenges, undo: undoable_message(player)),
       events: game_events.last(40).reverse,
     }
   end
 
   private
+
+  def undoable_message(player)
+    event = game_events.where(player_id: player.id, kind: %w[claimed locked failed]).last
+    event.message if event&.data&.dig("undo") && !event.data["undone"]
+  end
 
   def park_is_playable
     errors.add(:park, "doesn't have a villain yet") unless self.class.playable_parks.include?(park)

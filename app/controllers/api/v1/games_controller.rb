@@ -62,6 +62,12 @@ class Api::V1::GamesController < ApplicationController
     render_state
   end
 
+  # POST /games/:code/undo
+  def undo
+    actions.undo!
+    render_state
+  end
+
   private
 
   def set_game
