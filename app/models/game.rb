@@ -128,7 +128,7 @@ class Game < ApplicationRecord
         villain_cards_left: villain_draw.size, windows: rules["windows"] || [],
       },
       villain: villain,
-      areas: board.areas.map { |name| area(name).as_json.merge(neighbors: board.neighbors(name)) },
+      areas: board.areas.map { |name| area(name).as_json.merge(neighbors: board.neighbors(name), min_difficulty: villain.min_difficulty(name)) },
       players:,
       me: player && player.as_json.merge(hand: player.hand_challenges, undo: undoable_message(player)),
       events: game_events.last(40).reverse,

@@ -1,5 +1,6 @@
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import FlagIcon from '@mui/icons-material/Flag';
 import { Link } from "react-router-dom";
 
 function Navbar() {
@@ -10,6 +11,9 @@ function Navbar() {
       </Link>
       <Link to="/dateNight">
         <FavoriteIcon />
+      </Link>
+      <Link to="/game">
+        <FlagIcon />
       </Link>
       <Link to="/attractions">Rides</Link>
       <Link to="/shows">Shows</Link>

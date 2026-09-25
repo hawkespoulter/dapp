@@ -5,6 +5,10 @@ module Villains
   class Base
     class_attribute :key, :display_name, :park, :lair, :tagline, :rules_text
 
+    def self.as_json(*)
+      { key:, name: display_name, park:, lair:, tagline:, rules: rules_text }
+    end
+
     attr_reader :game
 
     def initialize(game)
@@ -32,7 +36,7 @@ module Villains
     def on_escalation(_at); end
 
     def as_json(*)
-      { key:, name: display_name, park:, lair:, tagline:, rules: rules_text }
+      self.class.as_json
     end
   end
 end

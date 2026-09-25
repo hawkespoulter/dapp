@@ -7,6 +7,8 @@ import Restaurants from "./pages/Restaurants.jsx";
 import Shows from "./pages/Shows.jsx";
 import DateGenerator from "./pages/DateGenerator.jsx";
 import Info from "./pages/Info.jsx";
+import GameHome from "./game/GameHome.jsx";
+import GameRoom from "./game/GameRoom.jsx";
 
 function AppRoutes() {
   return (
@@ -29,6 +31,8 @@ function AppRoutes() {
       <Route exact path="/map/islandsOfAdventure" element={<Map park="Islands Of Adventure" />} />
       <Route exact path="/dateNight" element={<DateGenerator />} />
       <Route exact path="/info" element={<Info />} />
+      <Route exact path="/game" element={<GameHome />} />
+      <Route exact path="/game/:code" element={<GameRoom />} />
     </Routes>
   );
 }
