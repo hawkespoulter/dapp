@@ -19,6 +19,8 @@ Rails.application.routes.draw do
           post :complete
           post :fail, action: :fail_challenge
           post :undo
+          post :buy
+          post :place
         end
       end
     end

@@ -6,11 +6,11 @@ module Villains
     self.lair = "Fantasyland"
     self.tagline = "Mistress of All Evil"
     self.rules_text = [
-      "Thorn Wall: while she holds Fantasyland, challenges in the areas next to it must be difficulty 2 or higher.",
+      "Thorn Wall: while she holds Fantasyland, each step of influence in the areas next to it costs 2.",
       "Dragon Form: from her second Villain Rising on, outbreaks spread 2 influence instead of 1.",
     ]
 
-    def min_difficulty(area)
+    def placement_cost(area)
       thorn_wall?(area) ? 2 : 1
     end
 

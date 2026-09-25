@@ -17,19 +17,22 @@ module Villains
 
     STARTING_STRENGTH = 2
 
-    # Called once when the game starts: splits the park between the players
-    # and the villain as set in config/game/parks.yml.
+    # Called once when the game starts: splits the park at random. The villain
+    # spreads out from her lair to half the park, the players spread from the
+    # far side over the other half, and any odd area left over starts
+    # unclaimed.
     def setup!(at)
+      split = random_split
       game.area_states.each do |state|
-        owner = game.board.starting_owner(state.area)
-        state.update!(owner:, influence: owner == "villain" ? STARTING_STRENGTH : 0, locked: false)
+        owner = split.fetch(state.area, "neutral")
+        state.update!(owner:, influence: owner == "villain" ? STARTING_STRENGTH : 0, claim: 0, locked: false)
       end
       held = game.area_states.select(&:villain?).map(&:area)
       game.log!("villain", "#{display_name} rises from #{lair} and holds #{held.to_sentence}.", at:)
     end
 
-    # Lowest challenge difficulty that counts in this area.
-    def min_difficulty(_area)
+    # Influence it takes to move this area's meter one step.
+    def placement_cost(_area)
       1
     end
 
@@ -44,6 +47,28 @@ module Villains
 
     def as_json(*)
       self.class.as_json
+    end
+
+    private
+
+    def random_split
+      board = game.board
+      half = board.areas.size / 2
+      owners = {}
+      grow = lambda do |owner, seed|
+        owners[seed] = owner
+        while owners.count { _2 == owner } < half
+          mine = owners.select { _2 == owner }.keys
+          frontier = mine.flat_map { board.neighbors(_1) }.uniq - owners.keys
+          frontier = board.areas - owners.keys if frontier.empty?
+          owners[frontier.sample(random: game.rng)] = owner
+        end
+      end
+      grow.call("villain", lair)
+      open = board.areas - owners.keys
+      far = open.map { board.distance(lair, _1) }.max
+      grow.call("players", open.select { board.distance(lair, _1) == far }.sample(random: game.rng))
+      owners
     end
   end
 end

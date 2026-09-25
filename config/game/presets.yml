@@ -1,16 +1,19 @@
-# Game length presets. tick_minutes is how often the villain acts.
+# Game length presets. tick_minutes is how often the villain acts;
+# influence_price is how many coins one influence costs.
 sprint:
   label: Sprint (2-4 hours)
   hours: 3
-  tick_minutes: 15
+  tick_minutes: 20
   hand_size: 2
+  influence_price: 1
   risings: 2
   outbreak_limit: 4
 full_day:
   label: Full Day
   hours: 10
-  tick_minutes: 27
+  tick_minutes: 35
   hand_size: 3
+  influence_price: 1
   risings: 4
   outbreak_limit: 6
 multi_day:
@@ -20,5 +23,6 @@ multi_day:
   day_end: "21:00"
   tick_minutes: 40
   hand_size: 3
+  influence_price: 1
   risings: 6
   outbreak_limit: 8

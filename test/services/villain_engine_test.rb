@@ -10,17 +10,34 @@ class VillainEngineTest < ActiveSupport::TestCase
     @now = @game.started_at
   end
 
-  test "starting splits the park between the players and the villain" do
-    owners = @game.area_states.to_h { [_1.area, [_1.owner, _1.influence]] }
-    assert_equal ["villain", 2], owners["Fantasyland"]
-    assert_equal ["villain", 2], owners["Liberty Square"]
-    assert_equal ["villain", 2], owners["Tomorrowland"]
-    assert_equal ["players", 0], owners["Main Street, U.S.A."]
-    assert_equal ["players", 0], owners["Adventureland"]
-    assert_equal ["players", 0], owners["Frontierland"]
+  test "starting splits the park in half, with the villain spreading from her lair" do
+    villain = @game.area_states.select(&:villain?)
+    players = @game.area_states.select(&:players?)
+
+    assert_equal 3, villain.size
+    assert_equal 3, players.size
+    assert_includes villain.map(&:area), "Fantasyland"
+    assert villain.all? { _1.influence == 2 }
+    assert players.all? { _1.influence.zero? }
+    villain.each do |state|
+      next if state.area == "Fantasyland"
+
+      assert @game.board.neighbors(state.area).any? { @game.area(_1).villain? }, "#{state.area} should touch her other areas"
+    end
+  end
+
+  test "the starting split changes from game to game" do
+    splits = 8.times.map do |seed|
+      game, = start_game(seed:)
+      game.area_states.select(&:villain?).map(&:area).sort
+    end
+    assert splits.uniq.size > 1
   end
 
   test "drawing a villain area strengthens it, and only full strength outbreaks" do
+    neutral_board!(@game)
+    set_area(@game, "Tomorrowland", owner: "villain", influence: 2)
+    set_area(@game, "Fantasyland", owner: "villain", influence: 2)
     @engine.add_influence("Tomorrowland", 1, @now)
     assert_equal 3, @game.area("Tomorrowland").influence
     assert_equal 0, @game.outbreaks
@@ -100,6 +117,8 @@ class VillainEngineTest < ActiveSupport::TestCase
   end
 
   test "the villain taking the whole park loses the game" do
+    @game.area_states.each { _1.update!(owner: "villain", influence: 2) }
+    set_area(@game, "Frontierland", owner: "players", influence: 0)
     %w[Main\ Street,\ U.S.A. Adventureland].each { set_area(@game, _1, owner: "villain", influence: 3) }
     @engine.add_influence("Frontierland", 2, @now)
     assert @game.active?

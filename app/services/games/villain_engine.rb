@@ -57,6 +57,9 @@ module Games
 
     def add_influence(name, amount, at, from_outbreak: false)
       state = game.area(name)
+      amount = push_back_claim(state, amount, at)
+      return if amount.zero?
+
       if state.villain? && state.influence >= AreaState::MAX_INFLUENCE
         outbreak(name, at) unless from_outbreak
       elsif state.villain?
@@ -78,10 +81,11 @@ module Games
       theirs = states.count(&:villain?)
       share = ours.to_f / states.size
 
+      # The park starts split evenly, so holding your ground is a bronze.
       result =
-        if ours <= theirs then "lost"
+        if ours < theirs then "lost"
         elsif share >= 0.75 then "gold"
-        elsif share >= 0.5 then "silver"
+        elsif ours > theirs then "silver"
         else "bronze"
         end
       finish!(result, "Time's up! You hold #{ours} of #{states.size} areas; #{villain.display_name} holds #{theirs}.", at)
@@ -108,6 +112,17 @@ module Games
         game.villain_discard = game.villain_discard + [card]
         add_influence(card.delete_prefix("area:"), 1, at)
       end
+    end
+
+    # The villain's influence eats into a claim or lock the players are
+    # building before it adds any of its own. Returns what's left over.
+    def push_back_claim(state, amount, at)
+      return amount unless state.claim.positive? && !state.locked?
+
+      pushed = [amount, state.claim].min
+      state.update!(claim: state.claim - pushed)
+      game.log!("influence", "#{villain.display_name} pushes back your influence in #{state.area}.", at:, area: state.area)
+      amount - pushed
     end
 
     def reshuffle_discard(at)

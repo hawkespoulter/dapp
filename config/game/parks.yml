@@ -2,8 +2,8 @@
 # overlay images.
 #   adjacency: which areas border each other (symmetric; list each pair once
 #              or both ways)
-#   start:     who owns what when the game begins. Areas not listed start
-#              neutral. Villain areas start at strength 2.
+# Each game splits the park at random: the villain spreads from her lair to
+# half the park and the players get the rest.
 Magic Kingdom:
   adjacency:
     "Main Street, U.S.A.": [Adventureland, Liberty Square, Fantasyland, Tomorrowland]
@@ -12,6 +12,3 @@ Magic Kingdom:
     Liberty Square: ["Main Street, U.S.A.", Adventureland, Frontierland, Fantasyland]
     Fantasyland: ["Main Street, U.S.A.", Liberty Square, Tomorrowland]
     Tomorrowland: ["Main Street, U.S.A.", Fantasyland]
-  start:
-    players: ["Main Street, U.S.A.", Adventureland, Frontierland]
-    villain: [Fantasyland, Liberty Square, Tomorrowland]

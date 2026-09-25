@@ -46,13 +46,25 @@ class Api::V1::GamesController < ApplicationController
 
   # POST /games/:code/complete
   def complete
-    actions.complete!(params.require(:challenge_id), params[:area])
+    actions.complete!(params.require(:challenge_id))
     render_state
   end
 
   # POST /games/:code/fail
   def fail_challenge
     actions.fail!(params.require(:challenge_id))
+    render_state
+  end
+
+  # POST /games/:code/buy
+  def buy
+    actions.buy_influence!(params.require(:count))
+    render_state
+  end
+
+  # POST /games/:code/place
+  def place
+    actions.place_influence!(params.require(:area), params.require(:count))
     render_state
   end
 

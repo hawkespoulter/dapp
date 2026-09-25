@@ -8,14 +8,13 @@ class ParkBoard
   def self.for(park)
     raise ArgumentError, "No board for #{park}" unless config.key?(park)
 
-    new(park, config[park]["adjacency"], config[park].fetch("start", {}))
+    new(park, config[park]["adjacency"])
   end
 
   attr_reader :park
 
-  def initialize(park, adjacency, start = {})
+  def initialize(park, adjacency)
     @park = park
-    @start = start
     @neighbors = Hash.new { |h, k| h[k] = [] }
     adjacency.each do |area, list|
       list.each do |other|
@@ -37,8 +36,21 @@ class ParkBoard
     neighbors(a).include?(b)
   end
 
-  # "players", "villain" or "neutral" for an area at the start of a game.
-  def starting_owner(area)
-    %w[players villain].find { @start.fetch(_1, []).include?(area) } || "neutral"
+  # Number of steps between two areas.
+  def distance(from, to)
+    seen = { from => 0 }
+    queue = [from]
+    until queue.empty?
+      area = queue.shift
+      return seen[area] if area == to
+
+      neighbors(area).each do |n|
+        next if seen.key?(n)
+
+        seen[n] = seen[area] + 1
+        queue << n
+      end
+    end
+    Float::INFINITY
   end
 end

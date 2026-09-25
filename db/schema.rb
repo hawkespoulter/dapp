@@ -16,6 +16,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_25_000001) do
     t.string "area", null: false
     t.string "owner", default: "neutral", null: false
     t.integer "influence", default: 0, null: false
+    t.integer "claim", default: 0, null: false
     t.boolean "locked", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -73,6 +74,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_25_000001) do
     t.integer "tick_count", default: 0, null: false
     t.integer "escalation", default: 0, null: false
     t.integer "outbreaks", default: 0, null: false
+    t.integer "coins", default: 0, null: false
+    t.integer "influence_stash", default: 0, null: false
     t.json "villain_draw", default: [], null: false
     t.json "villain_discard", default: [], null: false
     t.json "challenge_discard", default: [], null: false

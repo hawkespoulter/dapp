@@ -71,6 +71,10 @@ class Game < ApplicationRecord
     settings["outbreak_limit"]
   end
 
+  def influence_price
+    settings["influence_price"]
+  end
+
   def area(name)
     areas_by_name.fetch(name) { raise ArgumentError, "#{name} is not in #{park}" }
   end
@@ -125,10 +129,12 @@ class Game < ApplicationRecord
         started_at:, ends_at:, next_tick_at:, server_time: Time.current,
         tick_minutes: settings["tick_minutes"], hand_size:,
         escalation:, outbreaks:, outbreak_limit:, villain_rate: Games::VillainEngine.rate_for(escalation),
+        coins:, influence_stash:, influence_price:,
+        claim_cost: AreaState::CLAIM_COST, lock_cost: AreaState::LOCK_COST, max_influence: AreaState::MAX_INFLUENCE,
         villain_cards_left: villain_draw.size, windows: rules["windows"] || [],
       },
       villain: villain,
-      areas: board.areas.map { |name| area(name).as_json.merge(neighbors: board.neighbors(name), min_difficulty: villain.min_difficulty(name)) },
+      areas: board.areas.map { |name| area(name).as_json.merge(neighbors: board.neighbors(name), placement_cost: villain.placement_cost(name)) },
       players:,
       me: player && player.as_json.merge(hand: player.hand_challenges, undo: undoable_message(player)),
       events: game_events.last(40).reverse,
@@ -138,7 +144,7 @@ class Game < ApplicationRecord
   private
 
   def undoable_message(player)
-    event = game_events.where(player_id: player.id, kind: %w[claimed locked failed]).last
+    event = game_events.where(player_id: player.id, kind: Games::Actions::UNDOABLE).last
     event.message if event&.data&.dig("undo") && !event.data["undone"]
   end
 

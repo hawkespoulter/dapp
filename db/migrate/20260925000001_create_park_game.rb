@@ -13,6 +13,8 @@ class CreateParkGame < ActiveRecord::Migration[7.1]
       t.integer :tick_count, null: false, default: 0
       t.integer :escalation, null: false, default: 0
       t.integer :outbreaks, null: false, default: 0
+      t.integer :coins, null: false, default: 0
+      t.integer :influence_stash, null: false, default: 0
       t.json :villain_draw, null: false, default: []
       t.json :villain_discard, null: false, default: []
       t.json :challenge_discard, null: false, default: []
@@ -37,6 +39,7 @@ class CreateParkGame < ActiveRecord::Migration[7.1]
       t.string :area, null: false
       t.string :owner, null: false, default: "neutral"
       t.integer :influence, null: false, default: 0
+      t.integer :claim, null: false, default: 0
       t.boolean :locked, null: false, default: false
       t.timestamps
     end

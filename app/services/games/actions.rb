@@ -1,9 +1,14 @@
 # Everything a player can do to a game. Each action takes the game's row lock
 # and first plays any villain turns that came due, so phones acting at the
 # same moment see one consistent order of events.
+#
+# Challenges pay coins into a team pool. Coins buy influence into a team
+# stash, and placing influence on an area pushes it toward the players.
 module Games
   class Actions
     class Invalid < StandardError; end
+
+    UNDOABLE = %w[completed failed bought placed].freeze
 
     def self.create!(park:, preset:, host_name:, rules: {})
       villain = Villains.for_park(park) or raise Invalid, "#{park} doesn't have a villain yet"
@@ -56,95 +61,121 @@ module Games
       end
     end
 
-    # Area cards count in their own area; "anywhere" cards count in the area
-    # the player picked on the map.
-    def complete!(challenge_id, area = nil, now = Time.current)
+    # Challenges can be done anywhere. They pay coins into the team pool.
+    def complete!(challenge_id, now = Time.current)
       locked(now, playing: true) do
         challenge = playable(challenge_id)
-        target = challenge.area || area
-        raise Invalid, "Pick an area on the map first" if target.blank?
-        raise Invalid, "#{target} is not in #{game.park}" unless game.board.areas.include?(target)
-
-        state = game.area(target)
-        check_rules!(challenge, state)
-
-        before = snapshot(state)
-        claimed_from = state.owner
-        if state.players? && state.influence.zero?
-          state.update!(locked: true)
-          kind = "locked"
-          message = "#{me.name} locked #{state.area} with \"#{challenge.title}\"."
-        else
-          influence = [state.influence - challenge.difficulty, 0].max
-          state.update!(influence:, owner: influence.zero? ? "players" : state.owner)
-          kind = "claimed"
-          message =
-            if !state.players? then "#{me.name} weakened #{game.villain.display_name} in #{state.area} with \"#{challenge.title}\" (#{influence} influence left)."
-            elsif claimed_from == "players" then "#{me.name} cleared #{game.villain.display_name}'s influence from #{state.area}."
-            elsif claimed_from == "villain" then "#{me.name} took #{state.area} back from #{game.villain.display_name}!"
-            else "#{me.name} claimed #{state.area} with \"#{challenge.title}\"!"
-            end
-        end
-
-        me.coins += challenge.difficulty
-        drawn = replace_card(challenge)
-        next_tick_at = game.next_tick_at
-        event = game.log!(kind, message, at: now, player: me, area: state.area, undo: {
-          "challenge_id" => challenge.id, "drawn" => drawn, "coins" => challenge.difficulty,
-          "area" => state.area, "before" => before, "after" => snapshot(state),
-        })
-        VillainEngine.new(game).check_player_win!(now)
-        if game.finished?
-          event.data["undo"].merge!("won" => true, "next_tick_at" => next_tick_at)
-          event.save!
-        end
-        game.save!
+        coins = challenge.difficulty
+        game.coins += coins
+        me.coins += coins
+        hand_before = me.hand
+        replace_card(challenge)
+        record("completed", "#{me.name} completed \"#{challenge.title}\" (+#{coins} coins).", now,
+               "coins" => coins, "earned" => coins, "hand" => [hand_before, me.hand], "discard" => challenge.id)
       end
     end
 
     def fail!(challenge_id, now = Time.current)
       locked(now, playing: true) do
         challenge = playable(challenge_id)
-        drawn = replace_card(challenge)
-        undo = game.rules["villain_on_fail"] ? nil : { "challenge_id" => challenge.id, "drawn" => drawn, "coins" => 0 }
-        game.log!("failed", "#{me.name} failed \"#{challenge.title}\".", at: now, player: me, undo:)
-        VillainEngine.new(game).handle(:challenge_failed, at: now)
-        game.save!
+        hand_before = me.hand
+        replace_card(challenge)
+        message = "#{me.name} failed \"#{challenge.title}\"."
+        if game.rules["villain_on_fail"]
+          me.save!
+          game.log!("failed", message, at: now, player: me)
+          VillainEngine.new(game).handle(:challenge_failed, at: now)
+          game.save!
+        else
+          record("failed", message, now, "hand" => [hand_before, me.hand], "discard" => challenge.id)
+        end
       end
     end
 
-    # Reverses the player's most recent completed or failed challenge, as long
-    # as nothing has touched that area since.
+    # Turns team coins into influence in the team stash.
+    def buy_influence!(count, now = Time.current)
+      locked(now, playing: true) do
+        count = count.to_i
+        cost = count * game.influence_price
+        raise Invalid, "Buy at least 1 influence" if count < 1
+        raise Invalid, "That costs #{cost} coins and the team has #{game.coins}" if cost > game.coins
+
+        game.coins -= cost
+        game.influence_stash += count
+        record("bought", "#{me.name} bought #{count} influence for #{cost} coins.", now,
+               "coins" => -cost, "stash" => count)
+      end
+    end
+
+    # Spends influence from the stash to push an area's meter toward the
+    # players. Stops early, keeping the rest, once the area is locked.
+    def place_influence!(area, count, now = Time.current)
+      locked(now, playing: true) do
+        count = count.to_i
+        raise Invalid, "#{area} is not in #{game.park}" unless game.board.areas.include?(area)
+        raise Invalid, "Place at least 1 influence" if count < 1
+        raise Invalid, "The team only has #{game.influence_stash} influence" if count > game.influence_stash
+
+        state = game.area(area)
+        raise Invalid, "#{area} is already locked" if state.players? && state.locked?
+        if state.villain? && game.board.neighbors(area).none? { game.area(_1).players? }
+          raise Invalid, "To attack #{area} you need to hold an area next to it"
+        end
+
+        step_cost = game.villain.placement_cost(area)
+        if count < step_cost
+          raise Invalid, "#{game.villain.display_name}'s Thorn Wall: each step in #{area} costs #{step_cost} influence"
+        end
+
+        before = snapshot(state)
+        spent = 0
+        while spent + step_cost <= count && !(state.players? && state.locked?)
+          push_toward_players(state)
+          spent += step_cost
+        end
+        state.save!
+        game.influence_stash -= spent
+
+        record("placed", placement_message(state, before, spent), now,
+               "stash" => -spent, "areas" => { area => [before, snapshot(state)] })
+      end
+    end
+
+    # Reverses the player's most recent challenge, purchase or placement, as
+    # long as nothing has changed the areas it touched and the team hasn't
+    # already spent what it gained.
     def undo!(now = Time.current)
       locked(now) do
-        event = game.game_events.where(player_id: me.id, kind: %w[claimed locked failed]).last
+        event = game.game_events.where(player_id: me.id, kind: UNDOABLE).last
         undo = event&.data&.dig("undo")
         raise Invalid, "Nothing to undo" if undo.nil? || event.data["undone"]
 
         if undo["won"]
           raise Invalid, "The game is over" if now >= game.ends_at
-
-          game.status = "active"
-          game.result = nil
-          game.next_tick_at = Time.zone.parse(undo["next_tick_at"].to_s)
-          game.game_events.where(kind: "finished").where("id > ?", event.id).destroy_all
         elsif !game.active?
           raise Invalid, "The game isn't running"
         end
 
-        if undo["area"]
-          state = game.area(undo["area"])
-          unless snapshot(state) == undo["after"]
-            raise Invalid, "#{state.area} has changed since then, so this can't be undone"
-          end
-
-          state.update!(undo["before"])
+        areas = undo.fetch("areas", {})
+        areas.each do |name, (_before, after)|
+          raise Invalid, "#{name} has changed since then, so this can't be undone" unless snapshot(game.area(name)) == after
         end
+        raise Invalid, "The team has already spent those coins" if game.coins < undo.fetch("coins", 0)
+        raise Invalid, "The team has already placed that influence" if game.influence_stash < undo.fetch("stash", 0)
 
-        me.coins -= undo["coins"]
-        me.hand = me.hand - undo["drawn"] + [undo["challenge_id"]]
+        if undo["won"]
+          game.status = "active"
+          game.result = nil
+          game.next_tick_at = Time.zone.parse(undo["next_tick_at"].to_s)
+          game.game_events.where(kind: "finished").where("id > ?", event.id).destroy_all
+        end
+        areas.each { |name, (before, _after)| game.area(name).update!(before) }
+        game.coins -= undo.fetch("coins", 0)
+        game.influence_stash -= undo.fetch("stash", 0)
+        me.coins -= undo.fetch("earned", 0)
+        me.hand = undo["hand"].first if undo["hand"]
         me.save!
-        game.challenge_discard = game.challenge_discard - [undo["challenge_id"]]
+        game.challenge_discard = game.challenge_discard - [undo["discard"]] if undo["discard"]
         event.update!(data: event.data.merge("undone" => true))
         game.log!("undo", "#{me.name} undid: #{event.message}", at: now, player: me)
         game.save!
@@ -176,35 +207,59 @@ module Games
       Challenge.find(challenge_id)
     end
 
-    def check_rules!(challenge, state)
-      area = state.area
-      villain = game.villain
-      if challenge.difficulty < villain.min_difficulty(area)
-        raise Invalid, "#{villain.display_name} requires a difficulty #{villain.min_difficulty(area)}+ challenge in #{area}"
-      end
-      if state.villain? && game.board.neighbors(area).none? { game.area(_1).players? }
-        raise Invalid, "To attack #{area} you need to hold an area next to it"
-      end
-      if state.players? && state.locked?
-        raise Invalid, "#{area} is already locked"
-      end
-      if state.players? && state.influence.zero? && challenge.difficulty < 2
-        raise Invalid, "Locking #{area} takes a difficulty 2+ challenge"
+    # One step of the tug-of-war: wear down the villain's strength or
+    # influence first, then build a claim (unclaimed area) or a lock (ours).
+    def push_toward_players(state)
+      if state.influence.positive?
+        state.influence -= 1
+        state.owner = "neutral" if state.villain? && state.influence.zero?
+      elsif state.neutral?
+        state.claim += 1
+        state.assign_attributes(owner: "players", claim: 0) if state.claim >= AreaState::CLAIM_COST
+      else
+        state.claim += 1
+        state.assign_attributes(locked: true, claim: 0) if state.claim >= AreaState::LOCK_COST
       end
     end
 
-    # Swaps a played card for a new one and returns the new card's ids.
+    def placement_message(state, before, spent)
+      villain = game.villain.display_name
+      max = AreaState::MAX_INFLUENCE
+      from = before["owner"]
+      result =
+        if state.players? && state.locked? then "and locked it"
+        elsif state.players? && from != "players" then "and claimed it!"
+        elsif state.neutral? && from == "villain" then "and drove #{villain} out"
+        elsif before["influence"].positive? && state.influence.zero? && state.claim.zero? then "and cleared #{villain}'s influence"
+        elsif state.villain? then "(#{villain}'s strength #{state.influence}/#{max})"
+        elsif state.influence.positive? then "(#{villain}'s influence #{state.influence}/#{max})"
+        elsif state.players? then "(lock #{state.claim}/#{AreaState::LOCK_COST})"
+        else "(claim #{state.claim}/#{AreaState::CLAIM_COST})"
+        end
+      "#{me.name} placed #{spent} influence in #{state.area} #{result}"
+    end
+
+    # Logs an undoable action and ends the game if the players just won.
+    def record(kind, message, now, undo)
+      next_tick_at = game.next_tick_at
+      event = game.log!(kind, message, at: now, player: me, undo:)
+      VillainEngine.new(game).check_player_win!(now)
+      if game.finished?
+        event.data["undo"].merge!("won" => true, "next_tick_at" => next_tick_at)
+        event.save!
+      end
+      me.save!
+      game.save!
+    end
+
+    # Swaps a played card for a new one.
     def replace_card(challenge)
       game.discard_challenge(challenge.id)
-      me.hand = me.hand - [challenge.id]
-      drawn = game.draw_challenges(1)
-      me.hand = me.hand + drawn
-      me.save!
-      drawn
+      me.hand = me.hand - [challenge.id] + game.draw_challenges(1)
     end
 
     def snapshot(state)
-      { "owner" => state.owner, "influence" => state.influence, "locked" => state.locked }
+      { "owner" => state.owner, "influence" => state.influence, "claim" => state.claim, "locked" => state.locked }
     end
 
     def windows_from(now)
