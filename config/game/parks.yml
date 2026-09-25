@@ -1,0 +1,9 @@
+# Area adjacency for the park game. Names must match PARK_AREAS / the map
+# overlay images. Adjacency is symmetric; list each pair once or both ways.
+Magic Kingdom:
+  "Main Street, U.S.A.": [Adventureland, Liberty Square, Fantasyland, Tomorrowland]
+  Adventureland: ["Main Street, U.S.A.", Frontierland, Liberty Square]
+  Frontierland: [Adventureland, Liberty Square]
+  Liberty Square: ["Main Street, U.S.A.", Adventureland, Frontierland, Fantasyland]
+  Fantasyland: ["Main Street, U.S.A.", Liberty Square, Tomorrowland]
+  Tomorrowland: ["Main Street, U.S.A.", Fantasyland]

@@ -1795,3 +1795,5 @@ Restaurant.create!([
 p "Created #{Attraction.count} Attractions"
 p "Created #{Show.count} Shows"
 p "Created #{Restaurant.count} Restaurants"
+Challenge.sync!
+p "Created #{Challenge.count} park game challenges"

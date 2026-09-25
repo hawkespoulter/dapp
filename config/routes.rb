@@ -10,6 +10,17 @@ Rails.application.routes.draw do
       resources :attractions
       resources :restaurants
       resources :shows
+
+      get '/game_parks', to: 'games#parks'
+      resources :games, only: %i[ create show ], param: :code do
+        member do
+          post :join
+          post :start
+          patch :move
+          post :complete
+          post :fail, action: :fail_challenge
+        end
+      end
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
