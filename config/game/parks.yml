@@ -1,9 +1,17 @@
-# Area adjacency for the park game. Names must match PARK_AREAS / the map
-# overlay images. Adjacency is symmetric; list each pair once or both ways.
+# Park boards for the park game. Area names must match PARK_AREAS / the map
+# overlay images.
+#   adjacency: which areas border each other (symmetric; list each pair once
+#              or both ways)
+#   start:     who owns what when the game begins. Areas not listed start
+#              neutral. Villain areas start at strength 2.
 Magic Kingdom:
-  "Main Street, U.S.A.": [Adventureland, Liberty Square, Fantasyland, Tomorrowland]
-  Adventureland: ["Main Street, U.S.A.", Frontierland, Liberty Square]
-  Frontierland: [Adventureland, Liberty Square]
-  Liberty Square: ["Main Street, U.S.A.", Adventureland, Frontierland, Fantasyland]
-  Fantasyland: ["Main Street, U.S.A.", Liberty Square, Tomorrowland]
-  Tomorrowland: ["Main Street, U.S.A.", Fantasyland]
+  adjacency:
+    "Main Street, U.S.A.": [Adventureland, Liberty Square, Fantasyland, Tomorrowland]
+    Adventureland: ["Main Street, U.S.A.", Frontierland, Liberty Square]
+    Frontierland: [Adventureland, Liberty Square]
+    Liberty Square: ["Main Street, U.S.A.", Adventureland, Frontierland, Fantasyland]
+    Fantasyland: ["Main Street, U.S.A.", Liberty Square, Tomorrowland]
+    Tomorrowland: ["Main Street, U.S.A.", Fantasyland]
+  start:
+    players: ["Main Street, U.S.A.", Adventureland, Frontierland]
+    villain: [Fantasyland, Liberty Square, Tomorrowland]

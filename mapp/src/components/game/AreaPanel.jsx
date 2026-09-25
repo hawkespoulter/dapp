@@ -21,7 +21,7 @@ function AreaPanel({ area, here, busy, onMoveHere, villainName }) {
           {area.locked && <LockIcon sx={{ fontSize: 14 }} className="text-amber-300" />}
         </div>
         <p className="text-xs text-slate-400">
-          Influence {area.influence}/3
+          {area.owner === "villain" ? "Strength" : "Influence"} {area.influence}/3
           {area.min_difficulty > 1 && ` · needs ${area.min_difficulty}★+`}
           {" · next to "}
           {area.neighbors.map((n) => n.replace(", U.S.A.", "")).join(", ")}

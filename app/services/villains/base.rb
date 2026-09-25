@@ -15,10 +15,17 @@ module Villains
       @game = game
     end
 
-    # Called once when the game starts.
+    STARTING_STRENGTH = 2
+
+    # Called once when the game starts: splits the park between the players
+    # and the villain as set in config/game/parks.yml.
     def setup!(at)
-      game.area(lair).update!(influence: 2)
-      game.log!("villain", "#{display_name} awakens in #{lair}.", at:)
+      game.area_states.each do |state|
+        owner = game.board.starting_owner(state.area)
+        state.update!(owner:, influence: owner == "villain" ? STARTING_STRENGTH : 0, locked: false)
+      end
+      held = game.area_states.select(&:villain?).map(&:area)
+      game.log!("villain", "#{display_name} rises from #{lair} and holds #{held.to_sentence}.", at:)
     end
 
     # Lowest challenge difficulty that counts in this area.

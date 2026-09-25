@@ -7,6 +7,7 @@ class GameActionsTest < ActiveSupport::TestCase
   setup do
     @game, @host = start_game
     @game.update!(villain_draw: []) # keep the villain quiet unless a test wants it
+    neutral_board!(@game)
     @now = @game.started_at + 1.minute
   end
 
@@ -86,7 +87,7 @@ class GameActionsTest < ActiveSupport::TestCase
   test "villain turns that came due are played before a player's action" do
     @game.update!(villain_draw: Array.new(5) { "area:Adventureland" })
     give(@host, :anywhere_easy, area: "Tomorrowland")
-    act.complete!(challenges(:anywhere_easy).id, @game.started_at + 31.minutes)
+    act.complete!(challenges(:anywhere_easy).id, @game.started_at + @game.tick_seconds + 60)
 
     assert_equal 1, @game.reload.tick_count
     assert_equal 1, @game.area("Adventureland").influence
@@ -126,6 +127,7 @@ class GameUndoTest < ActiveSupport::TestCase
   setup do
     @game, @host = start_game
     @game.update!(villain_draw: [])
+    neutral_board!(@game)
     @now = @game.started_at + 1.minute
   end
 

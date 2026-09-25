@@ -1,10 +1,14 @@
 # The villain's side of the game, modeled on Pandemic's infection deck.
 #
+# The game starts with the park split between the players and the villain.
+# Influence on a villain area is its strength.
+#
 # The villain deck holds two cards per area plus "Villain Rising" cards spread
 # evenly through it. Each villain turn draws `rate` cards:
 #   * area card  -> +1 influence there. At 3 influence the villain takes the area.
-#                   If the villain already owns it, an outbreak spreads influence
-#                   to every neighbor instead.
+#                   A villain area gains strength instead; one already at full
+#                   strength has an outbreak that spreads influence to every
+#                   neighbor.
 #   * rising     -> escalation +1 (more cards per turn), the bottom area card
 #                   gets 3 influence, and the discard pile goes back on top.
 #
@@ -53,8 +57,11 @@ module Games
 
     def add_influence(name, amount, at, from_outbreak: false)
       state = game.area(name)
-      if state.villain?
+      if state.villain? && state.influence >= AreaState::MAX_INFLUENCE
         outbreak(name, at) unless from_outbreak
+      elsif state.villain?
+        state.update!(influence: [state.influence + amount, AreaState::MAX_INFLUENCE].min)
+        game.log!("influence", "#{villain.display_name}'s hold on #{name} grows (#{state.influence}/#{AreaState::MAX_INFLUENCE}).", at:, area: name)
       elsif state.players? && state.locked?
         game.log!("blocked", "#{name} is locked and holds off #{villain.display_name}.", at:, area: name)
       else
@@ -148,14 +155,9 @@ module Games
 
       if game.outbreaks >= game.outbreak_limit
         finish!("lost", "Too many outbreaks. #{villain.display_name} has overrun the park.", at)
-      elsif lair_secured?
-        finish!("lost", "#{villain.display_name} holds #{villain.lair} and its surroundings. The park is lost.", at)
+      elsif game.area_states.all?(&:villain?)
+        finish!("lost", "#{villain.display_name} has taken the whole park.", at)
       end
-    end
-
-    def lair_secured?
-      lair = game.area(villain.lair)
-      lair.villain? && game.board.neighbors(villain.lair).count { game.area(_1).villain? } >= 2
     end
 
     def finish!(result, message, at)

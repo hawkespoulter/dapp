@@ -109,13 +109,13 @@ function GameMap({ park, areas, players, villainKey, selected, onSelect }) {
                 {area.locked && <LockIcon sx={{ fontSize: 10 }} className="text-amber-300" />}
                 {area.area.replace(", U.S.A.", "")}
               </div>
-              {area.owner !== "villain" && area.influence > 0 && (
+              {area.influence > 0 && (
                 <div className="flex gap-0.5">
                   {[0, 1, 2].map((i) => (
                     <span
                       key={i}
                       className="h-2 w-2 rounded-full border border-white/80"
-                      style={{ backgroundColor: i < area.influence ? color : "transparent" }}
+                      style={{ backgroundColor: i < area.influence ? (area.owner === "villain" ? "white" : color) : "transparent" }}
                     />
                   ))}
                 </div>

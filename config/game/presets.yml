@@ -9,7 +9,7 @@ sprint:
 full_day:
   label: Full Day
   hours: 10
-  tick_minutes: 30
+  tick_minutes: 27
   hand_size: 3
   risings: 4
   outbreak_limit: 6

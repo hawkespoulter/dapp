@@ -102,7 +102,7 @@ function GameBoard({ state, refetch }) {
           </div>
         </Section>
       ) : (
-        <p className="px-3 pt-4 text-sm text-slate-400">You&apos;re watching this game. Join it from the game menu to play.</p>
+        <p className="px-3 pt-4 text-sm text-slate-400">You&apos;re watching this game. Join above to play.</p>
       )}
 
       <Section title="Team">
