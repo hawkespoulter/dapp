@@ -120,17 +120,22 @@ function NewGameForm() {
 
 const STATUS_LABELS = { lobby: "Waiting to start", active: "In progress", finished: "Finished" };
 
-// A game this phone joined. Checks with the server and hides itself (and
-// forgets the game) if the game is gone or this phone is no longer in it.
-function SavedGame({ game, onGone }) {
+// A game this phone joined. Checks with the server, reports its status, and
+// forgets the game if it's gone or this phone is no longer in it.
+function SavedGame({ game, showFinished, onStatus, onGone }) {
   const { data, error } = useFetchGameQuery(game.code);
   const gone = error?.status === 404 || (data && !data.me);
+  const status = data?.game.status;
 
   useEffect(() => {
     if (gone) onGone(game.code);
   }, [gone, game.code, onGone]);
 
-  if (gone || !data) return null;
+  useEffect(() => {
+    if (status) onStatus(game.code, status);
+  }, [status, game.code, onStatus]);
+
+  if (gone || !data || (status === "finished" && !showFinished)) return null;
 
   return (
     <li>
@@ -138,9 +143,7 @@ function SavedGame({ game, onGone }) {
         <span className="font-bold tracking-widest">{game.code}</span>
         <span className="text-right text-sm text-slate-400">
           {game.park} · {game.name}
-          <span className={`block text-xs ${data.game.status === "active" ? "text-emerald-400" : ""}`}>
-            {STATUS_LABELS[data.game.status]}
-          </span>
+          <span className={`block text-xs ${status === "active" ? "text-emerald-400" : ""}`}>{STATUS_LABELS[status]}</span>
         </span>
       </Link>
     </li>
@@ -148,12 +151,19 @@ function SavedGame({ game, onGone }) {
 }
 
 function GameHome() {
-  const [saved, setSaved] = useState(() => savedGames().slice(0, 5));
+  const [saved, setSaved] = useState(() => savedGames().slice(0, 20));
+  const [statuses, setStatuses] = useState({});
+  const [showFinished, setShowFinished] = useState(false);
 
   const onGone = useCallback((code) => {
     forgetGame(code);
     setSaved((games) => games.filter((g) => g.code !== code));
   }, []);
+  const onStatus = useCallback((code, status) => setStatuses((all) => ({ ...all, [code]: status })), []);
+
+  const known = saved.map((g) => statuses[g.code]).filter(Boolean);
+  const finished = known.filter((s) => s === "finished").length;
+  const visible = showFinished ? known.length : known.length - finished;
 
   return (
     <div className="flex min-h-screen flex-col gap-4 bg-slate-950 p-4 text-white">
@@ -162,13 +172,20 @@ function GameHome() {
         <p className="text-sm text-slate-400">Claim the park with real-life challenges before the villain does.</p>
       </div>
       {saved.length > 0 && (
-        <div className="rounded-xl bg-slate-800 p-4">
+        // Rendered even while hidden so each saved game can check its status.
+        <div className={`rounded-xl bg-slate-800 p-4 ${visible || finished ? "" : "hidden"}`}>
           <h2 className="mb-2 text-lg font-bold">Your games</h2>
           <ul className="flex flex-col gap-2">
             {saved.map((g) => (
-              <SavedGame key={g.code} game={g} onGone={onGone} />
+              <SavedGame key={g.code} game={g} showFinished={showFinished} onStatus={onStatus} onGone={onGone} />
             ))}
           </ul>
+          {visible === 0 && <p className="text-sm text-slate-400">No games in progress.</p>}
+          {finished > 0 && (
+            <button className="mt-2 text-sm text-sky-400" onClick={() => setShowFinished(!showFinished)}>
+              {showFinished ? "Hide finished games" : `Show finished games (${finished})`}
+            </button>
+          )}
         </div>
       )}
       <NewGameForm />
@@ -180,4 +197,9 @@ function GameHome() {
 export default GameHome;
 
 JoinForm.propTypes = { initialCode: PropTypes.string };
-SavedGame.propTypes = { game: PropTypes.object.isRequired, onGone: PropTypes.func.isRequired };
+SavedGame.propTypes = {
+  game: PropTypes.object.isRequired,
+  showFinished: PropTypes.bool,
+  onStatus: PropTypes.func.isRequired,
+  onGone: PropTypes.func.isRequired,
+};
