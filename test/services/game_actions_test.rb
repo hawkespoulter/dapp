@@ -147,7 +147,8 @@ class GameActionsTest < ActiveSupport::TestCase
 
     assert_equal 3, windows.size
     assert_equal [Time.zone.parse("2026-10-01 20:30"), Time.zone.parse("2026-10-01 21:00")], windows.first
-    assert_equal Time.zone.parse("2026-10-02 09:10"), game.next_tick_at
+    # 30 minutes of the tick are used up on day one; the rest runs from 9am.
+    assert_equal Time.zone.parse("2026-10-02 09:00") + game.tick_seconds - 30.minutes, game.next_tick_at
   end
 end
 
