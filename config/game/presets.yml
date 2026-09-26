@@ -1,6 +1,7 @@
-# Game length presets. tick_minutes is how often the villain acts;
-# influence_price is how many coins one influence costs; starting_strength
-# is what each side scatters over its areas at the start.
+# Default game length presets. These seed the game_presets table; after
+# that, balance is tuned on the in-app Game settings page (and "Reset to
+# defaults" there brings back these values). Field meanings and allowed
+# ranges live in GamePreset::FIELDS.
 sprint:
   label: Sprint (2-4 hours)
   hours: 3
@@ -9,6 +10,8 @@ sprint:
   influence_price: 1
   starting_strength: 10
   risings: 2
+  rising_push: 3
+  outbreak_at: 3
   outbreak_limit: 4
 full_day:
   label: Full Day
@@ -18,6 +21,8 @@ full_day:
   influence_price: 1
   starting_strength: 10
   risings: 4
+  rising_push: 3
+  outbreak_at: 3
   outbreak_limit: 6
 multi_day:
   label: Multi-day
@@ -29,4 +34,6 @@ multi_day:
   influence_price: 1
   starting_strength: 10
   risings: 6
+  rising_push: 3
+  outbreak_at: 3
   outbreak_limit: 8

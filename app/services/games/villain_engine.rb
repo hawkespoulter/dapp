@@ -7,7 +7,7 @@
 #                   area (at 0 the area is unclaimed), claims an unclaimed one
 #                   at strength 1, and strengthens one of her own. Drawing her
 #                   own area at strength 3+ is an outbreak instead, which
-#                   pushes into every neighbor.
+#                   pushes into every neighbor. Thresholds come from the game's settings.
 #   * rising     -> escalation +1 (more cards per turn), the bottom area card
 #                   takes a push of 3, and the discard pile goes back on top.
 #
@@ -17,7 +17,6 @@ module Games
   class VillainEngine
     RATE_TRACK = [1, 1, 2, 2, 3].freeze
     RISING = "rising".freeze
-    RISING_PUSH = 3
 
     def self.rate_for(escalation)
       RATE_TRACK[[escalation, RATE_TRACK.size - 1].min]
@@ -61,7 +60,7 @@ module Games
       who = villain.display_name
 
       if state.villain?
-        if state.strength >= AreaState::OUTBREAK_AT && !from_outbreak
+        if state.strength >= game.outbreak_at && !from_outbreak
           outbreak(name, at)
         else
           state.update!(strength: state.strength + amount)
@@ -145,7 +144,7 @@ module Games
       card = index ? draw.delete_at(index) : "area:#{game.board.areas.sample(random: game.rng)}"
       game.villain_draw = draw
       game.villain_discard = game.villain_discard + [card]
-      push(card.delete_prefix("area:"), RISING_PUSH, at, from_outbreak: true)
+      push(card.delete_prefix("area:"), game.settings["rising_push"], at, from_outbreak: true)
 
       game.villain_draw = game.villain_discard.shuffle(random: game.rng) + game.villain_draw
       game.villain_discard = []

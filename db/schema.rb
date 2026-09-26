@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_25_000001) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_26_000001) do
   create_table "area_states", force: :cascade do |t|
     t.integer "game_id", null: false
     t.string "area", null: false
@@ -57,6 +57,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_25_000001) do
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_game_events_on_game_id"
     t.index ["player_id"], name: "index_game_events_on_player_id"
+  end
+
+  create_table "game_presets", force: :cascade do |t|
+    t.string "key", null: false
+    t.integer "position", default: 0, null: false
+    t.json "settings", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_game_presets_on_key", unique: true
   end
 
   create_table "games", force: :cascade do |t|

@@ -11,7 +11,7 @@ class Api::V1::GamesController < ApplicationController
   def parks
     render json: {
       parks: Game.playable_parks.map { |park| { park:, villain: Villains.for_park(park) } },
-      presets: Game::PRESETS.map { |key, preset| preset.merge("key" => key) },
+      presets: GamePreset.seeded.map { _1.settings.merge("key" => _1.key) },
     }
   end
 

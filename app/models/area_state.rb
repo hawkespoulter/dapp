@@ -1,7 +1,6 @@
 # Who holds an area and how strongly. Strength has no cap on either side.
 class AreaState < ApplicationRecord
   OWNERS = %w[neutral players villain].freeze
-  OUTBREAK_AT = 3 # drawing a villain area this strong is an outbreak
 
   belongs_to :game
 

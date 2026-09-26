@@ -15,7 +15,9 @@ module Games
     def self.create!(park:, preset:, host_name:, rules: {})
       villain = Villains.for_park(park) or raise Invalid, "#{park} doesn't have a villain yet"
       Game.transaction do
-        game = Game.create!(park:, preset:, villain_key: villain.key, rules: rules.slice("villain_on_fail", "days", "day_start", "day_end"))
+        preset_settings = GamePreset.for(preset).settings.merge(rules.slice("days", "day_start", "day_end"))
+        game = Game.create!(park:, preset:, villain_key: villain.key,
+                            rules: rules.slice("villain_on_fail").merge("settings" => preset_settings))
         game.board.areas.each { game.area_states.create!(area: _1) }
         host = game.players.create!(name: host_name, host: true)
         game.log!("joined", "#{host.name} created the game.", player: host)
@@ -23,6 +25,8 @@ module Games
       end
     rescue ActiveRecord::RecordInvalid => e
       raise Invalid, e.record.errors.full_messages.to_sentence
+    rescue ArgumentError => e
+      raise Invalid, e.message
     end
 
     attr_reader :game, :player

@@ -6,7 +6,6 @@
 # request are played by `advance!`, which every request runs inside the game
 # lock (see Games::Actions).
 class Game < ApplicationRecord
-  PRESETS = YAML.load_file(Rails.root.join("config/game/presets.yml")).freeze
   STATUSES = %w[lobby active finished].freeze
   RESULTS = %w[gold silver bronze lost].freeze
   CODE_CHARS = ("A".."Z").to_a - %w[I O]
@@ -16,7 +15,7 @@ class Game < ApplicationRecord
   has_many :game_events, -> { order(:occurred_at, :id) }, dependent: :destroy
 
   validates :join_code, presence: true, uniqueness: true
-  validates :preset, inclusion: { in: PRESETS.keys }
+  validates :preset, inclusion: { in: ->(_) { GamePreset.keys } }
   validates :status, inclusion: { in: STATUSES }
   validates :result, inclusion: { in: RESULTS }, allow_nil: true
   validate :park_is_playable, on: :create
@@ -40,8 +39,9 @@ class Game < ApplicationRecord
   def active? = status == "active"
   def finished? = status == "finished"
 
+  # The balance settings this game was created with (see GamePreset).
   def settings
-    PRESETS.fetch(preset).merge(rules.slice("days", "day_start", "day_end"))
+    rules["settings"] || GamePreset.for(preset).settings
   end
 
   def board
@@ -74,6 +74,10 @@ class Game < ApplicationRecord
 
   def influence_price
     settings["influence_price"]
+  end
+
+  def outbreak_at
+    settings["outbreak_at"]
   end
 
   def area(name)
@@ -130,7 +134,7 @@ class Game < ApplicationRecord
         started_at:, ends_at:, next_tick_at:, server_time: Time.current,
         tick_minutes: settings["tick_minutes"], hand_size:,
         escalation:, outbreaks:, outbreak_limit:, villain_rate: Games::VillainEngine.rate_for(escalation),
-        coins:, influence_stash:, influence_price:, outbreak_at: AreaState::OUTBREAK_AT,
+        coins:, influence_stash:, influence_price:, outbreak_at:,
         villain_cards_left: villain_draw.size, windows: rules["windows"] || [],
       },
       villain: villain,
