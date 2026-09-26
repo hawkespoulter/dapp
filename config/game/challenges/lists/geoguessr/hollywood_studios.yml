@@ -1,0 +1,53 @@
+# GeoGuessr photos for Hollywood Studios: each card deals one. Go to where the photo
+# was taken within ten minutes. Photos are from Wikimedia Commons under the
+# licenses named in each credit; keep the credit and source when editing.
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/18_Street_fake_vc.jpg/1280px-18_Street_fake_vc.jpg"
+  answer: "Grand Avenue: the 18th Street Station subway entrance"
+  credit: "Photo: Mike Durkin from Forest Hills, NY / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:18_Street_fake_vc.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e4/Commissary_Lane_%28Disney%27s_Hollywood_Studios%29_May_2023.JPG/1280px-Commissary_Lane_%28Disney%27s_Hollywood_Studios%29_May_2023.JPG"
+  answer: "Commissary Lane"
+  credit: "Photo: Benoît Prieur / CC0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Commissary_Lane_(Disney%27s_Hollywood_Studios)_May_2023.JPG"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Lamp-astromech-droid-parts.jpg/1280px-Lamp-astromech-droid-parts.jpg"
+  answer: "Galaxy's Edge: a lamp made of astromech droid parts"
+  credit: "Photo: U+1F360 / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Lamp-astromech-droid-parts.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Star_Wars_-_Galaxy%27s_Edge_%28Disney%27s_Hollywood_Studios%29--_inscription_and_garbage_container_%28May_2023%29.JPG/1280px-Star_Wars_-_Galaxy%27s_Edge_%28Disney%27s_Hollywood_Studios%29--_inscription_and_garbage_container_%28May_2023%29.JPG"
+  answer: "Galaxy's Edge: an inscription and trash container in Black Spire Outpost"
+  credit: "Photo: Benoît Prieur / CC0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Star_Wars_-_Galaxy%27s_Edge_(Disney%27s_Hollywood_Studios)--_inscription_and_garbage_container_(May_2023).JPG"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/The_S.S._Down_the_Hatch_-_Echo_Lake_at_Disney%27s_Hollywood_Studios_%28May_2023%29.JPG/1280px-The_S.S._Down_the_Hatch_-_Echo_Lake_at_Disney%27s_Hollywood_Studios_%28May_2023%29.JPG"
+  answer: "Echo Lake: the S.S. Down the Hatch"
+  credit: "Photo: Benoît Prieur / CC0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:The_S.S._Down_the_Hatch_-_Echo_Lake_at_Disney%27s_Hollywood_Studios_(May_2023).JPG"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Gertie_the_Dinosaur_%2849560731081%29.jpg/1280px-Gertie_the_Dinosaur_%2849560731081%29.jpg"
+  answer: "Echo Lake: Gertie the Dinosaur"
+  credit: "Photo: Eden, Janine and Jim from New York City / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Gertie_the_Dinosaur_(49560731081).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/Oscar%27s_Service_Station_%2849560238268%29.jpg/1280px-Oscar%27s_Service_Station_%2849560238268%29.jpg"
+  answer: "Hollywood Boulevard: Oscar's Super Service"
+  credit: "Photo: Eden, Janine and Jim from New York City / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Oscar%27s_Service_Station_(49560238268).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/Sunset_Club_Couture_%2849560972242%29.jpg/1280px-Sunset_Club_Couture_%2849560972242%29.jpg"
+  answer: "Sunset Boulevard: Sunset Club Couture"
+  credit: "Photo: Eden, Janine and Jim from New York City / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Sunset_Club_Couture_(49560972242).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/aa/Hollywood_Tower_Facade_%2849560973267%29.jpg/1280px-Hollywood_Tower_Facade_%2849560973267%29.jpg"
+  answer: "Sunset Boulevard: the facade of the Hollywood Tower Hotel"
+  credit: "Photo: Eden, Janine and Jim from New York City / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Hollywood_Tower_Facade_(49560973267).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Toy_Story_Land_Restrooms_%2842415746184%29.jpg/1280px-Toy_Story_Land_Restrooms_%2842415746184%29.jpg"
+  answer: "Toy Story Land: the restrooms"
+  credit: "Photo: elisfkc from Orlando, FL, United States / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Toy_Story_Land_Restrooms_(42415746184).jpg"
