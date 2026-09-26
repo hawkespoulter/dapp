@@ -141,7 +141,7 @@ class Game < ApplicationRecord
       villain: villain,
       areas: board.areas.map { |name| area(name).as_json.merge(neighbors: board.neighbors(name), placement_cost: villain.placement_cost(name)) },
       players:,
-      me: player && player.as_json.merge(hand: player.hand_challenges, undo: undoable_message(player)),
+      me: player && player.as_json.merge(hand: player.hand_cards, undo: undoable_message(player)),
       events: game_events.last(40).reverse,
     }
   end

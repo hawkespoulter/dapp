@@ -11,6 +11,13 @@ function HandCard({ card, busy, onComplete, onFail }) {
         </span>
       </div>
       {card.description && <p className="mt-1 text-sm text-slate-300">{card.description}</p>}
+      {card.list && (
+        <ul className="mt-2 grid list-disc grid-cols-2 gap-x-4 pl-5 text-sm text-slate-200">
+          {card.list.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      )}
       {card.area && <p className="mt-1 text-xs text-slate-400">{card.area}</p>}
       <div className="mt-2 flex gap-2">
         <button

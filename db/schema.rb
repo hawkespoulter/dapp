@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_26_000004) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_26_000005) do
   create_table "area_states", force: :cascade do |t|
     t.integer "game_id", null: false
     t.string "area", null: false
@@ -39,6 +39,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_26_000004) do
     t.string "area"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "list_from"
+    t.integer "list_count"
     t.index ["park", "area"], name: "index_challenges_on_park_and_area"
     t.index ["title"], name: "index_challenges_on_title", unique: true
   end
@@ -98,6 +100,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_26_000004) do
     t.json "hand", default: [], null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "card_lists", default: {}, null: false
     t.index ["auth_token"], name: "index_players_on_auth_token", unique: true
     t.index ["game_id"], name: "index_players_on_game_id"
   end

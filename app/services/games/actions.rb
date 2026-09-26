@@ -41,7 +41,10 @@ module Games
         raise Invalid, "This game is over" if game.finished?
 
         @player = game.players.create!(name:)
-        @player.update!(hand: game.draw_challenges(game.hand_size)) if game.active?
+        if game.active?
+          @player.deal(game.draw_challenges(game.hand_size), game.rng)
+          @player.save!
+        end
         game.log!("joined", "#{name} joined the game.", player: @player)
         @player
       end
@@ -61,7 +64,10 @@ module Games
         game.next_tick_at = game.clock.advance(now, game.tick_seconds)
         game.villain_draw = VillainEngine.build_deck(game.board, game.settings["risings"], game.rng)
         game.villain.setup!(now)
-        game.players.each { _1.update!(hand: game.draw_challenges(game.hand_size)) }
+        game.players.each do |player|
+          player.deal(game.draw_challenges(game.hand_size), game.rng)
+          player.save!
+        end
         game.log!("started", "The game has begun! #{game.villain.display_name} acts every #{game.settings['tick_minutes']} minutes.", at: now)
         game.save!
       end
@@ -74,17 +80,17 @@ module Games
         coins = challenge.reward
         game.coins += coins
         me.coins += coins
-        hand_before = me.hand
+        hand_before = [me.hand, me.card_lists]
         replace_card(challenge)
         record("completed", "#{me.name} completed \"#{challenge.title}\" (+#{coins} coins).", now,
-               "coins" => coins, "earned" => coins, "hand" => [hand_before, me.hand], "discard" => challenge.id)
+               "coins" => coins, "earned" => coins, "hand" => hand_before, "discard" => challenge.id)
       end
     end
 
     def fail!(challenge_id, now = Time.current)
       locked(now, playing: true) do
         challenge = playable(challenge_id)
-        hand_before = me.hand
+        hand_before = [me.hand, me.card_lists]
         replace_card(challenge)
         message = "#{me.name} failed \"#{challenge.title}\"."
         if game.rules["villain_on_fail"]
@@ -93,7 +99,7 @@ module Games
           VillainEngine.new(game).handle(:challenge_failed, at: now)
           game.save!
         else
-          record("failed", message, now, "hand" => [hand_before, me.hand], "discard" => challenge.id)
+          record("failed", message, now, "hand" => hand_before, "discard" => challenge.id)
         end
       end
     end
@@ -175,7 +181,13 @@ module Games
         game.coins -= undo.fetch("coins", 0)
         game.influence_stash -= undo.fetch("stash", 0)
         me.coins -= undo.fetch("earned", 0)
-        me.hand = undo["hand"].first if undo["hand"]
+        # The hand comes back exactly as it was, list items included. (Older
+        # games stored [hand before, hand after] without list items.)
+        if undo["hand"]
+          hand, lists = undo["hand"]
+          me.hand = hand
+          me.card_lists = lists if lists.is_a?(Hash)
+        end
         me.save!
         game.challenge_discard = game.challenge_discard - [undo["discard"]] if undo["discard"]
         event.update!(data: event.data.merge("undone" => true))
@@ -249,7 +261,7 @@ module Games
     # Swaps a played card for a new one.
     def replace_card(challenge)
       game.discard_challenge(challenge.id)
-      me.hand = me.hand - [challenge.id] + game.draw_challenges(1)
+      me.deal(me.hand - [challenge.id] + game.draw_challenges(1), game.rng)
     end
 
     def snapshot(state)
