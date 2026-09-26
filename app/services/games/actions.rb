@@ -71,7 +71,7 @@ module Games
     def complete!(challenge_id, now = Time.current)
       locked(now, playing: true) do
         challenge = playable(challenge_id)
-        coins = challenge.difficulty
+        coins = challenge.reward
         game.coins += coins
         me.coins += coins
         hand_before = me.hand

@@ -1,35 +1,35 @@
 anywhere_easy:
   title: Hidden Mickey
-  difficulty: 1
+  reward: 1
 
 anywhere_medium:
   title: Character Moment
-  difficulty: 2
+  reward: 2
 
 anywhere_hard:
   title: Wait It Out
-  difficulty: 3
+  reward: 3
 
 adventureland_easy:
   title: Dole Whip
-  difficulty: 1
+  reward: 1
   park: Magic Kingdom
   area: Adventureland
 
 other_park:
   title: Ride Pandora
-  difficulty: 1
+  reward: 1
   park: Animal Kingdom
   area: Pandora
 
 anywhere_extra_1:
   title: Snack Attack
-  difficulty: 1
+  reward: 1
 
 anywhere_extra_2:
   title: Pin Trade
-  difficulty: 2
+  reward: 2
 
 anywhere_extra_3:
   title: Single Rider
-  difficulty: 2
+  reward: 2

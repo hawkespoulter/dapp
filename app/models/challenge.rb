@@ -5,12 +5,12 @@
 class Challenge < ApplicationRecord
   DIR = Rails.root.join("config/game/challenges")
   ANYWHERE = "anywhere".freeze
-  FIELDS = %w[title description difficulty area].freeze
+  FIELDS = %w[title description reward area].freeze
 
   class InvalidFile < StandardError; end
 
   validates :title, presence: true, uniqueness: true
-  validates :difficulty, inclusion: { in: 1..3, message: "must be 1, 2 or 3" }
+  validates :reward, inclusion: { in: 1..3, message: "must be 1, 2 or 3" }
   validate :area_is_on_the_board
 
   scope :for_park, ->(park) { where(park: nil).or(where(park:)) }
@@ -42,7 +42,7 @@ class Challenge < ApplicationRecord
       problems = entries.filter_map do |attrs|
         challenge = find_or_initialize_by(title: attrs["title"])
         # Fields left out of a file are cleared, not kept from before.
-        challenge.assign_attributes(%w[description difficulty park area].index_with { attrs[_1] })
+        challenge.assign_attributes(%w[description reward park area].index_with { attrs[_1] })
         "#{attrs['file']}: #{attrs['title']}: #{challenge.errors.full_messages.to_sentence}" unless challenge.save
       end
       raise InvalidFile, "Challenge files have problems:\n#{problems.join("\n")}" if problems.any?
@@ -89,7 +89,7 @@ class Challenge < ApplicationRecord
   end
 
   def as_json(*)
-    { id:, title:, description:, difficulty:, park:, area: }
+    { id:, title:, description:, reward:, park:, area: }
   end
 
   private

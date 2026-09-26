@@ -4,14 +4,14 @@
 - title: Tree of Life Carvings
   area: Discovery Island
   description: "Spot {animal from list} on the tree of life"
-  difficulty: 3
+  reward: 3
 
 - title: Night Blossom
   area: Pandora
   description: Drink a Night Blossom from Pongu Pongu.
-  difficulty: 1
+  reward: 1
 
 - title: Gorilla Spotting
   area: Africa
   description: Spot a gorilla on the Gorilla Falls Exploration Trail.
-  difficulty: 2
+  reward: 2

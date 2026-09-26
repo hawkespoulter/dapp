@@ -5,14 +5,14 @@
 - title: Castle Selfie
   area: "Main Street, U.S.A."
   description: Take a group selfie with Cinderella Castle fully in frame.
-  difficulty: 1
+  reward: 1
 
 - title: Madame Leota
   area: Liberty Square
   description: Find Madame Leota's tombstone by the Haunted Mansion and wait for her eyes to open.
-  difficulty: 2
+  reward: 2
 
 - title: Kidney Stone Cure
   area: Frontierland
   description: Ride Big Thunder Mountain twice in a row.
-  difficulty: 3
+  reward: 3

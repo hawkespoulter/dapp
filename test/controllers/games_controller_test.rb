@@ -25,10 +25,10 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 6, state["areas"].size
 
     host = { "X-Player-Token" => host_token }
-    card = state.dig("me", "hand").max_by { _1["difficulty"] }
+    card = state.dig("me", "hand").max_by { _1["reward"] }
     post complete_api_v1_game_url(code), params: { challenge_id: card["id"] }, headers: host, as: :json
     assert_response :success
-    assert_equal card["difficulty"], response.parsed_body.dig("game", "coins")
+    assert_equal card["reward"], response.parsed_body.dig("game", "coins")
 
     post buy_api_v1_game_url(code), params: { count: 1 }, headers: host, as: :json
     assert_response :success

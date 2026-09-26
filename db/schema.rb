@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_26_000003) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_26_000004) do
   create_table "area_states", force: :cascade do |t|
     t.integer "game_id", null: false
     t.string "area", null: false
@@ -34,7 +34,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_26_000003) do
   create_table "challenges", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
-    t.integer "difficulty", default: 1, null: false
+    t.integer "reward", default: 1, null: false
     t.string "park"
     t.string "area"
     t.datetime "created_at", null: false
