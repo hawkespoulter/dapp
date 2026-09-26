@@ -115,7 +115,7 @@ class Game < ApplicationRecord
   def draw_challenges(count)
     Challenge.refresh
     held = players.flat_map(&:hand)
-    pool = Challenge.for_park(park).where.not(id: held).pluck(:id)
+    pool = Challenge.for_park(park).where.not(id: held).select { _1.dealable_in?(park) }.map(&:id)
     fresh = pool - challenge_discard
     if fresh.size < count
       self.challenge_discard = []

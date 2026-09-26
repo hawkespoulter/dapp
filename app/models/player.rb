@@ -11,7 +11,7 @@ class Player < ApplicationRecord
   # items they were dealt; new cards from list challenges get fresh ones.
   def deal(ids, rng)
     challenges = Challenge.where(id: ids).index_by(&:id)
-    self.card_lists = ids.to_h { |id| [id.to_s, card_lists[id.to_s] || challenges[id]&.deal_list(rng)] }.compact
+    self.card_lists = ids.to_h { |id| [id.to_s, card_lists[id.to_s] || challenges[id]&.deal_list(rng, game.park)] }.compact
     self.hand = ids
   end
 

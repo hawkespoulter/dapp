@@ -55,6 +55,6 @@ class ChallengeListTest < ActiveSupport::TestCase
 
     greedy = Challenge.new(title: "Y", reward: 1, list_from: "tree_of_life_animals", list_count: 500)
     refute greedy.valid?
-    assert_match "count must be from 1 to", greedy.errors.full_messages.to_sentence
+    assert_match "count is 500 but lists/tree_of_life_animals.yml only has", greedy.errors.full_messages.to_sentence
   end
 end

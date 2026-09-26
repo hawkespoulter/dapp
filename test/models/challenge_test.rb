@@ -112,6 +112,17 @@ class ChallengeTest < ActiveSupport::TestCase
     end
   end
 
+  test "a YAML typo names the file and line" do
+    error = assert_raises(Challenge::InvalidFile) do
+      with_files("anywhere.yml" => "- title: Big 5
+  description: Spot these: Lion, Rhino
+  reward: 3
+") { Challenge.sync!(_1) }
+    end
+    assert_match "anywhere.yml: line 2", error.message
+    assert_match "put the description in quotes", error.message
+  end
+
   test "a broken file keeps the last good deck and reports the problem" do
     with_files("anywhere.yml" => "- {title: Good, reward: 1}\n") do |dir|
       Challenge.sync!(dir)

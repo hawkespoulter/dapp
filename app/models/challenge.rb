@@ -24,8 +24,8 @@ class Challenge < ApplicationRecord
   # returns nil.
   def self.refresh(dir = DIR)
     lists = File.join(dir, "lists")
-    list_times = File.directory?(lists) ? [File.mtime(lists), *Dir.glob(File.join(lists, "*.yml")).map { File.mtime(_1) }] : []
-    newest = [File.mtime(dir), *files(dir).map { File.mtime(_1) }, *list_times].max
+    list_paths = File.directory?(lists) ? [lists, *Dir.glob(File.join(lists, "**", "*"))] : []
+    newest = [File.mtime(dir), *files(dir).map { File.mtime(_1) }, *list_paths.map { File.mtime(_1) }].max
     return if exists? && maximum(:updated_at) >= newest
 
     sync!(dir)
@@ -79,7 +79,11 @@ class Challenge < ApplicationRecord
 
       # Read the file ourselves: YAML.load_file goes through Bootsnap's cache,
       # which can hand back the old contents after a quick re-save.
-      list = YAML.safe_load(File.read(path)) || []
+      list = begin
+        YAML.safe_load(File.read(path)) || []
+      rescue Psych::SyntaxError => e
+        raise InvalidFile, "#{file}: line #{e.line} can't be read (#{e.problem}). "                            "If a description has a colon in it, put the description in quotes."
+      end
       raise InvalidFile, "#{file}: should be a list of challenges (each starting with \"- title:\")" unless list.is_a?(Array)
 
       list.map do |entry|
@@ -104,14 +108,39 @@ class Challenge < ApplicationRecord
     @lists_dir || LISTS_DIR
   end
 
-  def list_items
-    path = lists_dir.join("#{list_from}.yml")
-    File.exist?(path) ? Array(YAML.safe_load(File.read(path))).map(&:to_s) : []
+  # A list is either lists/<from>.yml, used in every park, or a folder
+  # lists/<from>/ with a file per park (lists/geoguessr/animal_kingdom.yml).
+  def per_park_list?
+    list_from.present? && File.directory?(lists_dir.join(list_from))
+  end
+
+  # The items this challenge deals from in a park. An item is text, or a
+  # photo: {image:, credit:, answer:}.
+  def list_items(in_park = park)
+    path =
+      if per_park_list?
+        return [] if in_park.nil?
+
+        lists_dir.join(list_from, "#{self.class.file_name_for(in_park)}.yml")
+      else
+        lists_dir.join("#{list_from}.yml")
+      end
+    File.exist?(path) ? self.class.read_list(path) : []
+  end
+
+  def self.read_list(path)
+    Array(YAML.safe_load(File.read(path))).map { _1.is_a?(Hash) ? _1.transform_keys(&:to_s) : _1.to_s }
+  end
+
+  # Whether a card can be dealt in this park: a list challenge needs enough
+  # items for that park.
+  def dealable_in?(in_park)
+    list_from.blank? || list_items(in_park).size >= list_count.to_i
   end
 
   # The random items a newly dealt card gets, or nil for a plain challenge.
-  def deal_list(rng)
-    list_items.sample(list_count, random: rng) if list_from
+  def deal_list(rng, in_park = park)
+    list_items(in_park).sample(list_count, random: rng) if list_from
   end
 
   def as_json(*)
@@ -122,14 +151,38 @@ class Challenge < ApplicationRecord
 
   def list_exists
     return if list_from.blank? && list_count.nil?
+    return errors.add(:list, "needs both from: (a file or folder in lists/) and count:") if list_from.blank? || list_count.nil?
+    return errors.add(:list, "count must be a whole number") unless list_count.is_a?(Integer) && list_count.positive?
 
-    items = list_items
-    if list_from.blank? || list_count.nil?
-      errors.add(:list, "needs both from: (a file in lists/) and count:")
-    elsif items.empty?
-      errors.add(:list, "lists/#{list_from}.yml doesn't exist or is empty")
-    elsif !list_count.is_a?(Integer) || !(1..items.size).cover?(list_count)
-      errors.add(:list, "count must be from 1 to #{items.size} (the number of items in lists/#{list_from}.yml)")
+    if per_park_list?
+      check_park_lists
+    else
+      check_list("lists/#{list_from}.yml", list_items)
     end
+  end
+
+  # Every file in a per-park list folder must be named for a park and hold
+  # enough good items. Parks without a file just don't get this challenge.
+  def check_park_lists
+    parks = Park.names.index_by { self.class.file_name_for(_1) }
+    files = Dir.glob(lists_dir.join(list_from, "*.yml").to_s)
+    errors.add(:list, "lists/#{list_from}/ has no park files yet") if files.empty?
+    files.each do |path|
+      name = File.basename(path, ".yml")
+      label = "lists/#{list_from}/#{name}.yml"
+      next errors.add(:list, "#{label} isn't named for a park (use one of: #{parks.keys.join(', ')})") unless parks.key?(name)
+
+      check_list(label, self.class.read_list(path))
+    end
+  end
+
+  def check_list(label, items)
+    return errors.add(:list, "#{label} doesn't exist or is empty") if items.empty?
+
+    if items.size < list_count
+      errors.add(:list, "count is #{list_count} but #{label} only has #{items.size} item#{'s' unless items.size == 1}")
+    end
+    bad = items.index { _1.is_a?(Hash) && _1["image"].blank? }
+    errors.add(:list, "#{label} item #{bad + 1} is a photo without an image: link") if bad
   end
 end
