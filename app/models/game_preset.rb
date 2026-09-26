@@ -59,7 +59,11 @@ class GamePreset < ApplicationRecord
   end
 
   def as_json(*)
-    fields = settings.keys.filter_map { |f| FIELDS[f]&.merge(key: f, min: FIELDS[f][:range]&.min, max: FIELDS[f][:range]&.max)&.except(:range) }
+    fields = FIELDS.filter_map do |field, spec|
+      next unless settings.key?(field)
+
+      spec.except(:range).merge(key: field, min: spec[:range]&.min, max: spec[:range]&.max)
+    end
     { key:, label: settings["label"], settings:, defaults: DEFAULTS[key], fields: }
   end
 

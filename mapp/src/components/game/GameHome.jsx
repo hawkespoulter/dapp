@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link, useNavigate } from "react-router-dom";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { useCreateGameMutation, useFetchGameParksQuery, useFetchGameQuery, useJoinGameMutation } from "~/store/apis/gameApi";
 import { errorMessage, forgetGame, savePlayer, savedGames } from "./playerStorage";
 
@@ -121,8 +122,9 @@ function NewGameForm() {
 const STATUS_LABELS = { lobby: "Waiting to start", active: "In progress", finished: "Finished" };
 
 // A game this phone joined. Checks with the server, reports its status, and
-// forgets the game if it's gone or this phone is no longer in it.
-function SavedGame({ game, showFinished, onStatus, onGone }) {
+// forgets the game if it's gone or this phone is no longer in it. Finished
+// games aren't listed here; they're on the Game settings page.
+function SavedGame({ game, onStatus, onGone }) {
   const { data, error } = useFetchGameQuery(game.code);
   const gone = error?.status === 404 || (data && !data.me);
   const status = data?.game.status;
@@ -135,7 +137,7 @@ function SavedGame({ game, showFinished, onStatus, onGone }) {
     if (status) onStatus(game.code, status);
   }, [status, game.code, onStatus]);
 
-  if (gone || !data || (status === "finished" && !showFinished)) return null;
+  if (gone || !data || status === "finished") return null;
 
   return (
     <li>
@@ -153,7 +155,6 @@ function SavedGame({ game, showFinished, onStatus, onGone }) {
 function GameHome() {
   const [saved, setSaved] = useState(() => savedGames().slice(0, 20));
   const [statuses, setStatuses] = useState({});
-  const [showFinished, setShowFinished] = useState(false);
 
   const onGone = useCallback((code) => {
     forgetGame(code);
@@ -161,31 +162,22 @@ function GameHome() {
   }, []);
   const onStatus = useCallback((code, status) => setStatuses((all) => ({ ...all, [code]: status })), []);
 
-  const known = saved.map((g) => statuses[g.code]).filter(Boolean);
-  const finished = known.filter((s) => s === "finished").length;
-  const visible = showFinished ? known.length : known.length - finished;
+  const visible = saved.filter((g) => statuses[g.code] && statuses[g.code] !== "finished").length;
 
   return (
     <div className="flex min-h-screen flex-col gap-4 bg-slate-950 p-4 text-white">
-      <div>
-        <h1 className="text-2xl font-black">Park Takeover</h1>
-        <p className="text-sm text-slate-400">Claim the park with real-life challenges before the villain does.</p>
-      </div>
+      <Link to="/game/settings" className="flex items-center gap-1 self-end text-sm text-slate-400">
+        <SettingsIcon sx={{ fontSize: 18 }} /> Game settings
+      </Link>
       {saved.length > 0 && (
         // Rendered even while hidden so each saved game can check its status.
-        <div className={`rounded-xl bg-slate-800 p-4 ${visible || finished ? "" : "hidden"}`}>
+        <div className={`rounded-xl bg-slate-800 p-4 ${visible ? "" : "hidden"}`}>
           <h2 className="mb-2 text-lg font-bold">Your games</h2>
           <ul className="flex flex-col gap-2">
             {saved.map((g) => (
-              <SavedGame key={g.code} game={g} showFinished={showFinished} onStatus={onStatus} onGone={onGone} />
+              <SavedGame key={g.code} game={g} onStatus={onStatus} onGone={onGone} />
             ))}
           </ul>
-          {visible === 0 && <p className="text-sm text-slate-400">No games in progress.</p>}
-          {finished > 0 && (
-            <button className="mt-2 text-sm text-sky-400" onClick={() => setShowFinished(!showFinished)}>
-              {showFinished ? "Hide finished games" : `Show finished games (${finished})`}
-            </button>
-          )}
         </div>
       )}
       <NewGameForm />
@@ -199,7 +191,6 @@ export default GameHome;
 JoinForm.propTypes = { initialCode: PropTypes.string };
 SavedGame.propTypes = {
   game: PropTypes.object.isRequired,
-  showFinished: PropTypes.bool,
   onStatus: PropTypes.func.isRequired,
   onGone: PropTypes.func.isRequired,
 };

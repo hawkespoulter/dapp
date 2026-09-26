@@ -26,10 +26,24 @@ const action = (builder, path, method, body = () => undefined) =>
 const gameApi = createApi({
   reducerPath: "gameApi",
   baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
+  tagTypes: ["GameSettings"],
   endpoints(builder) {
     return {
       fetchGameParks: builder.query({
+        providesTags: ["GameSettings"],
         query: () => "/game_parks",
+      }),
+      fetchGameSettings: builder.query({
+        providesTags: ["GameSettings"],
+        query: () => "/game_settings",
+      }),
+      updateGameSettings: builder.mutation({
+        invalidatesTags: ["GameSettings"],
+        query: ({ key, settings }) => ({ url: `/game_settings/${key}`, method: "PATCH", body: { settings } }),
+      }),
+      resetGameSettings: builder.mutation({
+        invalidatesTags: ["GameSettings"],
+        query: (key) => ({ url: `/game_settings/${key}/reset`, method: "POST" }),
       }),
       fetchGame: builder.query({
         query: (code) => ({ url: `/games/${code}`, headers: withToken(code) }),
@@ -54,6 +68,9 @@ const gameApi = createApi({
 
 export const {
   useFetchGameParksQuery,
+  useFetchGameSettingsQuery,
+  useUpdateGameSettingsMutation,
+  useResetGameSettingsMutation,
   useFetchGameQuery,
   useCreateGameMutation,
   useJoinGameMutation,
