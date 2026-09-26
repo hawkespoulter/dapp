@@ -26,6 +26,7 @@
 
 - title: GeoGuessr
   description: Make it to the location the photo was taken within ten minutes.
+  list: {from: geoguessr, count: 1}
   reward: 2
 
 - title: Soaked

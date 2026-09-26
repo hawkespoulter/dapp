@@ -9,7 +9,17 @@ function Photo({ photo }) {
   return (
     <figure className="mt-2">
       <img className="w-full rounded-lg" src={photo.image} alt="Where was this taken?" loading="lazy" />
-      {photo.credit && <figcaption className="mt-1 text-[10px] text-slate-500">{photo.credit}</figcaption>}
+      {photo.credit && (
+        <figcaption className="mt-1 text-[10px] text-slate-500">
+          {photo.source ? (
+            <a href={photo.source} target="_blank" rel="noreferrer" className="underline">
+              {photo.credit}
+            </a>
+          ) : (
+            photo.credit
+          )}
+        </figcaption>
+      )}
       {photo.answer && (
         <button className="mt-1 text-xs text-sky-400" onClick={() => setRevealed(!revealed)}>
           {revealed ? photo.answer : "Show answer"}

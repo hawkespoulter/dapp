@@ -1,0 +1,53 @@
+# GeoGuessr photos for Animal Kingdom: each card deals one. Go to where the photo
+# was taken within ten minutes. Photos are from Wikimedia Commons under the
+# licenses named in each credit; keep the credit and source when editing.
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Manhole_cover_in_Pandora_%2834388098735%29.jpg/1280px-Manhole_cover_in_Pandora_%2834388098735%29.jpg"
+  answer: "Pandora: a manhole cover on the walkways"
+  credit: "Photo: elisfkc from Orlando, FL, United States / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Manhole_cover_in_Pandora_(34388098735).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Pandora_Bathrooms_%2834257379361%29.jpg/1280px-Pandora_Bathrooms_%2834257379361%29.jpg"
+  answer: "Pandora: the restrooms"
+  credit: "Photo: elisfkc from Orlando, FL, United States / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Pandora_Bathrooms_(34257379361).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Drum_Area_%2834627136606%29.jpg/1280px-Drum_Area_%2834627136606%29.jpg"
+  answer: "Pandora: the drum area garden"
+  credit: "Photo: Theme Park Tourist / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Drum_Area_(34627136606).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Animal_Kingdom_Lamp_%2842377881255%29.jpg/1280px-Animal_Kingdom_Lamp_%2842377881255%29.jpg"
+  answer: "Discovery Island: a lamp near the Tree of Life paths"
+  credit: "Photo: HarshLight from San Jose, CA, USA / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Animal_Kingdom_Lamp_(42377881255).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Maharajah_Jungle_Trek_%2842377958315%29.jpg/1280px-Maharajah_Jungle_Trek_%2842377958315%29.jpg"
+  answer: "Asia: the prayer-flag canopy on the Maharajah Jungle Trek"
+  credit: "Photo: HarshLight from San Jose, CA, USA / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Maharajah_Jungle_Trek_(42377958315).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Caravan_Stage_%2843281745001%29.jpg/1280px-Caravan_Stage_%2843281745001%29.jpg"
+  answer: "Asia: Caravan Stage"
+  credit: "Photo: HarshLight from San Jose, CA, USA / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Caravan_Stage_(43281745001).jpg"
+
+- image: "https://upload.wikimedia.org/wikipedia/commons/a/a3/US_Animal_Kingdom_1211_%2885%29_%2816629045663%29.jpg"
+  answer: "Asia: the temple ruins archway"
+  credit: "Photo: Diego Tirira from Quito, Ecuador / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:US_Animal_Kingdom_1211_(85)_(16629045663).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Hoteli_Burudika_%2842563551294%29.jpg/1280px-Hoteli_Burudika_%2842563551294%29.jpg"
+  answer: "Africa: the Hoteli Burudika building in Harambe"
+  credit: "Photo: HarshLight from San Jose, CA, USA / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Hoteli_Burudika_(42563551294).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Wanjohi_Refreshment_%2828412556097%29.jpg/1280px-Wanjohi_Refreshment_%2828412556097%29.jpg"
+  answer: "Africa: the Wanjohi Refreshment cart by Harambe Market"
+  credit: "Photo: HarshLight from San Jose, CA, USA / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Wanjohi_Refreshment_(28412556097).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/Pangani_Forest_Exploration_Trail_%2842377914135%29.jpg/1280px-Pangani_Forest_Exploration_Trail_%2842377914135%29.jpg"
+  answer: "Africa: the beetle over the Gorilla Falls Exploration Trail"
+  credit: "Photo: HarshLight from San Jose, CA, USA / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Pangani_Forest_Exploration_Trail_(42377914135).jpg"
