@@ -5,10 +5,11 @@ changes on its own the next time it deals cards, including new and deleted
 files; there's nothing to run.
 
 - `anywhere.yml` holds challenges that can be done in any park.
-- Each park gets its own file, named after the park in lowercase with
-  underscores: `animal_kingdom.yml`, `magic_kingdom.yml`, ... A park needs a
-  game board before it can have a file; a file for any other name is flagged
-  as a mistake.
+- Each park has its own file, named after the park in lowercase with
+  underscores: `animal_kingdom.yml`, `sea_world.yml`, ... Every park the
+  tracker knows already has one. A park's challenges are only dealt once
+  that park is playable (it has a board and a villain); until then they just
+  wait. A file with any other name is flagged as a mistake.
 
 Each file is a list of challenges:
 

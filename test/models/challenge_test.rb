@@ -49,12 +49,19 @@ class ChallengeTest < ActiveSupport::TestCase
     assert_equal before, Challenge.count
   end
 
-  test "file names must be anywhere or a park with a board" do
+  test "file names must be anywhere or one of the tracker's parks" do
     error = assert_raises(Challenge::InvalidFile) do
       with_files("narnia.yml" => "- {title: Wardrobe, difficulty: 1}\n") { Challenge.sync!(_1) }
     end
-    assert_match "narnia.yml: there's no park board called that", error.message
-    assert_match "animal_kingdom.yml", error.message
+    assert_match "narnia.yml: there's no park called that", error.message
+    assert_match "sea_world.yml", error.message
+  end
+
+  test "parks without a board can have challenges, but they aren't dealt" do
+    with_files("epcot.yml" => "- {title: Soarin, area: World Nature, difficulty: 2}\n") { Challenge.sync!(_1) }
+
+    assert_equal "Epcot", Challenge.find_by!(title: "Soarin").park
+    assert_empty Challenge.for_park("Magic Kingdom").where(title: "Soarin")
   end
 
   test "duplicate titles, unknown fields and areas in anywhere.yml are rejected" do

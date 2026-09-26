@@ -55,18 +55,19 @@ class Challenge < ApplicationRecord
     Dir.glob(File.join(dir, "*.yml")).sort
   end
 
-  # anywhere.yml, or a park's name in lowercase with underscores.
+  # anywhere.yml, or a park's name in lowercase with underscores
+  # (magic_kingdom.yml, sea_world.yml).
   def self.file_name_for(park)
     park.downcase.gsub(/[^a-z0-9]+/, "_").delete_suffix("_")
   end
 
   def self.parse(dir)
-    parks = ParkBoard.config.keys.index_by { file_name_for(_1) }
+    parks = Park.names.index_by { file_name_for(_1) }
     entries = files(dir).flat_map do |path|
       file = File.basename(path)
       name = File.basename(path, ".yml")
       park = name == ANYWHERE ? nil : parks.fetch(name) do
-        raise InvalidFile, "#{file}: there's no park board called that. Use #{ANYWHERE}.yml or one of: #{parks.keys.map { "#{_1}.yml" }.join(', ')}"
+        raise InvalidFile, "#{file}: there's no park called that. Use #{ANYWHERE}.yml or one of: #{parks.keys.map { "#{_1}.yml" }.join(', ')}"
       end
 
       # Read the file ourselves: YAML.load_file goes through Bootsnap's cache,
@@ -98,8 +99,9 @@ class Challenge < ApplicationRecord
 
     if park.blank?
       errors.add(:area, "only works in a park's file, not anywhere.yml")
-    elsif !ParkBoard.for(park).areas.include?(area)
-      errors.add(:area, "#{area} isn't an area in #{park} (#{ParkBoard.for(park).areas.join(', ')})")
+    elsif !Park.areas(park).include?(area)
+      known = Park.areas(park).any? ? Park.areas(park).join(", ") : "it has no areas mapped yet"
+      errors.add(:area, "#{area} isn't an area in #{park} (#{known})")
     end
   end
 end

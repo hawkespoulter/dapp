@@ -1,0 +1,7 @@
+# Disneyland challenges. See README.md for the fields.
+# No areas are mapped for this park yet, so leave out `area`.
+# Not playable yet: these are dealt once the park has a board and a villain.
+
+# - title:
+#   description:
+#   difficulty: 1
