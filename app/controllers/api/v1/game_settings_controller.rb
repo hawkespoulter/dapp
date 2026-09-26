@@ -6,7 +6,9 @@ class Api::V1::GameSettingsController < ApplicationController
   # GET /game_settings
   def index
     finished = Game.where(status: "finished").includes(:players).order(updated_at: :desc)
+    problem = Challenge.refresh
     render json: {
+      challenges: { counts: Challenge.group(:park).count.transform_keys { _1 || "anywhere" }, problem: },
       presets: GamePreset.seeded,
       record: finished.group(:preset, :result).count.each_with_object({}) { |((preset, result), n), all| (all[preset] ||= {})[result] = n },
       finished_games: finished.limit(30).map { finished_game(_1) },

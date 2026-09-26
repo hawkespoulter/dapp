@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { OWNER_LABELS, placementPlan, strengthText } from "./gameRules";
+import { OWNER_LABELS, placementPlan } from "./gameRules";
 import { villainColor } from "./boardLayout";
 
 const OWNER_STYLES = {
@@ -14,7 +14,6 @@ function AreaPanel({ state, area, busy, onPlace }) {
   const plan = placementPlan(state, area.area);
   const stash = game.influence_stash;
   const all = stash - (stash % plan.step);
-  const outbreakReady = area.owner === "villain" && area.strength >= game.outbreak_at;
 
   let main;
   if (plan.goal === "strengthen") {

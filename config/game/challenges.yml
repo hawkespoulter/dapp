@@ -1,31 +1,94 @@
-# Hand-written challenges. park/area blank = can be done anywhere.
-# Ride/show/restaurant challenges are also generated from the tracker data
-# by Challenge.sync! so they don't need to be listed here.
-- {title: "Hidden Mickey", description: "Find a Hidden Mickey. You can look up hidden Mickey Locations but you must see it.", category: find, difficulty: 1}
-- {title: "Character Moment", description: "Get a photo with any costumed character. You do not have to wait in line.", category: photo, difficulty: 2}
-- {title: "Snack Attack", description: "Buy and finish a snack you've never had before.", category: food, difficulty: 1}
-- {title: "Back to Back", description: "Ride two different attractions within 45 minutes.", category: ride, difficulty: 3}
-- {title: "Stranger Danger", description: "Get a stranger to take a group photo of you.", category: social, difficulty: 1}
-- {title: "Pin Trade", description: "Trade a pin with a cast member or guest.", category: social, difficulty: 2}
-- {title: "Queue Trivia", description: "While in a queue, each player writes down the posted wait. Closest to the real wait wins.", category: trivia, difficulty: 1}
-- {title: "Soundtrack", description: "Identify the song playing on the area loop within 1 minute (Shazam allowed after the guess).", category: trivia, difficulty: 1}
-- {title: "Photo Recreate", description: "Recreate a photo you took on a previous park day.", category: photo, difficulty: 2}
-- {title: "Single Rider", description: "Ride any attraction in a single rider line.", category: ride, difficulty: 2}
-- {title: "Wait It Out", description: "Ride an attraction with a posted wait of 45 minutes or more.", category: ride, difficulty: 3}
-- {title: "Balancing Act", description: "Walk the entire area carrying a full drink without spilling.", category: find, difficulty: 1}
-- {title: "Bench Sketch", description: "Draw the area's most famous landmark in 3 minutes. Your teammate must recognize it.", category: photo, difficulty: 1}
-- {title: "Park Map Speedrun", description: "Without looking at your phone, walk to a named attraction chosen by your teammate.", category: find, difficulty: 2}
-- {title: "Castle Selfie", park: Magic Kingdom, area: "Main Street, U.S.A.", description: "Take a group selfie with Cinderella Castle fully in frame.", category: photo, difficulty: 1}
-- {title: "Dole Whip", park: Magic Kingdom, area: Adventureland, description: "Eat a Dole Whip.", category: food, difficulty: 1}
-- {title: "Madame Leota", park: Magic Kingdom, area: Liberty Square, description: "Find Madame Leota's tombstone by the Haunted Mansion and wait for her eyes to open.", category: find, difficulty: 2}
-- {title: "Rapunzel's Tower", park: Magic Kingdom, area: Fantasyland, description: "Find Rapunzel's tower and photograph it.", category: find, difficulty: 1}
-- {title: "Carousel of Progress", park: Magic Kingdom, area: Tomorrowland, description: "Sing along to 'There's a Great Big Beautiful Tomorrow' — out loud.", category: social, difficulty: 2}
-- {title: "Big Thunder Double", park: Magic Kingdom, area: Frontierland, description: "Ride Big Thunder Mountain twice in a row.", category: ride, difficulty: 3}
-- {title: "Tree of Life Carvings", park: Animal Kingdom, area: Discovery Island, description: "Find and photograph five different animals carved into the Tree of Life.", category: find, difficulty: 2}
-- {title: "Floating Mountains", park: Animal Kingdom, area: Pandora, description: "Take a group photo with the floating mountains behind you.", category: photo, difficulty: 1}
-- {title: "Night Blossom", park: Animal Kingdom, area: Pandora, description: "Drink a Night Blossom from Pongu Pongu.", category: food, difficulty: 1}
-- {title: "Harambe Market", park: Animal Kingdom, area: Africa, description: "Eat something from Harambe Market.", category: food, difficulty: 1}
-- {title: "Gorilla Spotting", park: Animal Kingdom, area: Africa, description: "Spot a gorilla on the Gorilla Falls Exploration Trail.", category: find, difficulty: 2}
-- {title: "Find the Yeti", park: Animal Kingdom, area: Asia, description: "Ride Expedition Everest and spot the Yeti.", category: ride, difficulty: 2}
-- {title: "Soaked", park: Animal Kingdom, area: Asia, description: "Ride Kali River Rapids. Everyone has to come off visibly wet.", category: ride, difficulty: 2}
-- {title: "Dino Pose", park: Animal Kingdom, area: "DinoLand U.S.A.", description: "Find a dinosaur statue and recreate its pose for a photo.", category: photo, difficulty: 1}
+# Every challenge in the park game lives in this file. The app picks up
+# changes on its own the next time it deals cards; there's nothing to run.
+#
+# Put a challenge under "anywhere" if it can be done in any park, or under a
+# park's name if it belongs to that park.
+#
+# Fields:
+#   title        required, and unique across the whole file (it's how the app
+#                recognizes a challenge when you edit it; renaming one makes it
+#                a new challenge)
+#   description  what the players have to do
+#   category     ride, show, food, photo, find, social or trivia (sets the icon)
+#   difficulty   1, 2 or 3: the coins it earns
+#   area         optional, park challenges only: the area it happens in (must
+#                match the map's area names, e.g. "DinoLand U.S.A.")
+
+anywhere:
+  - title: Hidden Mickey
+    description: Find a Hidden Mickey. You can look up hidden Mickey Locations but you must see it.
+    category: find
+    difficulty: 1
+
+  - title: Character Moment
+    description: Get a photo with any costumed character. You do not have to wait in line.
+    category: photo
+    difficulty: 2
+
+  - title: Snack Attack
+    description: Buy and finish a snack you've never had before.
+    category: food
+    difficulty: 1
+
+  - title: Back to Back
+    description: Ride two different attractions within 45 minutes.
+    category: ride
+    difficulty: 3
+
+  - title: Guess the queue time
+    description: Accurately guess the wait time of a ride. Timer stops when you get off the ride. You must be within 10%
+    category: trivia
+    difficulty: 1
+
+  - title: Wait It Out
+    description: Ride an attraction with a posted wait of 45 minutes or more.
+    category: ride
+    difficulty: 3
+
+  - title: GeoGuessr
+    description: Make it to the location the photo was taken within ten minutes.
+    category: find
+    difficulty: 2
+
+  - title: Soaked
+    description: Ride any water ride. One of you has to come off visibly wet.
+    category: ride
+    difficulty: 3
+
+Magic Kingdom:
+  - title: Castle Selfie
+    area: "Main Street, U.S.A."
+    description: Take a group selfie with Cinderella Castle fully in frame.
+    category: photo
+    difficulty: 1
+
+  - title: Madame Leota
+    area: Liberty Square
+    description: Find Madame Leota's tombstone by the Haunted Mansion and wait for her eyes to open.
+    category: find
+    difficulty: 2
+
+  - title: Kidney Stone Cure
+    area: Frontierland
+    description: Ride Big Thunder Mountain twice in a row.
+    category: ride
+    difficulty: 3
+
+Animal Kingdom:
+  - title: Tree of Life Carvings
+    area: Discovery Island
+    description: "Spot {animal from list} on the tree of life"
+    category: find
+    difficulty: 3
+
+  - title: Night Blossom
+    area: Pandora
+    description: Drink a Night Blossom from Pongu Pongu.
+    category: food
+    difficulty: 1
+
+  - title: Gorilla Spotting
+    area: Africa
+    description: Spot a gorilla on the Gorilla Falls Exploration Trail.
+    category: find
+    difficulty: 2

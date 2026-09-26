@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_26_000001) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_26_000002) do
   create_table "area_states", force: :cascade do |t|
     t.integer "game_id", null: false
     t.string "area", null: false
@@ -38,12 +38,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_26_000001) do
     t.integer "difficulty", default: 1, null: false
     t.string "park"
     t.string "area"
-    t.string "source_type"
-    t.integer "source_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["park", "area"], name: "index_challenges_on_park_and_area"
-    t.index ["source_type", "source_id"], name: "index_challenges_on_source_type_and_source_id", unique: true
+    t.index ["title"], name: "index_challenges_on_title", unique: true
   end
 
   create_table "game_events", force: :cascade do |t|

@@ -113,6 +113,7 @@ class Game < ApplicationRecord
 
   # Draws challenge ids for a hand, avoiding cards already held or recently used.
   def draw_challenges(count)
+    Challenge.refresh
     held = players.flat_map(&:hand)
     pool = Challenge.for_park(park).where.not(id: held).pluck(:id)
     fresh = pool - challenge_discard

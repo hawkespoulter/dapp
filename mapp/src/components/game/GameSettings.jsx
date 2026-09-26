@@ -128,6 +128,24 @@ function Record({ presets, record }) {
   );
 }
 
+function ChallengeFile({ challenges }) {
+  const counts = Object.entries(challenges.counts);
+  return (
+    <div className={section}>
+      <h2 className="mb-1 text-lg font-bold">Challenges</h2>
+      <p className="text-sm text-slate-400">
+        From challenges.yml: {counts.map(([group, n]) => `${n} ${group}`).join(" · ") || "none yet"}
+      </p>
+      {challenges.problem && (
+        <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-red-950 p-2 text-xs text-red-200">
+          {challenges.problem}
+          {"\n\n"}Games keep using the last good version until this is fixed.
+        </pre>
+      )}
+    </div>
+  );
+}
+
 function FinishedGames({ games }) {
   return (
     <div className={section}>
@@ -189,6 +207,7 @@ function GameSettings() {
       </div>
       <PresetForm key={current.key} preset={current} />
 
+      <ChallengeFile challenges={data.challenges} />
       <Record presets={data.presets} record={data.record} />
       <FinishedGames games={data.finished_games} />
     </div>
@@ -200,3 +219,4 @@ export default GameSettings;
 PresetForm.propTypes = { preset: PropTypes.object.isRequired };
 Record.propTypes = { presets: PropTypes.array.isRequired, record: PropTypes.object.isRequired };
 FinishedGames.propTypes = { games: PropTypes.array.isRequired };
+ChallengeFile.propTypes = { challenges: PropTypes.object.isRequired };
