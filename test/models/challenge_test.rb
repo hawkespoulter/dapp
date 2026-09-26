@@ -24,15 +24,15 @@ class ChallengeTest < ActiveSupport::TestCase
   test "each file is a park, and together they are the whole deck" do
     with_files(
       "anywhere.yml" => "- {title: Wave, reward: 1}\n",
-      "animal_kingdom.yml" => "- {title: Yeti, area: Asia, reward: 2}\n",
+      "animal_kingdom.yml" => "- {title: Yeti, reward: 2}\n",
     ) { Challenge.sync!(_1) }
     assert_equal %w[Wave Yeti], Challenge.order(:title).pluck(:title)
-    assert_equal [nil, nil], Challenge.find_by(title: "Wave").then { [_1.park, _1.area] }
-    assert_equal ["Animal Kingdom", "Asia"], Challenge.find_by(title: "Yeti").then { [_1.park, _1.area] }
+    assert_nil Challenge.find_by(title: "Wave").park
+    assert_equal "Animal Kingdom", Challenge.find_by(title: "Yeti").park
 
     with_files("anywhere.yml" => "- {title: Yeti, reward: 3}\n") { Challenge.sync!(_1) }
     yeti = Challenge.find_by!(title: "Yeti")
-    assert_equal [nil, nil, 3], [yeti.park, yeti.area, yeti.reward]
+    assert_equal [nil, 3], [yeti.park, yeti.reward]
     assert_equal 1, Challenge.count
   end
 
@@ -40,12 +40,12 @@ class ChallengeTest < ActiveSupport::TestCase
     before = Challenge.count
     error = assert_raises(Challenge::InvalidFile) do
       with_files("animal_kingdom.yml" => <<~YAML) { Challenge.sync!(_1) }
-        - {title: Lost, area: Narnia, reward: 1}
         - {title: Hard, reward: 5}
+        - {title: Free, reward: 0}
       YAML
     end
-    assert_match "animal_kingdom.yml: Lost: Area Narnia isn't an area in Animal Kingdom", error.message
     assert_match "animal_kingdom.yml: Hard: Reward must be 1, 2 or 3", error.message
+    assert_match "animal_kingdom.yml: Free: Reward must be 1, 2 or 3", error.message
     assert_equal before, Challenge.count
   end
 
@@ -57,10 +57,10 @@ class ChallengeTest < ActiveSupport::TestCase
     assert_match "sea_world.yml", error.message
   end
 
-  test "Universal Orlando is one park with both parks' areas" do
+  test "Universal Orlando is one park covering both Universal parks" do
     with_files("universal_orlando.yml" => <<~YAML) { Challenge.sync!(_1) }
-      - {title: Gringotts, area: Diagon Alley, reward: 2}
-      - {title: VelociCoaster, area: Jurassic Park, reward: 3}
+      - {title: Gringotts, reward: 2}
+      - {title: VelociCoaster, reward: 3}
     YAML
     assert_equal ["Universal Orlando"], Challenge.distinct.pluck(:park)
 
@@ -71,13 +71,13 @@ class ChallengeTest < ActiveSupport::TestCase
   end
 
   test "parks without a board can have challenges, but they aren't dealt" do
-    with_files("epcot.yml" => "- {title: Soarin, area: World Nature, reward: 2}\n") { Challenge.sync!(_1) }
+    with_files("epcot.yml" => "- {title: Soarin, reward: 2}\n") { Challenge.sync!(_1) }
 
     assert_equal "Epcot", Challenge.find_by!(title: "Soarin").park
     assert_empty Challenge.for_park("Magic Kingdom").where(title: "Soarin")
   end
 
-  test "duplicate titles, unknown fields and areas in anywhere.yml are rejected" do
+  test "duplicate titles and unknown fields are rejected" do
     assert_raises(Challenge::InvalidFile) do
       with_files(
         "anywhere.yml" => "- {title: A, reward: 1}\n",
@@ -93,7 +93,7 @@ class ChallengeTest < ActiveSupport::TestCase
     error = assert_raises(Challenge::InvalidFile) do
       with_files("anywhere.yml" => "- {title: A, reward: 1, area: Asia}\n") { Challenge.sync!(_1) }
     end
-    assert_match "only works in a park's file", error.message
+    assert_match "unknown field area", error.message
   end
 
   test "changed, added and deleted files are picked up on their own" do

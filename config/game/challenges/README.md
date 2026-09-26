@@ -17,7 +17,6 @@ Each file is a list of challenges:
 
 ```yaml
 - title: Night Blossom
-  area: Pandora
   description: Drink a Night Blossom from Pongu Pongu.
   reward: 1
 ```
@@ -27,7 +26,6 @@ Each file is a list of challenges:
 | `title` | Required, and unique across every file. It's how the app recognizes a challenge when you edit it, so renaming one makes it a new challenge. |
 | `description` | What the players have to do. |
 | `reward` | 1, 2 or 3: the coins the team earns for completing it. |
-| `area` | Optional, park files only: the area it happens in. It must match the map's area names exactly, e.g. `"DinoLand U.S.A."` (quote names with commas or periods). |
 | `list` | Optional: deal some random items from a list with each card, e.g. `{from: tree_of_life_animals, count: 10}`. `from` names a file in `lists/`, and `count` is how many items each card gets. A card keeps its items until it's played. |
 
 ## Lists

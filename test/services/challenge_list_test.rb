@@ -10,7 +10,7 @@ class ChallengeListTest < ActiveSupport::TestCase
     @game, @host = start_game(park: "Animal Kingdom")
     @game.update!(villain_draw: [])
     @now = @game.started_at + 1.minute
-    @tree = Challenge.create!(title: "Tree of Life", park: "Animal Kingdom", area: "Discovery Island",
+    @tree = Challenge.create!(title: "Tree of Life", park: "Animal Kingdom",
                               reward: 3, list_from: "tree_of_life_animals", list_count: 10)
   end
 

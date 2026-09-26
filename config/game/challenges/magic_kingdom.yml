@@ -1,18 +1,13 @@
 # Magic Kingdom challenges. See README.md for the fields.
-# Areas: "Main Street, U.S.A.", Adventureland, Frontierland, Liberty Square,
-# Fantasyland, Tomorrowland
 
 - title: Castle Selfie
-  area: "Main Street, U.S.A."
   description: Take a group selfie with Cinderella Castle fully in frame.
   reward: 1
 
 - title: Madame Leota
-  area: Liberty Square
   description: Find Madame Leota's tombstone by the Haunted Mansion and wait for her eyes to open.
   reward: 2
 
 - title: Kidney Stone Cure
-  area: Frontierland
   description: Ride Big Thunder Mountain twice in a row.
   reward: 3

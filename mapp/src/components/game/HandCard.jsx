@@ -18,21 +18,20 @@ function HandCard({ card, busy, onComplete, onFail }) {
           ))}
         </ul>
       )}
-      {card.area && <p className="mt-1 text-xs text-slate-400">{card.area}</p>}
       <div className="mt-2 flex gap-2">
         <button
           className="flex-1 rounded-lg bg-emerald-600 py-2 font-bold disabled:opacity-40"
           disabled={busy}
           onClick={() => onComplete(card)}
         >
-          Done
+          Completed
         </button>
         <button
           className="rounded-lg bg-slate-700 px-4 py-2 text-sm disabled:opacity-40"
           disabled={busy}
           onClick={() => onFail(card)}
         >
-          Couldn&apos;t
+          Failed
         </button>
       </div>
     </div>

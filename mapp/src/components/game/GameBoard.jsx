@@ -45,9 +45,8 @@ function GameBoard({ state, refetch }) {
   const run = (promise) => promise.unwrap().catch((e) => setError(errorMessage(e)));
   const code = game.code;
 
-  // Until someone taps the map, show an area one of your cards is in.
-  const cardArea = me?.hand.find((card) => areas.some((a) => a.area === card.area))?.area;
-  const current = selected || cardArea || areas[0].area;
+  // Until someone taps the map, show one of the areas the team holds.
+  const current = selected || areas.find((a) => a.owner === "players")?.area || areas[0].area;
   const currentArea = areas.find((a) => a.area === current);
 
   return (

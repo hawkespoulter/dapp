@@ -1,18 +1,14 @@
 # Animal Kingdom challenges. See README.md for the fields.
-# Areas: Discovery Island, Africa, Asia, "DinoLand U.S.A.", Pandora
 
 - title: Tree of Life Carvings
-  area: Discovery Island
   description: Spot at least 3 of these animals carved into the Tree of Life.
   list: {from: tree_of_life_animals, count: 10}
   reward: 3
 
 - title: Night Blossom
-  area: Pandora
   description: Drink a Night Blossom from Pongu Pongu.
   reward: 1
 
 - title: Gorilla Spotting
-  area: Africa
   description: Spot a gorilla on the Gorilla Falls Exploration Trail.
   reward: 2

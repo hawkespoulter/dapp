@@ -1,12 +1,7 @@
 # Universal Orlando challenges (Universal Studios and Islands of Adventure are
 # one park in the game). See README.md for the fields.
-# Universal Studios areas: Minion Land, New York, Production Central,
-#   San Francisco, Diagon Alley, World Expo, "Woody Woodpecker's KidZone"
-# Islands of Adventure areas: Superhero Island, Toon Lagoon, Hogsmede,
-#   Jurassic Park, Seuss Landing, Lost Continent
 # Not playable yet: these are dealt once the park has a board and a villain.
 
 # - title:
-#   area:
 #   description:
 #   reward: 1

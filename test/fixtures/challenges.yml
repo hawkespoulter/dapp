@@ -14,13 +14,11 @@ adventureland_easy:
   title: Dole Whip
   reward: 1
   park: Magic Kingdom
-  area: Adventureland
 
 other_park:
   title: Ride Pandora
   reward: 1
   park: Animal Kingdom
-  area: Pandora
 
 anywhere_extra_1:
   title: Snack Attack
