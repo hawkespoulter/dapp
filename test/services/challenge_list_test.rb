@@ -48,6 +48,15 @@ class ChallengeListTest < ActiveSupport::TestCase
     assert_equal animals, @host.reload.card_lists[@tree.id.to_s]
   end
 
+  test "a card dealt before its challenge had a list gets one when the hand is shown" do
+    @host.update!(hand: [@tree.id], card_lists: {})
+    animals = @host.hand_cards.first[:list]
+
+    assert_equal 10, animals.size
+    assert_equal animals, @host.reload.card_lists[@tree.id.to_s]
+    assert_equal animals, @host.hand_cards.first[:list]
+  end
+
   test "a list that doesn't exist or is too short is a mistake" do
     missing = Challenge.new(title: "X", reward: 1, list_from: "nope", list_count: 3)
     refute missing.valid?

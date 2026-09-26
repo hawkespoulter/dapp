@@ -11,7 +11,9 @@ class Challenge < ApplicationRecord
   class InvalidFile < StandardError; end
 
   validates :title, presence: true, uniqueness: true
-  validates :reward, inclusion: { in: 1..3, message: "must be 1, 2 or 3" }
+  REWARDS = 1..10
+
+  validates :reward, inclusion: { in: REWARDS, message: "must be a whole number from #{REWARDS.min} to #{REWARDS.max}" }
   validate :list_exists
 
   scope :for_park, ->(park) { where(park: nil).or(where(park:)) }

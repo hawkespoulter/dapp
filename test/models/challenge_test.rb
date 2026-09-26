@@ -40,12 +40,12 @@ class ChallengeTest < ActiveSupport::TestCase
     before = Challenge.count
     error = assert_raises(Challenge::InvalidFile) do
       with_files("animal_kingdom.yml" => <<~YAML) { Challenge.sync!(_1) }
-        - {title: Hard, reward: 5}
+        - {title: Hard, reward: 11}
         - {title: Free, reward: 0}
       YAML
     end
-    assert_match "animal_kingdom.yml: Hard: Reward must be 1, 2 or 3", error.message
-    assert_match "animal_kingdom.yml: Free: Reward must be 1, 2 or 3", error.message
+    assert_match "animal_kingdom.yml: Hard: Reward must be a whole number from 1 to 10", error.message
+    assert_match "animal_kingdom.yml: Free: Reward must be a whole number from 1 to 10", error.message
     assert_equal before, Challenge.count
   end
 
@@ -126,9 +126,9 @@ class ChallengeTest < ActiveSupport::TestCase
   test "a broken file keeps the last good deck and reports the problem" do
     with_files("anywhere.yml" => "- {title: Good, reward: 1}\n") do |dir|
       Challenge.sync!(dir)
-      write(dir, "anywhere.yml" => "- {title: Good, reward: 9}\n")
+      write(dir, "anywhere.yml" => "- {title: Good, reward: 99}\n")
 
-      assert_match "Reward must be 1, 2 or 3", Challenge.refresh(dir)
+      assert_match "Reward must be a whole number from 1 to 10", Challenge.refresh(dir)
     end
     assert_equal 1, Challenge.find_by!(title: "Good").reward
   end
