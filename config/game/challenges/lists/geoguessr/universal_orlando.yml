@@ -1,0 +1,53 @@
+# GeoGuessr photos for Universal Orlando: each card deals one. Go to where the photo
+# was taken within ten minutes. Photos are from Wikimedia Commons under the
+# licenses named in each credit; keep the credit and source when editing.
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/New_York_themed_area_%28Universal_Studios_Florida%29_May_2023_%28fire_hydrant%29.jpg/1280px-New_York_themed_area_%28Universal_Studios_Florida%29_May_2023_%28fire_hydrant%29.jpg"
+  answer: "Universal Studios, New York: a fire hydrant on the streets"
+  credit: "Photo: Benoît Prieur / CC0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:New_York_themed_area_(Universal_Studios_Florida)_May_2023_(fire_hydrant).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Central_Park_%28Universal_Studios_Florida%29_May_2023%29.JPG/1280px-Central_Park_%28Universal_Studios_Florida%29_May_2023%29.JPG"
+  answer: "Universal Studios, New York: Central Park"
+  credit: "Photo: Benoît Prieur / CC0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Central_Park_(Universal_Studios_Florida)_May_2023).JPG"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/New_York_at_Universal_Studios_Florida.JPG/1280px-New_York_at_Universal_Studios_Florida.JPG"
+  answer: "Universal Studios, New York: a street corner with a clock"
+  credit: "Photo: Eliedion / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:New_York_at_Universal_Studios_Florida.JPG"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/San_Francisco_themed_area_May_2023_%282%29.JPG/1280px-San_Francisco_themed_area_May_2023_%282%29.JPG"
+  answer: "Universal Studios, San Francisco: the waterfront"
+  credit: "Photo: Benoît Prieur / CC0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:San_Francisco_themed_area_May_2023_(2).JPG"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Universal_Studios_South_Street.jpg/1280px-Universal_Studios_South_Street.jpg"
+  answer: "Universal Studios, San Francisco: the street set"
+  credit: "Photo: Thomas Kirchel / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Universal_Studios_South_Street.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/Villain-Con_Minion_Blast_1.jpg/1280px-Villain-Con_Minion_Blast_1.jpg"
+  answer: "Universal Studios, Minion Land: Villain-Con Minion Blast"
+  credit: "Photo: Jeremy Thompson / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Villain-Con_Minion_Blast_1.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Face_of_Kang_%26_Kodos_Twirl_n_Hurl_Springfield_U_S_A.JPG/1280px-Face_of_Kang_%26_Kodos_Twirl_n_Hurl_Springfield_U_S_A.JPG"
+  answer: "Universal Studios, Springfield: Kang & Kodos' Twirl 'n' Hurl"
+  credit: "Photo: Eliedion / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Face_of_Kang_%26_Kodos_Twirl_n_Hurl_Springfield_U_S_A.JPG"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Mel%27s_Drive-In.jpg/1280px-Mel%27s_Drive-In.jpg"
+  answer: "Universal Studios, Hollywood: Mel's Drive-In"
+  credit: "Photo: Eden, Janine and Jim / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Mel%27s_Drive-In.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Gertrude_McFuzz_Fine_Feathered_Finery_Universal_Islands_of_Adventure.jpg/1280px-Gertrude_McFuzz_Fine_Feathered_Finery_Universal_Islands_of_Adventure.jpg"
+  answer: "Islands of Adventure, Seuss Landing: Gertrude McFuzz's Fine Feathered Finery"
+  credit: "Photo: Scoops929 / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Gertrude_McFuzz_Fine_Feathered_Finery_Universal_Islands_of_Adventure.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Krazy_Kat_Toon_Lagoon_Universal_Islands_of_Adventure.jpg/1280px-Krazy_Kat_Toon_Lagoon_Universal_Islands_of_Adventure.jpg"
+  answer: "Islands of Adventure, Toon Lagoon: Krazy Kat"
+  credit: "Photo: Scoops929 / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Krazy_Kat_Toon_Lagoon_Universal_Islands_of_Adventure.jpg"
