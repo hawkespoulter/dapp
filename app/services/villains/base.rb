@@ -15,17 +15,19 @@ module Villains
       @game = game
     end
 
-    STARTING_STRENGTH = 2
-
     # Called once when the game starts: splits the park at random. The villain
     # spreads out from her lair to half the park, the players spread from the
     # far side over the other half, and any odd area left over starts
-    # unclaimed.
+    # unclaimed. Each side then scatters its starting strength over its areas
+    # (at least 1 each).
     def setup!(at)
       split = random_split
+      strengths = %w[players villain].to_h do |side|
+        [side, scatter(split.select { _2 == side }.keys, game.settings["starting_strength"])]
+      end
       game.area_states.each do |state|
         owner = split.fetch(state.area, "neutral")
-        state.update!(owner:, influence: owner == "villain" ? STARTING_STRENGTH : 0, claim: 0, locked: false)
+        state.update!(owner:, strength: strengths.dig(owner, state.area) || 0)
       end
       held = game.area_states.select(&:villain?).map(&:area)
       game.log!("villain", "#{display_name} rises from #{lair} and holds #{held.to_sentence}.", at:)
@@ -50,6 +52,12 @@ module Villains
     end
 
     private
+
+    def scatter(areas, total)
+      strengths = areas.to_h { [_1, 1] }
+      (total - areas.size).times { strengths[areas.sample(random: game.rng)] += 1 }
+      strengths
+    end
 
     def random_split
       board = game.board

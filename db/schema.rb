@@ -15,9 +15,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_25_000001) do
     t.integer "game_id", null: false
     t.string "area", null: false
     t.string "owner", default: "neutral", null: false
-    t.integer "influence", default: 0, null: false
-    t.integer "claim", default: 0, null: false
-    t.boolean "locked", default: false, null: false
+    t.integer "strength", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["game_id", "area"], name: "index_area_states_on_game_id_and_area", unique: true

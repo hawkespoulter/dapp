@@ -1,5 +1,6 @@
-# A co-op park game: players claim areas with real-life challenges while the
-# park's villain spreads influence on a real-time clock.
+# A co-op park game: players earn coins with real-life challenges and spend
+# them on influence to claim areas, while the park's villain spreads on a
+# real-time clock.
 #
 # There is no background worker. Villain turns that came due since the last
 # request are played by `advance!`, which every request runs inside the game
@@ -129,8 +130,7 @@ class Game < ApplicationRecord
         started_at:, ends_at:, next_tick_at:, server_time: Time.current,
         tick_minutes: settings["tick_minutes"], hand_size:,
         escalation:, outbreaks:, outbreak_limit:, villain_rate: Games::VillainEngine.rate_for(escalation),
-        coins:, influence_stash:, influence_price:,
-        claim_cost: AreaState::CLAIM_COST, lock_cost: AreaState::LOCK_COST, max_influence: AreaState::MAX_INFLUENCE,
+        coins:, influence_stash:, influence_price:, outbreak_at: AreaState::OUTBREAK_AT,
         villain_cards_left: villain_draw.size, windows: rules["windows"] || [],
       },
       villain: villain,

@@ -3,7 +3,9 @@
 # same moment see one consistent order of events.
 #
 # Challenges pay coins into a team pool. Coins buy influence into a team
-# stash, and placing influence on an area pushes it toward the players.
+# stash, and each influence placed on an area moves it one point toward the
+# players: it weakens a villain area (at 0 it's unclaimed), claims an
+# unclaimed area at strength 1, or strengthens one of ours, with no cap.
 module Games
   class Actions
     class Invalid < StandardError; end
@@ -107,8 +109,7 @@ module Games
       end
     end
 
-    # Spends influence from the stash to push an area's meter toward the
-    # players. Stops early, keeping the rest, once the area is locked.
+    # Spends influence from the stash on an area.
     def place_influence!(area, count, now = Time.current)
       locked(now, playing: true) do
         count = count.to_i
@@ -117,22 +118,19 @@ module Games
         raise Invalid, "The team only has #{game.influence_stash} influence" if count > game.influence_stash
 
         state = game.area(area)
-        raise Invalid, "#{area} is already locked" if state.players? && state.locked?
         if state.villain? && game.board.neighbors(area).none? { game.area(_1).players? }
           raise Invalid, "To attack #{area} you need to hold an area next to it"
         end
 
         step_cost = game.villain.placement_cost(area)
         if count < step_cost
-          raise Invalid, "#{game.villain.display_name}'s Thorn Wall: each step in #{area} costs #{step_cost} influence"
+          raise Invalid, "#{game.villain.display_name}'s Thorn Wall: each point in #{area} costs #{step_cost} influence"
         end
 
         before = snapshot(state)
-        spent = 0
-        while spent + step_cost <= count && !(state.players? && state.locked?)
-          push_toward_players(state)
-          spent += step_cost
-        end
+        points = count / step_cost
+        spent = points * step_cost
+        points.times { push_toward_players(state) }
         state.save!
         game.influence_stash -= spent
 
@@ -207,34 +205,26 @@ module Games
       Challenge.find(challenge_id)
     end
 
-    # One step of the tug-of-war: wear down the villain's strength or
-    # influence first, then build a claim (unclaimed area) or a lock (ours).
+    # Moves an area one point toward the players.
     def push_toward_players(state)
-      if state.influence.positive?
-        state.influence -= 1
-        state.owner = "neutral" if state.villain? && state.influence.zero?
+      if state.villain?
+        state.strength -= 1
+        state.owner = "neutral" if state.strength.zero?
       elsif state.neutral?
-        state.claim += 1
-        state.assign_attributes(owner: "players", claim: 0) if state.claim >= AreaState::CLAIM_COST
+        state.assign_attributes(owner: "players", strength: 1)
       else
-        state.claim += 1
-        state.assign_attributes(locked: true, claim: 0) if state.claim >= AreaState::LOCK_COST
+        state.strength += 1
       end
     end
 
     def placement_message(state, before, spent)
       villain = game.villain.display_name
-      max = AreaState::MAX_INFLUENCE
       from = before["owner"]
       result =
-        if state.players? && state.locked? then "and locked it"
-        elsif state.players? && from != "players" then "and claimed it!"
-        elsif state.neutral? && from == "villain" then "and drove #{villain} out"
-        elsif before["influence"].positive? && state.influence.zero? && state.claim.zero? then "and cleared #{villain}'s influence"
-        elsif state.villain? then "(#{villain}'s strength #{state.influence}/#{max})"
-        elsif state.influence.positive? then "(#{villain}'s influence #{state.influence}/#{max})"
-        elsif state.players? then "(lock #{state.claim}/#{AreaState::LOCK_COST})"
-        else "(claim #{state.claim}/#{AreaState::CLAIM_COST})"
+        if state.players? && from != "players" then "and claimed it (strength #{state.strength})!"
+        elsif state.players? then "(strength #{state.strength})"
+        elsif state.neutral? then "and drove #{villain} out"
+        else "(#{villain}'s strength #{state.strength})"
         end
       "#{me.name} placed #{spent} influence in #{state.area} #{result}"
     end
@@ -259,7 +249,7 @@ module Games
     end
 
     def snapshot(state)
-      { "owner" => state.owner, "influence" => state.influence, "claim" => state.claim, "locked" => state.locked }
+      { "owner" => state.owner, "strength" => state.strength }
     end
 
     def windows_from(now)

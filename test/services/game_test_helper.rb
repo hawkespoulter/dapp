@@ -8,7 +8,7 @@ module GameTestHelper
 
   # Most rule tests are easier to read from an all-neutral board.
   def neutral_board!(game)
-    game.area_states.each { _1.update!(owner: "neutral", influence: 0, claim: 0, locked: false) }
+    game.area_states.each { _1.update!(owner: "neutral", strength: 0) }
   end
 
   def set_area(game, name, **attrs)

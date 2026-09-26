@@ -38,9 +38,7 @@ class CreateParkGame < ActiveRecord::Migration[7.1]
       t.references :game, null: false, foreign_key: true
       t.string :area, null: false
       t.string :owner, null: false, default: "neutral"
-      t.integer :influence, null: false, default: 0
-      t.integer :claim, null: false, default: 0
-      t.boolean :locked, null: false, default: false
+      t.integer :strength, null: false, default: 0
       t.timestamps
     end
     add_index :area_states, [:game_id, :area], unique: true

@@ -1,16 +1,15 @@
 # The villain's side of the game, modeled on Pandemic's infection deck.
 #
-# The game starts with the park split between the players and the villain.
-# Influence on a villain area is its strength.
-#
-# The villain deck holds two cards per area plus "Villain Rising" cards spread
-# evenly through it. Each villain turn draws `rate` cards:
-#   * area card  -> +1 influence there. At 3 influence the villain takes the area.
-#                   A villain area gains strength instead; one already at full
-#                   strength has an outbreak that spreads influence to every
-#                   neighbor.
+# Every area has an owner and a strength. The villain deck holds two cards
+# per area plus "Villain Rising" cards spread evenly through it. Each villain
+# turn draws `rate` cards:
+#   * area card  -> the villain pushes 1 into that area: it weakens a players
+#                   area (at 0 the area is unclaimed), claims an unclaimed one
+#                   at strength 1, and strengthens one of her own. Drawing her
+#                   own area at strength 3+ is an outbreak instead, which
+#                   pushes into every neighbor.
 #   * rising     -> escalation +1 (more cards per turn), the bottom area card
-#                   gets 3 influence, and the discard pile goes back on top.
+#                   takes a push of 3, and the discard pile goes back on top.
 #
 # Everything the villain does starts from `handle(trigger)`, so new triggers
 # (e.g. a failed challenge) can be switched on per game through `rules`.
@@ -18,6 +17,7 @@ module Games
   class VillainEngine
     RATE_TRACK = [1, 1, 2, 2, 3].freeze
     RISING = "rising".freeze
+    RISING_PUSH = 3
 
     def self.rate_for(escalation)
       RATE_TRACK[[escalation, RATE_TRACK.size - 1].min]
@@ -55,23 +55,39 @@ module Games
       villain.on_tick(at) if game.active?
     end
 
-    def add_influence(name, amount, at, from_outbreak: false)
+    # The villain pushes `amount` into an area.
+    def push(name, amount, at, from_outbreak: false)
       state = game.area(name)
-      amount = push_back_claim(state, amount, at)
+      who = villain.display_name
+
+      if state.villain?
+        if state.strength >= AreaState::OUTBREAK_AT && !from_outbreak
+          outbreak(name, at)
+        else
+          state.update!(strength: state.strength + amount)
+          game.log!("strength", "#{who}'s hold on #{name} grows (strength #{state.strength}).", at:, area: name)
+        end
+        return
+      end
+
+      if state.players?
+        hit = [amount, state.strength].min
+        state.strength -= hit
+        amount -= hit
+        if state.strength.positive?
+          state.save!
+          game.log!("weakened", "#{who} weakens your hold on #{name} (strength #{state.strength}).", at:, area: name)
+          return
+        end
+        state.update!(owner: "neutral", strength: 0)
+        game.log!("lost_area", "#{who} knocked you out of #{name}.", at:, area: name)
+      end
       return if amount.zero?
 
-      if state.villain? && state.influence >= AreaState::MAX_INFLUENCE
-        outbreak(name, at) unless from_outbreak
-      elsif state.villain?
-        state.update!(influence: [state.influence + amount, AreaState::MAX_INFLUENCE].min)
-        game.log!("influence", "#{villain.display_name}'s hold on #{name} grows (#{state.influence}/#{AreaState::MAX_INFLUENCE}).", at:, area: name)
-      elsif state.players? && state.locked?
-        game.log!("blocked", "#{name} is locked and holds off #{villain.display_name}.", at:, area: name)
-      else
-        state.update!(influence: [state.influence + amount, AreaState::MAX_INFLUENCE].min)
-        game.log!("influence", "#{villain.display_name}'s influence grows in #{name} (#{state.influence}/#{AreaState::MAX_INFLUENCE}).", at:, area: name)
-        takeover(state, at) if state.influence >= AreaState::MAX_INFLUENCE
-      end
+      state.update!(owner: "villain", strength: amount)
+      game.log!("takeover", "#{who} has taken #{name}!", at:, area: name)
+      villain.on_takeover(state, at)
+      check_loss!(at)
     end
 
     # Ends a game whose clock ran out and awards a medal.
@@ -91,11 +107,11 @@ module Games
       finish!(result, "Time's up! You hold #{ours} of #{states.size} areas; #{villain.display_name} holds #{theirs}.", at)
     end
 
-    # Players win early by owning and locking every area.
+    # Players win early by holding every area.
     def check_player_win!(at)
-      return unless game.area_states.all? { _1.players? && _1.locked? }
+      return unless game.area_states.all?(&:players?)
 
-      finish!("gold", "Every area is claimed and locked. #{villain.display_name} is defeated!", at)
+      finish!("gold", "You hold the whole park. #{villain.display_name} is defeated!", at)
     end
 
     private
@@ -110,19 +126,8 @@ module Games
         escalate(at)
       else
         game.villain_discard = game.villain_discard + [card]
-        add_influence(card.delete_prefix("area:"), 1, at)
+        push(card.delete_prefix("area:"), 1, at)
       end
-    end
-
-    # The villain's influence eats into a claim or lock the players are
-    # building before it adds any of its own. Returns what's left over.
-    def push_back_claim(state, amount, at)
-      return amount unless state.claim.positive? && !state.locked?
-
-      pushed = [amount, state.claim].min
-      state.update!(claim: state.claim - pushed)
-      game.log!("influence", "#{villain.display_name} pushes back your influence in #{state.area}.", at:, area: state.area)
-      amount - pushed
     end
 
     def reshuffle_discard(at)
@@ -140,18 +145,11 @@ module Games
       card = index ? draw.delete_at(index) : "area:#{game.board.areas.sample(random: game.rng)}"
       game.villain_draw = draw
       game.villain_discard = game.villain_discard + [card]
-      add_influence(card.delete_prefix("area:"), AreaState::MAX_INFLUENCE, at)
+      push(card.delete_prefix("area:"), RISING_PUSH, at, from_outbreak: true)
 
       game.villain_draw = game.villain_discard.shuffle(random: game.rng) + game.villain_draw
       game.villain_discard = []
       villain.on_escalation(at)
-    end
-
-    def takeover(state, at)
-      state.update!(owner: "villain", locked: false, influence: AreaState::MAX_INFLUENCE)
-      game.log!("takeover", "#{villain.display_name} has taken #{state.area}!", at:, area: state.area)
-      villain.on_takeover(state, at)
-      check_loss!(at)
     end
 
     def outbreak(name, at)
@@ -160,7 +158,7 @@ module Games
       game.board.neighbors(name).each do |neighbor|
         break unless game.active?
 
-        add_influence(neighbor, villain.outbreak_spread, at, from_outbreak: true)
+        push(neighbor, villain.outbreak_spread, at, from_outbreak: true)
       end
       check_loss!(at)
     end

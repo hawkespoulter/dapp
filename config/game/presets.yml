@@ -1,19 +1,22 @@
 # Game length presets. tick_minutes is how often the villain acts;
-# influence_price is how many coins one influence costs.
+# influence_price is how many coins one influence costs; starting_strength
+# is what each side scatters over its areas at the start.
 sprint:
   label: Sprint (2-4 hours)
   hours: 3
   tick_minutes: 20
   hand_size: 2
   influence_price: 1
+  starting_strength: 10
   risings: 2
   outbreak_limit: 4
 full_day:
   label: Full Day
   hours: 10
-  tick_minutes: 35
+  tick_minutes: 40
   hand_size: 3
   influence_price: 1
+  starting_strength: 10
   risings: 4
   outbreak_limit: 6
 multi_day:
@@ -21,8 +24,9 @@ multi_day:
   days: 3
   day_start: "09:00"
   day_end: "21:00"
-  tick_minutes: 40
+  tick_minutes: 45
   hand_size: 3
   influence_price: 1
+  starting_strength: 10
   risings: 6
   outbreak_limit: 8

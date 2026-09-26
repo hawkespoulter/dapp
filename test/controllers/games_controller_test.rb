@@ -38,7 +38,7 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     if ours
       post place_api_v1_game_url(code), params: { area: ours["area"], count: 1 }, headers: host, as: :json
       assert_response :success
-      assert_equal 1, response.parsed_body["areas"].find { _1["area"] == ours["area"] }["claim"]
+      assert_equal ours["strength"] + 1, response.parsed_body["areas"].find { _1["area"] == ours["area"] }["strength"]
     end
 
     post undo_api_v1_game_url(code), headers: host, as: :json
