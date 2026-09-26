@@ -1,0 +1,53 @@
+# GeoGuessr photos for Magic Kingdom: each card deals one. Go to where the photo
+# was taken within ten minutes. Photos are from Wikimedia Commons under the
+# licenses named in each credit; keep the credit and source when editing.
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Camel_statue_spraying_water_on_the_Magic_Carpets_of_Aladdin_-_Magic_Kingdom_-_Flickr_-_JeffChristiansen.jpg/1280px-Camel_statue_spraying_water_on_the_Magic_Carpets_of_Aladdin_-_Magic_Kingdom_-_Flickr_-_JeffChristiansen.jpg"
+  answer: "Adventureland: the water-spitting camel by The Magic Carpets of Aladdin"
+  credit: "Photo: JeffChristiansen / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Camel_statue_spraying_water_on_the_Magic_Carpets_of_Aladdin_-_Magic_Kingdom_-_Flickr_-_JeffChristiansen.jpg"
+
+- image: "https://upload.wikimedia.org/wikipedia/commons/c/cc/Detail_of_Sunshine_Tree_Terrace_%289627764322%29.jpg"
+  answer: "Adventureland: the roof of the Sunshine Tree Terrace"
+  credit: "Photo: Steven Miller / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Detail_of_Sunshine_Tree_Terrace_(9627764322).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Disney_Liberty_Bell.jpg/1280px-Disney_Liberty_Bell.jpg"
+  answer: "Liberty Square: the Liberty Bell replica"
+  credit: "Photo: George Bannister / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Disney_Liberty_Bell.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Haunted_Mansion_%28Magic_Kingdom%29_3.jpg/1280px-Haunted_Mansion_%28Magic_Kingdom%29_3.jpg"
+  answer: "Liberty Square: Bluebeard's tombstone at the Haunted Mansion"
+  credit: "Photo: Wacky Windjammer / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Haunted_Mansion_(Magic_Kingdom)_3.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Be_Our_Guest_%2814246800602%29.jpg/1280px-Be_Our_Guest_%2814246800602%29.jpg"
+  answer: "Fantasyland: the entrance to Be Our Guest Restaurant"
+  credit: "Photo: HarshLight from San Jose, CA, USA / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Be_Our_Guest_(14246800602).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Gaston%27s_Tavern_%2843309034491%29.jpg/1280px-Gaston%27s_Tavern_%2843309034491%29.jpg"
+  answer: "Fantasyland: Gaston's Tavern"
+  credit: "Photo: HarshLight from San Jose, CA, USA / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Gaston%27s_Tavern_(43309034491).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Dolls_by_Miss_Joyce_%2824209341720%29.jpg/1280px-Dolls_by_Miss_Joyce_%2824209341720%29.jpg"
+  answer: "Main Street, U.S.A.: the Dolls by Miss Joyce window"
+  credit: "Photo: elisfkc / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Dolls_by_Miss_Joyce_(24209341720).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Evans_%26_Assoc._Tree_Surgeons_%2824137113499%29.jpg/1280px-Evans_%26_Assoc._Tree_Surgeons_%2824137113499%29.jpg"
+  answer: "Main Street, U.S.A.: the Evans & Assoc. Tree Surgeons window"
+  credit: "Photo: elisfkc / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Evans_%26_Assoc._Tree_Surgeons_(24137113499).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Tomorrowland_Rocks_%2829419636594%29.jpg/1280px-Tomorrowland_Rocks_%2829419636594%29.jpg"
+  answer: "Tomorrowland: the blue rockwork and waterfalls"
+  credit: "Photo: Theme Park Tourist / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Tomorrowland_Rocks_(29419636594).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3d/Pecos_Bill_Tall_Tale_Inn_%26_Caf%C3%A9.jpg/1280px-Pecos_Bill_Tall_Tale_Inn_%26_Caf%C3%A9.jpg"
+  answer: "Frontierland: Pecos Bill Tall Tale Inn and Cafe"
+  credit: "Photo: HarshLight / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Pecos_Bill_Tall_Tale_Inn_%26_Caf%C3%A9.jpg"
