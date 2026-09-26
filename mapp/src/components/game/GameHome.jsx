@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link, useNavigate } from "react-router-dom";
-import { useCreateGameMutation, useFetchGameParksQuery, useJoinGameMutation } from "~/store/apis/gameApi";
-import { errorMessage, savePlayer, savedGames } from "./playerStorage";
+import { useCreateGameMutation, useFetchGameParksQuery, useFetchGameQuery, useJoinGameMutation } from "~/store/apis/gameApi";
+import { errorMessage, forgetGame, savePlayer, savedGames } from "./playerStorage";
 
 const input = "w-full rounded-lg bg-slate-900 px-3 py-2 text-white placeholder-slate-500";
 const label = "text-xs font-bold uppercase tracking-wide text-slate-400";
@@ -118,8 +118,42 @@ function NewGameForm() {
   );
 }
 
+const STATUS_LABELS = { lobby: "Waiting to start", active: "In progress", finished: "Finished" };
+
+// A game this phone joined. Checks with the server and hides itself (and
+// forgets the game) if the game is gone or this phone is no longer in it.
+function SavedGame({ game, onGone }) {
+  const { data, error } = useFetchGameQuery(game.code);
+  const gone = error?.status === 404 || (data && !data.me);
+
+  useEffect(() => {
+    if (gone) onGone(game.code);
+  }, [gone, game.code, onGone]);
+
+  if (gone || !data) return null;
+
+  return (
+    <li>
+      <Link className="flex items-center justify-between rounded-lg bg-slate-900 px-3 py-2" to={`/game/${game.code}`}>
+        <span className="font-bold tracking-widest">{game.code}</span>
+        <span className="text-right text-sm text-slate-400">
+          {game.park} · {game.name}
+          <span className={`block text-xs ${data.game.status === "active" ? "text-emerald-400" : ""}`}>
+            {STATUS_LABELS[data.game.status]}
+          </span>
+        </span>
+      </Link>
+    </li>
+  );
+}
+
 function GameHome() {
-  const saved = savedGames();
+  const [saved, setSaved] = useState(() => savedGames().slice(0, 5));
+
+  const onGone = useCallback((code) => {
+    forgetGame(code);
+    setSaved((games) => games.filter((g) => g.code !== code));
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col gap-4 bg-slate-950 p-4 text-white">
@@ -131,13 +165,8 @@ function GameHome() {
         <div className="rounded-xl bg-slate-800 p-4">
           <h2 className="mb-2 text-lg font-bold">Your games</h2>
           <ul className="flex flex-col gap-2">
-            {saved.slice(0, 5).map((g) => (
-              <li key={g.code}>
-                <Link className="flex justify-between rounded-lg bg-slate-900 px-3 py-2" to={`/game/${g.code}`}>
-                  <span className="font-bold tracking-widest">{g.code}</span>
-                  <span className="text-sm text-slate-400">{g.park} · {g.name}</span>
-                </Link>
-              </li>
+            {saved.map((g) => (
+              <SavedGame key={g.code} game={g} onGone={onGone} />
             ))}
           </ul>
         </div>
@@ -151,3 +180,4 @@ function GameHome() {
 export default GameHome;
 
 JoinForm.propTypes = { initialCode: PropTypes.string };
+SavedGame.propTypes = { game: PropTypes.object.isRequired, onGone: PropTypes.func.isRequired };

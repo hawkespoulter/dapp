@@ -25,6 +25,16 @@ export function savePlayer(code, token, name, park) {
   }
 }
 
+export function forgetGame(code) {
+  const all = readAll();
+  delete all[code.toUpperCase()];
+  try {
+    localStorage.setItem(KEY, JSON.stringify(all));
+  } catch {
+    // nothing to forget if storage is unavailable
+  }
+}
+
 export function savedGames() {
   return Object.entries(readAll())
     .map(([code, info]) => ({ code, ...info }))
