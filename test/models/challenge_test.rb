@@ -57,6 +57,19 @@ class ChallengeTest < ActiveSupport::TestCase
     assert_match "sea_world.yml", error.message
   end
 
+  test "Universal Orlando is one park with both parks' areas" do
+    with_files("universal_orlando.yml" => <<~YAML) { Challenge.sync!(_1) }
+      - {title: Gringotts, area: Diagon Alley, difficulty: 2}
+      - {title: VelociCoaster, area: Jurassic Park, difficulty: 3}
+    YAML
+    assert_equal ["Universal Orlando"], Challenge.distinct.pluck(:park)
+
+    error = assert_raises(Challenge::InvalidFile) do
+      with_files("islands_of_adventure.yml" => "- {title: Hulk, difficulty: 1}\n") { Challenge.sync!(_1) }
+    end
+    assert_match "universal_orlando.yml", error.message
+  end
+
   test "parks without a board can have challenges, but they aren't dealt" do
     with_files("epcot.yml" => "- {title: Soarin, area: World Nature, difficulty: 2}\n") { Challenge.sync!(_1) }
 

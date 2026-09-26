@@ -1,5 +1,6 @@
-# The parks the tracker knows and their areas, named as in the tracker's
-# data. A park is only playable in the park game once it has a board
+# The parks as the park game sees them, and their areas. Area names match
+# the tracker's data. A few game parks span two of the tracker's parks
+# (TRACKER_PARKS). A park is only playable once it has a board
 # (config/game/parks.yml) and a villain, but it can have challenges before
 # that.
 module Park
@@ -8,11 +9,20 @@ module Park
     "Magic Kingdom" => ["Main Street, U.S.A.", "Adventureland", "Frontierland", "Liberty Square", "Fantasyland", "Tomorrowland"],
     "Epcot" => ["World Celebration", "World Discovery", "World Nature", "World Showcase"],
     "Hollywood Studios" => ["Hollywood Boulevard", "Muppet Courtyard", "Echo Lake", "Toy Story Land", "Galaxy's Edge", "Animation Courtyard", "Sunset Boulevard"],
-    "Universal Studios" => ["Minion Land", "New York", "Production Central", "San Francisco", "Diagon Alley", "World Expo", "Woody Woodpecker's KidZone"],
-    "Islands Of Adventure" => ["Superhero Island", "Toon Lagoon", "Hogsmede", "Jurassic Park", "Seuss Landing", "Lost Continent"],
-    "Disneyland" => [],
-    "California Adventure" => [],
+    "Universal Orlando" => [
+      # Universal Studios
+      "Minion Land", "New York", "Production Central", "San Francisco", "Diagon Alley", "World Expo", "Woody Woodpecker's KidZone",
+      # Islands of Adventure
+      "Superhero Island", "Toon Lagoon", "Hogsmede", "Jurassic Park", "Seuss Landing", "Lost Continent",
+    ],
+    "Disneyland Resort" => [],
     "Sea World" => [],
+  }.freeze
+
+  # Game parks made of more than one tracker park.
+  TRACKER_PARKS = {
+    "Universal Orlando" => ["Universal Studios", "Islands Of Adventure"],
+    "Disneyland Resort" => ["Disneyland", "California Adventure"],
   }.freeze
 
   def self.names
@@ -21,5 +31,9 @@ module Park
 
   def self.areas(park)
     AREAS.fetch(park)
+  end
+
+  def self.tracker_parks(park)
+    TRACKER_PARKS.fetch(park, [park])
   end
 end

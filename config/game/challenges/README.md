@@ -6,8 +6,10 @@ files; there's nothing to run.
 
 - `anywhere.yml` holds challenges that can be done in any park.
 - Each park has its own file, named after the park in lowercase with
-  underscores: `animal_kingdom.yml`, `sea_world.yml`, ... Every park the
-  tracker knows already has one. A park's challenges are only dealt once
+  underscores: `animal_kingdom.yml`, `sea_world.yml`, ... Every park already
+  has one. In the game, Universal Studios and Islands of Adventure are one
+  park (`universal_orlando.yml`), and so are Disneyland and California
+  Adventure (`disneyland_resort.yml`). A park's challenges are only dealt once
   that park is playable (it has a board and a villain); until then they just
   wait. A file with any other name is flagged as a mistake.
 
