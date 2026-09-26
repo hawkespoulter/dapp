@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
-import LockIcon from "@mui/icons-material/Lock";
-import { OWNER_LABELS, meterText, placementPlan } from "./gameRules";
+import { OWNER_LABELS, placementPlan, strengthText } from "./gameRules";
 
 const OWNER_STYLES = {
   players: "bg-sky-600",
@@ -8,11 +7,24 @@ const OWNER_STYLES = {
   villain: "bg-purple-700",
 };
 
+const button = "rounded-lg py-2 text-sm font-bold disabled:opacity-40";
+
 function AreaPanel({ state, area, busy, onPlace }) {
   const { villain, game } = state;
   const plan = placementPlan(state, area.area);
   const stash = game.influence_stash;
-  const affordable = Math.min(plan.cost, stash - (stash % plan.step));
+  const all = stash - (stash % plan.step);
+  const outbreakReady = area.owner === "villain" && area.strength >= game.outbreak_at;
+
+  let main;
+  if (plan.goal === "strengthen") {
+    const short = stash > 0 ? `Need ${plan.step} per point here` : "No influence to place";
+    main = { count: all, label: all >= plan.step ? `Place all (${all})` : short };
+  } else if (all >= plan.cost) {
+    main = { count: plan.cost, label: `Place ${plan.cost} · ${plan.goal}` };
+  } else {
+    main = { count: 0, label: `Need ${plan.cost} influence to ${plan.goal}` };
+  }
 
   return (
     <div className="bg-slate-800 px-3 py-2 text-white">
@@ -21,38 +33,30 @@ function AreaPanel({ state, area, busy, onPlace }) {
         <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${OWNER_STYLES[area.owner]}`}>
           {area.owner === "villain" ? villain.name : OWNER_LABELS[area.owner]}
         </span>
-        {area.locked && <LockIcon sx={{ fontSize: 14 }} className="text-amber-300" />}
       </div>
       <p className="text-xs text-slate-400">
-        {meterText(state, area)}
-        {plan.step > 1 && ` · Thorn Wall: ${plan.step} influence per step`}
+        {strengthText(state, area)}
+        {outbreakReady && <span className="text-red-400"> · strong enough to break out</span>}
+        {plan.step > 1 && ` · Thorn Wall: ${plan.step} influence per point`}
       </p>
 
       {plan.blocked ? (
         <p className="mt-2 text-sm text-amber-400">{plan.blocked}</p>
       ) : (
         <>
-          <p className="mt-2 text-sm text-slate-300">
-            {plan.cost} influence to {plan.goal}
-          </p>
+          <p className="mt-1 text-xs text-slate-400">{plan.hint}</p>
           <div className="mt-2 flex gap-2">
+            {plan.goal !== "claim it" && (
+              <button className={`${button} bg-slate-700 px-4`} disabled={busy || stash < plan.step} onClick={() => onPlace(plan.step)}>
+                Place {plan.step}
+              </button>
+            )}
             <button
-              className="rounded-lg bg-slate-700 px-4 py-2 text-sm font-bold disabled:opacity-40"
-              disabled={busy || stash < plan.step}
-              onClick={() => onPlace(plan.step)}
+              className={`${button} flex-1 bg-sky-600`}
+              disabled={busy || main.count < plan.step}
+              onClick={() => onPlace(main.count)}
             >
-              Place {plan.step}
-            </button>
-            <button
-              className="flex-1 rounded-lg bg-sky-600 py-2 text-sm font-bold disabled:opacity-40"
-              disabled={busy || affordable < plan.step}
-              onClick={() => onPlace(affordable)}
-            >
-              {affordable >= plan.cost
-                ? `Place ${plan.cost} · ${plan.goal}`
-                : affordable >= plan.step
-                  ? `Place ${affordable} of ${plan.cost}`
-                  : `Need ${plan.cost} influence`}
+              {main.label}
             </button>
           </div>
         </>

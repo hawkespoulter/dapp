@@ -3,47 +3,28 @@
 
 export const OWNER_LABELS = { players: "Yours", neutral: "Unclaimed", villain: "Villain" };
 
-// What the team is working toward in an area, and how much influence it
-// takes to get there.
+// What placing influence in an area would do: `step` is the influence per
+// point of strength, `cost` what it takes to reach the goal.
 export function placementPlan(state, name) {
-  const { game, villain, areas } = state;
+  const { villain, areas } = state;
   const byName = Object.fromEntries(areas.map((a) => [a.area, a]));
   const area = byName[name];
   const step = area.placement_cost;
 
-  let blocked = null;
-  let steps = 0;
-  let goal = "";
-  if (area.owner === "players" && area.locked) {
-    blocked = `Locked — safe from ${villain.name}`;
-  } else if (area.owner === "villain" && !area.neighbors.some((n) => byName[n].owner === "players")) {
-    blocked = "Hold an area next to it to attack";
-  } else if (area.owner === "villain") {
-    steps = area.influence + game.claim_cost;
-    goal = "take it back";
-  } else if (area.owner === "neutral") {
-    steps = area.influence + game.claim_cost - area.claim;
-    goal = "claim it";
-  } else if (area.influence > 0) {
-    steps = area.influence;
-    goal = `clear ${villain.name}'s influence`;
-  } else {
-    steps = game.lock_cost - area.claim;
-    goal = "lock it";
+  if (area.owner === "villain" && !area.neighbors.some((n) => byName[n].owner === "players")) {
+    return { blocked: "Hold an area next to it to attack", step };
   }
-
-  return { blocked, step, cost: steps * step, goal };
+  if (area.owner === "villain") {
+    return { step, cost: (area.strength + 1) * step, goal: "take it", hint: `Each point knocks ${villain.name}'s strength down by 1.` };
+  }
+  if (area.owner === "neutral") {
+    return { step, cost: step, goal: "claim it", hint: "One point claims it at strength 1." };
+  }
+  return { step, goal: "strengthen", hint: "Each point adds 1 strength." };
 }
 
-// A short description of where an area's meter sits.
-export function meterText(state, area) {
-  const { game, villain } = state;
-  if (area.owner === "villain") return `${villain.name}'s strength ${area.influence}/${game.max_influence}`;
-  const parts = [];
-  if (area.influence > 0) parts.push(`${villain.name}'s influence ${area.influence}/${game.max_influence}`);
-  if (area.claim > 0) {
-    parts.push(area.owner === "players" ? `lock ${area.claim}/${game.lock_cost}` : `claim ${area.claim}/${game.claim_cost}`);
-  }
-  if (area.locked) parts.push("locked");
-  return parts.join(" · ") || (area.owner === "players" ? "Not locked yet" : "No influence yet");
+export function strengthText(state, area) {
+  if (area.owner === "villain") return `${state.villain.name}'s strength ${area.strength}`;
+  if (area.owner === "players") return `Your strength ${area.strength}`;
+  return "Nobody holds it";
 }

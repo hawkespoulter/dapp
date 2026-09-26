@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import LockIcon from "@mui/icons-material/Lock";
 import IMAGES from "~/images/Images";
 import { toCamelCase } from "~/constants.js";
 import { BOARD_LAYOUT, IMAGE_SIZE, villainColor } from "./boardLayout";
@@ -44,7 +43,7 @@ function useAreaHitTest(areaNames) {
     });
 }
 
-function GameMap({ park, areas, villainKey, claimCost, lockCost, onSelect }) {
+function GameMap({ park, areas, villainKey, outbreakAt, onSelect }) {
   const layout = BOARD_LAYOUT[park];
   const color = villainColor(villainKey);
   const areaNames = areas.map((a) => a.area);
@@ -97,33 +96,26 @@ function GameMap({ park, areas, villainKey, claimCost, lockCost, onSelect }) {
         <img src={IMAGES[`${toCamelCase(park)}Lines`]} style={fill} alt="" draggable={false} />
 
         {areas
-          .filter((area) => area.locked || area.influence > 0 || area.claim > 0)
+          .filter((area) => area.owner !== "neutral")
           .map((area) => {
             const [x, y] = layout.centers[area.area];
-            const claimTarget = area.owner === "players" ? lockCost : claimCost;
+            const hers = area.owner === "villain";
+            const breakingOut = hers && area.strength >= outbreakAt;
             return (
               <div
                 key={area.area}
-                className="pointer-events-none absolute flex items-center gap-1 rounded-full bg-slate-900/70 px-1.5 py-1"
-                style={{ left: pct(x, IMAGE_SIZE.width), top: pct(y, IMAGE_SIZE.height), transform: "translate(-50%, -50%)" }}
+                className={`pointer-events-none absolute flex h-6 min-w-6 items-center justify-center rounded-full border-2 px-1 text-xs font-black text-white shadow ${
+                  breakingOut ? "border-red-400 animate-pulse" : "border-white/80"
+                }`}
+                style={{
+                  left: pct(x, IMAGE_SIZE.width),
+                  top: pct(y, IMAGE_SIZE.height),
+                  transform: "translate(-50%, -50%)",
+                  backgroundColor: hers ? color : "#0284c7",
+                }}
+                title={`Strength ${area.strength}`}
               >
-                {area.locked && <LockIcon sx={{ fontSize: 12 }} className="text-amber-300" />}
-                {area.influence > 0 &&
-                  [0, 1, 2].map((i) => (
-                    <span
-                      key={i}
-                      className="h-2 w-2 rounded-full border border-white/80"
-                      style={{ backgroundColor: i < area.influence ? (area.owner === "villain" ? "white" : color) : "transparent" }}
-                    />
-                  ))}
-                {area.claim > 0 &&
-                  Array.from({ length: claimTarget }, (_, i) => (
-                    <span
-                      key={`claim-${i}`}
-                      className="h-2 w-2 rounded-full border border-sky-300"
-                      style={{ backgroundColor: i < area.claim ? "#38bdf8" : "transparent" }}
-                    />
-                  ))}
+                {area.strength}
               </div>
             );
           })}
@@ -138,7 +130,6 @@ GameMap.propTypes = {
   park: PropTypes.string.isRequired,
   areas: PropTypes.array.isRequired,
   villainKey: PropTypes.string.isRequired,
-  claimCost: PropTypes.number.isRequired,
-  lockCost: PropTypes.number.isRequired,
+  outbreakAt: PropTypes.number.isRequired,
   onSelect: PropTypes.func,
 };
