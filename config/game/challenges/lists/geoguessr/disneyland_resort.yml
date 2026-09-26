@@ -1,0 +1,53 @@
+# GeoGuessr photos for Disneyland Resort: each card deals one. Go to where the photo
+# was taken within ten minutes. Photos are from Wikimedia Commons under the
+# licenses named in each credit; keep the credit and source when editing.
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Main_Street_Cinema_%2844612120105%29.jpg/1280px-Main_Street_Cinema_%2844612120105%29.jpg"
+  answer: "Disneyland, Main Street U.S.A.: the Main Street Cinema"
+  credit: "Photo: Mignon Pelletier from Ventura, CA, USA / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Main_Street_Cinema_(44612120105).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Great_Moments_with_Mr._Lincoln_%2830584874577%29.jpg/1280px-Great_Moments_with_Mr._Lincoln_%2830584874577%29.jpg"
+  answer: "Disneyland, Main Street U.S.A.: Great Moments with Mr. Lincoln in the Opera House"
+  credit: "Photo: Mignon Pelletier from Ventura, CA, USA / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Great_Moments_with_Mr._Lincoln_(30584874577).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Submarine_Voyage_%2828187326234%29.jpg/1280px-Submarine_Voyage_%2828187326234%29.jpg"
+  answer: "Disneyland, Tomorrowland: the Finding Nemo Submarine Voyage lagoon"
+  credit: "Photo: Theme Park Tourist / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Submarine_Voyage_(28187326234).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/Radiator_Springs_storm_drain.jpg/1280px-Radiator_Springs_storm_drain.jpg"
+  answer: "California Adventure, Cars Land: a storm drain in Radiator Springs"
+  credit: "Photo: HarshLight from San Jose, CA, USA / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Radiator_Springs_storm_drain.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Radiator_Springs_rocks_1%2C_California_Adventure%2C_Disneyland%2C_Anaheim%2C_California%2C_USA.jpg/1280px-Radiator_Springs_rocks_1%2C_California_Adventure%2C_Disneyland%2C_Anaheim%2C_California%2C_USA.jpg"
+  answer: "California Adventure, Cars Land: the rockwork in Radiator Springs"
+  credit: "Photo: Cory Doctorow / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Radiator_Springs_rocks_1,_California_Adventure,_Disneyland,_Anaheim,_California,_USA.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Disney_California_Adventure_Grizzly_Rapids_Eureka_Gold_Timber_%26_Mining_Company_water_turbine.jpg/1280px-Disney_California_Adventure_Grizzly_Rapids_Eureka_Gold_Timber_%26_Mining_Company_water_turbine.jpg"
+  answer: "California Adventure, Grizzly Peak: the water turbine at Grizzly River Run"
+  credit: "Photo: Thank You (21 Millions+) views from Los Angeles, USA / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Disney_California_Adventure_Grizzly_Rapids_Eureka_Gold_Timber_%26_Mining_Company_water_turbine.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Disneyland-29_%2832605629458%29.jpg/1280px-Disneyland-29_%2832605629458%29.jpg"
+  answer: "California Adventure, Grizzly Peak: the bear statue"
+  credit: "Photo: Rachelle Haun / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Disneyland-29_(32605629458).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Avengers_jeep%2C_Disney_California_Adventure.jpg/1280px-Avengers_jeep%2C_Disney_California_Adventure.jpg"
+  answer: "California Adventure, Avengers Campus: the Avengers jeep"
+  credit: "Photo: Contributor19 / CC BY 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Avengers_jeep,_Disney_California_Adventure.jpg"
+
+- image: "https://upload.wikimedia.org/wikipedia/commons/a/af/Hollywood_Backlot_at_California_Adventure.jpg"
+  answer: "California Adventure, Hollywood Land: the backlot street"
+  credit: "Photo: Elf at English Wikipedia / CC BY-SA 3.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Hollywood_Backlot_at_California_Adventure.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/At_Oswald%27s_Service_Station_%288085664874%29.jpg/1280px-At_Oswald%27s_Service_Station_%288085664874%29.jpg"
+  answer: "California Adventure, Buena Vista Street: Oswald's Service Station"
+  credit: "Photo: HarshLight / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:At_Oswald%27s_Service_Station_(8085664874).jpg"
