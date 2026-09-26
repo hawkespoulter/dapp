@@ -6,14 +6,14 @@ class GamePresetTest < ActiveSupport::TestCase
 
   test "presets are seeded from the defaults file" do
     assert_equal %w[sprint full_day multi_day], GamePreset.keys
-    assert_equal 40, GamePreset.for("full_day").settings["tick_minutes"]
+    assert_equal GamePreset::DEFAULTS.dig("full_day", "tick_minutes"), GamePreset.for("full_day").settings["tick_minutes"]
   end
 
   test "a game keeps the settings it was created with" do
     game, = start_game
     GamePreset.for("full_day").update_settings!("tick_minutes" => "5", "starting_strength" => "30")
 
-    assert_equal 40, game.reload.settings["tick_minutes"]
+    assert_equal GamePreset::DEFAULTS.dig("full_day", "tick_minutes"), game.reload.settings["tick_minutes"]
     new_game, = start_game
     assert_equal 5, new_game.settings["tick_minutes"]
     assert_equal 30, new_game.area_states.select(&:players?).sum(&:strength)
@@ -42,6 +42,6 @@ class GamePresetTest < ActiveSupport::TestCase
     preset.update_settings!("tick_minutes" => "7")
     preset.reset!
 
-    assert_equal 20, preset.reload.settings["tick_minutes"]
+    assert_equal GamePreset::DEFAULTS.dig("sprint", "tick_minutes"), preset.reload.settings["tick_minutes"]
   end
 end

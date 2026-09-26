@@ -24,6 +24,6 @@ class GameSettingsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Villain moves every", response.parsed_body["error"]
 
     post reset_api_v1_game_setting_url("full_day"), as: :json
-    assert_equal 40, response.parsed_body.dig("settings", "tick_minutes")
+    assert_equal GamePreset::DEFAULTS.dig("full_day", "tick_minutes"), response.parsed_body.dig("settings", "tick_minutes")
   end
 end

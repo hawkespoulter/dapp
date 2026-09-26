@@ -1,10 +1,10 @@
 import PropTypes from "prop-types";
 import { OWNER_LABELS, placementPlan, strengthText } from "./gameRules";
+import { villainColor } from "./boardLayout";
 
 const OWNER_STYLES = {
   players: "bg-sky-600",
   neutral: "bg-slate-600",
-  villain: "bg-purple-700",
 };
 
 const button = "rounded-lg py-2 text-sm font-bold disabled:opacity-40";
@@ -30,21 +30,18 @@ function AreaPanel({ state, area, busy, onPlace }) {
     <div className="bg-slate-800 px-3 py-2 text-white">
       <div className="flex items-center gap-2">
         <h2 className="truncate font-bold">{area.area}</h2>
-        <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${OWNER_STYLES[area.owner]}`}>
+        <span
+          className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${OWNER_STYLES[area.owner] || ""}`}
+          style={area.owner === "villain" ? { backgroundColor: villainColor(villain.key) } : undefined}
+        >
           {area.owner === "villain" ? villain.name : OWNER_LABELS[area.owner]}
         </span>
       </div>
-      <p className="text-xs text-slate-400">
-        {strengthText(state, area)}
-        {outbreakReady && <span className="text-red-400"> · strong enough to break out</span>}
-        {plan.step > 1 && ` · Thorn Wall: ${plan.step} influence per point`}
-      </p>
 
       {plan.blocked ? (
         <p className="mt-2 text-sm text-amber-400">{plan.blocked}</p>
       ) : (
         <>
-          <p className="mt-1 text-xs text-slate-400">{plan.hint}</p>
           <div className="mt-2 flex gap-2">
             {plan.goal !== "claim it" && (
               <button className={`${button} bg-slate-700 px-4`} disabled={busy || stash < plan.step} onClick={() => onPlace(plan.step)}>

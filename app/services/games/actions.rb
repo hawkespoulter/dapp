@@ -128,7 +128,7 @@ module Games
 
         step_cost = game.villain.placement_cost(area)
         if count < step_cost
-          raise Invalid, "#{game.villain.display_name}'s Thorn Wall: each point in #{area} costs #{step_cost} influence"
+          raise Invalid, "#{game.villain.display_name} makes each point in #{area} cost #{step_cost} influence"
         end
 
         before = snapshot(state)

@@ -1,6 +1,6 @@
 module GameTestHelper
-  def start_game(preset: "full_day", rules: {}, at: Time.zone.parse("2026-10-01 09:00"), seed: 1)
-    game, host = Games::Actions.create!(park: "Magic Kingdom", preset:, host_name: "Hawkes", rules:)
+  def start_game(preset: "full_day", rules: {}, at: Time.zone.parse("2026-10-01 09:00"), seed: 1, park: "Magic Kingdom")
+    game, host = Games::Actions.create!(park:, preset:, host_name: "Hawkes", rules:)
     game.rng = Random.new(seed)
     Games::Actions.new(game, host).start!(at)
     [game, host.reload]

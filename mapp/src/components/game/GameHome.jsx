@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useCreateGameMutation, useFetchGameParksQuery, useFetchGameQuery, useJoinGameMutation } from "~/store/apis/gameApi";
 import { errorMessage, forgetGame, savePlayer, savedGames } from "./playerStorage";
+import { villainColor } from "./boardLayout";
 
 const input = "w-full rounded-lg bg-slate-900 px-3 py-2 text-white placeholder-slate-500";
 const label = "text-xs font-bold uppercase tracking-wide text-slate-400";
@@ -82,7 +83,7 @@ function NewGameForm() {
       </label>
       {villain && (
         <p className="text-sm text-slate-300">
-          Villain: <span className="font-bold text-purple-300">{villain.name}</span> <span className="italic text-slate-400">— {villain.tagline}</span>
+          Villain: <span className="font-bold" style={{ color: villainColor(villain.key) }}>{villain.name}</span> <span className="italic text-slate-400">— {villain.tagline}</span>
         </p>
       )}
 

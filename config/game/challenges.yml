@@ -1,9 +1,8 @@
 # Hand-written challenges. park/area blank = can be done anywhere.
 # Ride/show/restaurant challenges are also generated from the tracker data
 # by Challenge.sync! so they don't need to be listed here.
-- {title: "Hidden Mickey", description: "Find and photograph a Hidden Mickey.", category: find, difficulty: 1}
-- {title: "Cast Member Pick", description: "Ask a cast member for their favorite ride, then go ride it.", category: social, difficulty: 2}
-- {title: "Character Moment", description: "Get a photo with any costumed character.", category: photo, difficulty: 2}
+- {title: "Hidden Mickey", description: "Find a Hidden Mickey. You can look up hidden Mickey Locations but you must see it.", category: find, difficulty: 1}
+- {title: "Character Moment", description: "Get a photo with any costumed character. You do not have to wait in line.", category: photo, difficulty: 2}
 - {title: "Snack Attack", description: "Buy and finish a snack you've never had before.", category: food, difficulty: 1}
 - {title: "Back to Back", description: "Ride two different attractions within 45 minutes.", category: ride, difficulty: 3}
 - {title: "Stranger Danger", description: "Get a stranger to take a group photo of you.", category: social, difficulty: 1}
@@ -22,3 +21,11 @@
 - {title: "Rapunzel's Tower", park: Magic Kingdom, area: Fantasyland, description: "Find Rapunzel's tower and photograph it.", category: find, difficulty: 1}
 - {title: "Carousel of Progress", park: Magic Kingdom, area: Tomorrowland, description: "Sing along to 'There's a Great Big Beautiful Tomorrow' — out loud.", category: social, difficulty: 2}
 - {title: "Big Thunder Double", park: Magic Kingdom, area: Frontierland, description: "Ride Big Thunder Mountain twice in a row.", category: ride, difficulty: 3}
+- {title: "Tree of Life Carvings", park: Animal Kingdom, area: Discovery Island, description: "Find and photograph five different animals carved into the Tree of Life.", category: find, difficulty: 2}
+- {title: "Floating Mountains", park: Animal Kingdom, area: Pandora, description: "Take a group photo with the floating mountains behind you.", category: photo, difficulty: 1}
+- {title: "Night Blossom", park: Animal Kingdom, area: Pandora, description: "Drink a Night Blossom from Pongu Pongu.", category: food, difficulty: 1}
+- {title: "Harambe Market", park: Animal Kingdom, area: Africa, description: "Eat something from Harambe Market.", category: food, difficulty: 1}
+- {title: "Gorilla Spotting", park: Animal Kingdom, area: Africa, description: "Spot a gorilla on the Gorilla Falls Exploration Trail.", category: find, difficulty: 2}
+- {title: "Find the Yeti", park: Animal Kingdom, area: Asia, description: "Ride Expedition Everest and spot the Yeti.", category: ride, difficulty: 2}
+- {title: "Soaked", park: Animal Kingdom, area: Asia, description: "Ride Kali River Rapids. Everyone has to come off visibly wet.", category: ride, difficulty: 2}
+- {title: "Dino Pose", park: Animal Kingdom, area: "DinoLand U.S.A.", description: "Find a dinosaur statue and recreate its pose for a photo.", category: photo, difficulty: 1}

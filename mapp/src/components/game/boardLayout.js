@@ -4,6 +4,18 @@
 export const IMAGE_SIZE = { width: 1080, height: 1920 };
 
 export const BOARD_LAYOUT = {
+  "Animal Kingdom": {
+    // The savanna at the top of Africa's overlay is cropped off; the board
+    // runs from the villages down to the Oasis.
+    crop: { x: 0, y: 960, width: 1080, height: 800 },
+    centers: {
+      "Africa": [400, 1160],
+      "Asia": [770, 1110],
+      "Discovery Island": [545, 1300],
+      "DinoLand U.S.A.": [760, 1460],
+      "Pandora": [380, 1535],
+    },
+  },
   "Magic Kingdom": {
     crop: { x: 20, y: 470, width: 1040, height: 740 },
     centers: {
@@ -19,6 +31,7 @@ export const BOARD_LAYOUT = {
 
 export const VILLAIN_COLORS = {
   maleficent: "#9333ea",
+  scar: "#c2410c",
 };
 
 export const villainColor = (key) => VILLAIN_COLORS[key] || "#9333ea";

@@ -97,7 +97,7 @@ class GameActionsTest < ActiveSupport::TestCase
     set_area(@game, "Tomorrowland", owner: "players", strength: 1)
     stash!(5)
     error = assert_raises(Games::Actions::Invalid) { act.place_influence!("Tomorrowland", 1, @now) }
-    assert_match "Thorn Wall", error.message
+    assert_match "cost 2 influence", error.message
 
     act.place_influence!("Tomorrowland", 5, @now)
     assert_equal 3, @game.area("Tomorrowland").reload.strength

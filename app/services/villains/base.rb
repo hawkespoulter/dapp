@@ -33,6 +33,12 @@ module Villains
       game.log!("villain", "#{display_name} rises from #{lair} and holds #{held.to_sentence}.", at:)
     end
 
+    # Whether knocking a players area to 0 hands it straight to the villain
+    # instead of leaving it unclaimed.
+    def usurps?
+      false
+    end
+
     # Influence it takes to move this area's meter one step.
     def placement_cost(_area)
       1

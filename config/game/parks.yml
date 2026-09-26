@@ -12,3 +12,10 @@ Magic Kingdom:
     Liberty Square: ["Main Street, U.S.A.", Adventureland, Frontierland, Fantasyland]
     Fantasyland: ["Main Street, U.S.A.", Liberty Square, Tomorrowland]
     Tomorrowland: ["Main Street, U.S.A.", Fantasyland]
+Animal Kingdom:
+  adjacency:
+    Discovery Island: [Africa, Asia, "DinoLand U.S.A.", Pandora]
+    Africa: [Discovery Island, Asia, Pandora]
+    Asia: [Discovery Island, Africa, "DinoLand U.S.A."]
+    "DinoLand U.S.A.": [Discovery Island, Asia]
+    Pandora: [Discovery Island, Africa]

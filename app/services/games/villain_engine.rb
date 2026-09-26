@@ -80,6 +80,7 @@ module Games
         end
         state.update!(owner: "neutral", strength: 0)
         game.log!("lost_area", "#{who} knocked you out of #{name}.", at:, area: name)
+        amount = [amount, 1].max if villain.usurps?
       end
       return if amount.zero?
 
