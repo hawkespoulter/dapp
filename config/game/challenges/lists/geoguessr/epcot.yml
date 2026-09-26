@@ -1,0 +1,53 @@
+# GeoGuessr photos for Epcot: each card deals one. Go to where the photo
+# was taken within ten minutes. Photos are from Wikimedia Commons under the
+# licenses named in each credit; keep the credit and source when editing.
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Une_gravure_plan%C3%A8te_et_satellite_sur_un_si%C3%A8ge_proche_Mission_Space_%C3%A0_Epcot_%28janvier_2022%29.JPG/1280px-Une_gravure_plan%C3%A8te_et_satellite_sur_un_si%C3%A8ge_proche_Mission_Space_%C3%A0_Epcot_%28janvier_2022%29.JPG"
+  answer: "World Discovery: a planet-and-satellite engraving on a bench near Mission: SPACE"
+  credit: "Photo: Benoît Prieur / CC0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Une_gravure_plan%C3%A8te_et_satellite_sur_un_si%C3%A8ge_proche_Mission_Space_%C3%A0_Epcot_(janvier_2022).JPG"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Fountain_near_Journey_into_Imagination.jpg/1280px-Fountain_near_Journey_into_Imagination.jpg"
+  answer: "World Celebration: the fountains by Journey Into Imagination"
+  credit: "Photo: Michael Rivera / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Fountain_near_Journey_into_Imagination.jpg"
+
+- image: "https://upload.wikimedia.org/wikipedia/commons/6/63/Blue_top%2C_blue_bottom_%281526232338%29.jpg"
+  answer: "World Celebration: the pond reflecting the Imagination pavilion"
+  credit: "Photo: jimmyweee / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Blue_top,_blue_bottom_(1526232338).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Connections_Cafe%2C_EPCOT.jpg/1280px-Connections_Cafe%2C_EPCOT.jpg"
+  answer: "World Celebration: Connections Cafe"
+  credit: "Photo: Jedi94 / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Connections_Cafe,_EPCOT.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Journey_of_Water%2C_EPCOT_%282014%29.jpg/1280px-Journey_of_Water%2C_EPCOT_%282014%29.jpg"
+  answer: "World Nature: Journey of Water, Inspired by Moana"
+  credit: "Photo: Jedi94 / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Journey_of_Water,_EPCOT_(2014).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/The_Living_Seas_%2830409668841%29.jpg/1280px-The_Living_Seas_%2830409668841%29.jpg"
+  answer: "World Nature: the plaque at The Seas with Nemo & Friends"
+  credit: "Photo: Theme Park Tourist / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:The_Living_Seas_(30409668841).jpg"
+
+- image: "https://upload.wikimedia.org/wikipedia/commons/9/98/Orlando_-_USA_%2836851662603%29.jpg"
+  answer: "World Nature: a hidden Mickey at The Seas with Nemo & Friends"
+  credit: "Photo: Paulo Guereta from São Paulo / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Orlando_-_USA_(36851662603).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/de/Showcase_Plaza-Port_of_Entry_%2828141399835%29.jpg/1280px-Showcase_Plaza-Port_of_Entry_%2828141399835%29.jpg"
+  answer: "World Showcase: Port of Entry in Showcase Plaza"
+  credit: "Photo: Theme Park Tourist / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Showcase_Plaza-Port_of_Entry_(28141399835).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/Fountain_%2832301489913%29.jpg/1280px-Fountain_%2832301489913%29.jpg"
+  answer: "World Showcase: a tiled fountain in the Morocco pavilion"
+  credit: "Photo: Sam Howzit / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Fountain_(32301489913).jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/EpcotGermanyMiniRailway.JPG/1280px-EpcotGermanyMiniRailway.JPG"
+  answer: "World Showcase: the model railway in the Germany pavilion"
+  credit: "Photo: Reywas92 / CC BY-SA 3.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:EpcotGermanyMiniRailway.JPG"
