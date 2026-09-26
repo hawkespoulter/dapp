@@ -134,7 +134,7 @@ function ChallengeFile({ challenges }) {
     <div className={section}>
       <h2 className="mb-1 text-lg font-bold">Challenges</h2>
       <p className="text-sm text-slate-400">
-        From challenges.yml: {counts.map(([group, n]) => `${n} ${group}`).join(" · ") || "none yet"}
+        Loaded: {counts.map(([group, n]) => `${n} ${group}`).join(" · ") || "none yet"}
       </p>
       {challenges.problem && (
         <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-red-950 p-2 text-xs text-red-200">

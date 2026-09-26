@@ -1,0 +1,33 @@
+# Challenges that can be done in any park. See README.md for the fields.
+
+- title: Hidden Mickey
+  description: Find a Hidden Mickey. You can look up hidden Mickey Locations but you must see it.
+  difficulty: 1
+
+- title: Character Moment
+  description: Get a photo with any costumed character. You do not have to wait in line.
+  difficulty: 2
+
+- title: Snack Attack
+  description: Buy and finish a snack you've never had before.
+  difficulty: 1
+
+- title: Back to Back
+  description: Ride two different attractions within 45 minutes.
+  difficulty: 3
+
+- title: Guess the queue time
+  description: Accurately guess the wait time of a ride. Timer stops when you get off the ride. You must be within 10%
+  difficulty: 1
+
+- title: Wait It Out
+  description: Ride an attraction with a posted wait of 45 minutes or more.
+  difficulty: 3
+
+- title: GeoGuessr
+  description: Make it to the location the photo was taken within ten minutes.
+  difficulty: 2
+
+- title: Soaked
+  description: Ride any water ride. One of you has to come off visibly wet.
+  difficulty: 3

@@ -1,83 +1,103 @@
 require "test_helper"
 
 class ChallengeTest < ActiveSupport::TestCase
-  def with_file(yaml)
+  # Runs the block with a challenges folder holding the given files.
+  def with_files(files)
     Dir.mktmpdir do |dir|
-      path = File.join(dir, "challenges.yml")
-      File.write(path, yaml)
-      yield path
+      write(dir, files)
+      yield dir
     end
   end
 
-  test "the real challenges.yml loads cleanly" do
-    Challenge.sync!
-    assert Challenge.where(park: nil).exists?
+  def write(dir, files)
+    files.each { |name, yaml| File.write(File.join(dir, name), yaml) }
+    later = (Time.current + 1.minute).to_time
+    [dir, *Dir.glob(File.join(dir, "*"))].each { File.utime(later, later, _1) }
   end
 
-  test "the file is the whole deck: challenges are added, updated and removed" do
-    with_file(<<~YAML) { Challenge.sync!(_1) }
-      anywhere:
-        - {title: Wave, category: social, difficulty: 1}
-      Animal Kingdom:
-        - {title: Yeti, area: Asia, category: find, difficulty: 2}
-    YAML
+  test "the real challenge files load cleanly" do
+    Challenge.sync!
+    assert Challenge.where(park: nil).exists?
+    assert Challenge.where(park: "Animal Kingdom").exists?
+  end
+
+  test "each file is a park, and together they are the whole deck" do
+    with_files(
+      "anywhere.yml" => "- {title: Wave, difficulty: 1}\n",
+      "animal_kingdom.yml" => "- {title: Yeti, area: Asia, difficulty: 2}\n",
+    ) { Challenge.sync!(_1) }
     assert_equal %w[Wave Yeti], Challenge.order(:title).pluck(:title)
+    assert_equal [nil, nil], Challenge.find_by(title: "Wave").then { [_1.park, _1.area] }
     assert_equal ["Animal Kingdom", "Asia"], Challenge.find_by(title: "Yeti").then { [_1.park, _1.area] }
 
-    with_file(<<~YAML) { Challenge.sync!(_1) }
-      anywhere:
-        - {title: Yeti, category: find, difficulty: 3}
-    YAML
+    with_files("anywhere.yml" => "- {title: Yeti, difficulty: 3}\n") { Challenge.sync!(_1) }
     yeti = Challenge.find_by!(title: "Yeti")
     assert_equal [nil, nil, 3], [yeti.park, yeti.area, yeti.difficulty]
     assert_equal 1, Challenge.count
   end
 
-  test "mistakes are reported by title and nothing changes" do
+  test "mistakes are reported by file and title, and nothing changes" do
     before = Challenge.count
     error = assert_raises(Challenge::InvalidFile) do
-      with_file(<<~YAML) { Challenge.sync!(_1) }
-        Animal Kingdom:
-          - {title: Lost, area: Narnia, category: find, difficulty: 1}
-          - {title: Hard, category: find, difficulty: 5}
-          - {title: Odd, category: dancing, difficulty: 1}
+      with_files("animal_kingdom.yml" => <<~YAML) { Challenge.sync!(_1) }
+        - {title: Lost, area: Narnia, difficulty: 1}
+        - {title: Hard, difficulty: 5}
       YAML
     end
-    assert_match "Lost: Area Narnia isn't an area in Animal Kingdom", error.message
-    assert_match "Hard: Difficulty must be 1, 2 or 3", error.message
-    assert_match "Odd: Category must be one of", error.message
+    assert_match "animal_kingdom.yml: Lost: Area Narnia isn't an area in Animal Kingdom", error.message
+    assert_match "animal_kingdom.yml: Hard: Difficulty must be 1, 2 or 3", error.message
     assert_equal before, Challenge.count
   end
 
-  test "duplicate titles and unknown fields are rejected" do
-    assert_raises(Challenge::InvalidFile) do
-      with_file("anywhere:\n  - {title: A, category: find, difficulty: 1}\n  - {title: A, category: find, difficulty: 2}\n") { Challenge.sync!(_1) }
-    end
+  test "file names must be anywhere or a park with a board" do
     error = assert_raises(Challenge::InvalidFile) do
-      with_file("anywhere:\n  - {title: A, category: find, difficulty: 1, coins: 4}\n") { Challenge.sync!(_1) }
+      with_files("narnia.yml" => "- {title: Wardrobe, difficulty: 1}\n") { Challenge.sync!(_1) }
     end
-    assert_match "unknown field coins", error.message
+    assert_match "narnia.yml: there's no park board called that", error.message
+    assert_match "animal_kingdom.yml", error.message
   end
 
-  test "a changed file is loaded again on its own" do
-    with_file("anywhere:\n  - {title: Old, category: find, difficulty: 1}\n") do |path|
-      Challenge.sync!(path)
-      File.write(path, "anywhere:\n  - {title: New, category: find, difficulty: 1}\n")
-      later = (Time.current + 1.minute).to_time
-      File.utime(later, later, path)
-      assert_nil Challenge.refresh(path)
+  test "duplicate titles, unknown fields and areas in anywhere.yml are rejected" do
+    assert_raises(Challenge::InvalidFile) do
+      with_files(
+        "anywhere.yml" => "- {title: A, difficulty: 1}\n",
+        "magic_kingdom.yml" => "- {title: A, difficulty: 2}\n",
+      ) { Challenge.sync!(_1) }
     end
-    assert_equal ["New"], Challenge.pluck(:title)
+
+    error = assert_raises(Challenge::InvalidFile) do
+      with_files("anywhere.yml" => "- {title: A, difficulty: 1, category: find}\n") { Challenge.sync!(_1) }
+    end
+    assert_match "unknown field category", error.message
+
+    error = assert_raises(Challenge::InvalidFile) do
+      with_files("anywhere.yml" => "- {title: A, difficulty: 1, area: Asia}\n") { Challenge.sync!(_1) }
+    end
+    assert_match "only works in a park's file", error.message
+  end
+
+  test "changed, added and deleted files are picked up on their own" do
+    with_files("anywhere.yml" => "- {title: Old, difficulty: 1}\n") do |dir|
+      Challenge.sync!(dir)
+
+      write(dir, "anywhere.yml" => "- {title: New, difficulty: 1}\n", "magic_kingdom.yml" => "- {title: Castle, difficulty: 1}\n")
+      assert_nil Challenge.refresh(dir)
+      assert_equal %w[Castle New], Challenge.order(:title).pluck(:title)
+
+      File.delete(File.join(dir, "magic_kingdom.yml"))
+      later = (Time.current + 2.minutes).to_time
+      File.utime(later, later, dir)
+      assert_nil Challenge.refresh(dir)
+      assert_equal %w[New], Challenge.pluck(:title)
+    end
   end
 
   test "a broken file keeps the last good deck and reports the problem" do
-    with_file("anywhere:\n  - {title: Good, category: find, difficulty: 1}\n") do |path|
-      Challenge.sync!(path)
-      File.write(path, "anywhere:\n  - {title: Good, category: find, difficulty: 9}\n")
-      later = (Time.current + 1.minute).to_time
-      File.utime(later, later, path)
+    with_files("anywhere.yml" => "- {title: Good, difficulty: 1}\n") do |dir|
+      Challenge.sync!(dir)
+      write(dir, "anywhere.yml" => "- {title: Good, difficulty: 9}\n")
 
-      assert_match "Difficulty must be 1, 2 or 3", Challenge.refresh(path)
+      assert_match "Difficulty must be 1, 2 or 3", Challenge.refresh(dir)
     end
     assert_equal 1, Challenge.find_by!(title: "Good").difficulty
   end

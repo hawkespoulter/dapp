@@ -1,43 +1,35 @@
 anywhere_easy:
   title: Hidden Mickey
-  category: find
   difficulty: 1
 
 anywhere_medium:
   title: Character Moment
-  category: photo
   difficulty: 2
 
 anywhere_hard:
   title: Wait It Out
-  category: ride
   difficulty: 3
 
 adventureland_easy:
   title: Dole Whip
-  category: food
   difficulty: 1
   park: Magic Kingdom
   area: Adventureland
 
 other_park:
   title: Ride Pandora
-  category: ride
   difficulty: 1
   park: Animal Kingdom
   area: Pandora
 
 anywhere_extra_1:
   title: Snack Attack
-  category: food
   difficulty: 1
 
 anywhere_extra_2:
   title: Pin Trade
-  category: social
   difficulty: 2
 
 anywhere_extra_3:
   title: Single Rider
-  category: ride
   difficulty: 2

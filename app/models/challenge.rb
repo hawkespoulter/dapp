@@ -1,16 +1,15 @@
 # A real-life task players complete in the park to earn coins. Every
-# challenge comes from config/game/challenges.yml; the table is a copy of
-# that file that hands can point at. park/area nil means it can be done
-# anywhere.
+# challenge comes from the files in config/game/challenges/ (anywhere.yml,
+# plus one file per park); the table is a copy of them that hands can point
+# at. park/area nil means it can be done anywhere.
 class Challenge < ApplicationRecord
-  FILE = Rails.root.join("config/game/challenges.yml")
-  CATEGORIES = %w[ride show food photo find social trivia].freeze
-  FIELDS = %w[title description category difficulty area].freeze
+  DIR = Rails.root.join("config/game/challenges")
+  ANYWHERE = "anywhere".freeze
+  FIELDS = %w[title description difficulty area].freeze
 
   class InvalidFile < StandardError; end
 
   validates :title, presence: true, uniqueness: true
-  validates :category, inclusion: { in: CATEGORIES, message: "must be one of #{CATEGORIES.join(', ')}" }
   validates :difficulty, inclusion: { in: 1..3, message: "must be 1, 2 or 3" }
   validate :area_is_on_the_board
 
@@ -18,47 +17,68 @@ class Challenge < ApplicationRecord
 
   def anywhere? = area.nil?
 
-  # Reloads the file if it has changed since the last load. If the file has
-  # a mistake, the last good deck stays in play and the problem is returned
-  # (and shown on the Game settings page); otherwise returns nil.
-  def self.refresh(file = FILE)
-    return if exists? && maximum(:updated_at) >= File.mtime(file)
+  # Reloads the files if any changed (or were added or deleted) since the
+  # last load. If they have a mistake, the last good deck stays in play and
+  # the problem is returned (and shown on the Game settings page); otherwise
+  # returns nil.
+  def self.refresh(dir = DIR)
+    newest = [File.mtime(dir), *files(dir).map { File.mtime(_1) }].max
+    return if exists? && maximum(:updated_at) >= newest
 
-    sync!(file)
+    sync!(dir)
     nil
   rescue InvalidFile, Psych::SyntaxError => e
     Rails.logger.error(e.message)
     e.message
   end
 
-  # Makes the table match the file exactly: adds and updates challenges by
-  # title and removes any the file no longer has. Raises InvalidFile naming
+  # Makes the table match the files exactly: adds and updates challenges by
+  # title and removes any the files no longer have. Raises InvalidFile naming
   # every bad entry, and changes nothing if there are any.
-  def self.sync!(file = FILE)
-    entries = parse(file)
+  def self.sync!(dir = DIR)
+    entries = parse(dir)
     transaction do
       where.not(title: entries.map { _1["title"] }).delete_all
       problems = entries.filter_map do |attrs|
         challenge = find_or_initialize_by(title: attrs["title"])
-        # Fields left out of the file are cleared, not kept from before.
-        challenge.assign_attributes(%w[description category difficulty park area].index_with { attrs[_1] })
-        "#{attrs['title']}: #{challenge.errors.full_messages.to_sentence}" unless challenge.save
+        # Fields left out of a file are cleared, not kept from before.
+        challenge.assign_attributes(%w[description difficulty park area].index_with { attrs[_1] })
+        "#{attrs['file']}: #{attrs['title']}: #{challenge.errors.full_messages.to_sentence}" unless challenge.save
       end
-      raise InvalidFile, "challenges.yml has problems:\n#{problems.join("\n")}" if problems.any?
+      raise InvalidFile, "Challenge files have problems:\n#{problems.join("\n")}" if problems.any?
 
       all.touch_all
     end
   end
 
-  # The file groups challenges under "anywhere" or a park's name.
-  def self.parse(file)
-    entries = YAML.load_file(file).flat_map do |group, list|
-      park = group == "anywhere" ? nil : group
-      Array(list).map do |entry|
-        unknown = entry.keys - FIELDS
-        raise InvalidFile, "#{entry['title'] || group}: unknown field #{unknown.join(', ')}" if unknown.any?
+  def self.files(dir = DIR)
+    Dir.glob(File.join(dir, "*.yml")).sort
+  end
 
-        entry.merge("park" => park, "title" => entry["title"].to_s.strip)
+  # anywhere.yml, or a park's name in lowercase with underscores.
+  def self.file_name_for(park)
+    park.downcase.gsub(/[^a-z0-9]+/, "_").delete_suffix("_")
+  end
+
+  def self.parse(dir)
+    parks = ParkBoard.config.keys.index_by { file_name_for(_1) }
+    entries = files(dir).flat_map do |path|
+      file = File.basename(path)
+      name = File.basename(path, ".yml")
+      park = name == ANYWHERE ? nil : parks.fetch(name) do
+        raise InvalidFile, "#{file}: there's no park board called that. Use #{ANYWHERE}.yml or one of: #{parks.keys.map { "#{_1}.yml" }.join(', ')}"
+      end
+
+      # Read the file ourselves: YAML.load_file goes through Bootsnap's cache,
+      # which can hand back the old contents after a quick re-save.
+      list = YAML.safe_load(File.read(path)) || []
+      raise InvalidFile, "#{file}: should be a list of challenges (each starting with \"- title:\")" unless list.is_a?(Array)
+
+      list.map do |entry|
+        unknown = entry.keys - FIELDS
+        raise InvalidFile, "#{file}: #{entry['title']}: unknown field #{unknown.join(', ')}" if unknown.any?
+
+        entry.merge("park" => park, "file" => file, "title" => entry["title"].to_s.strip)
       end
     end
     repeated = entries.map { _1["title"] }.tally.select { _2 > 1 }.keys
@@ -68,7 +88,7 @@ class Challenge < ApplicationRecord
   end
 
   def as_json(*)
-    { id:, title:, description:, category:, difficulty:, park:, area: }
+    { id:, title:, description:, difficulty:, park:, area: }
   end
 
   private
@@ -77,8 +97,8 @@ class Challenge < ApplicationRecord
     return if area.blank?
 
     if park.blank?
-      errors.add(:area, "needs a park (put it under that park's name)")
-    elsif ParkBoard.config.key?(park) && !ParkBoard.for(park).areas.include?(area)
+      errors.add(:area, "only works in a park's file, not anywhere.yml")
+    elsif !ParkBoard.for(park).areas.include?(area)
       errors.add(:area, "#{area} isn't an area in #{park} (#{ParkBoard.for(park).areas.join(', ')})")
     end
   end
