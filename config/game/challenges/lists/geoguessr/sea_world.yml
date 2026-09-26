@@ -1,0 +1,53 @@
+# GeoGuessr photos for Sea World: each card deals one. Go to where the photo
+# was taken within ten minutes. Photos are from Wikimedia Commons under the
+# licenses named in each credit; keep the credit and source when editing.
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/SeaWorld_Orlando_lighthouse.jpg/1280px-SeaWorld_Orlando_lighthouse.jpg"
+  answer: "The lighthouse at the park entrance"
+  credit: "Photo: Adog104 / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:SeaWorld_Orlando_lighthouse.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/SeaWorld_Aquarium.JPG/1280px-SeaWorld_Aquarium.JPG"
+  answer: "The tunnel in Shark Encounter"
+  credit: "Photo: Abujoy / CC BY 3.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:SeaWorld_Aquarium.JPG"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Rock_work_at_Antarctica_Empire_of_the_Penguin_3.jpg/1280px-Rock_work_at_Antarctica_Empire_of_the_Penguin_3.jpg"
+  answer: "Antarctica: the rockwork outside Empire of the Penguin"
+  credit: "Photo: zannaland / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Rock_work_at_Antarctica_Empire_of_the_Penguin_3.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ac/Glacial_Collections_at_SeaWorld_Orlando_3.jpg/1280px-Glacial_Collections_at_SeaWorld_Orlando_3.jpg"
+  answer: "Antarctica: Glacial Collections gift shop"
+  credit: "Photo: zannaland / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Glacial_Collections_at_SeaWorld_Orlando_3.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/Expedition_Cafe_at_SeaWorld_Orlando_1.jpg/1280px-Expedition_Cafe_at_SeaWorld_Orlando_1.jpg"
+  answer: "Expedition Café"
+  credit: "Photo: zannaland / CC BY-SA 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Expedition_Cafe_at_SeaWorld_Orlando_1.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Expedition_Odyssey_Mar_2026.jpg/1280px-Expedition_Odyssey_Mar_2026.jpg"
+  answer: "Expedition Odyssey"
+  credit: "Photo: Quxyz / CC BY 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Expedition_Odyssey_Mar_2026.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Infinity_Falls_layout_drop.jpg/1280px-Infinity_Falls_layout_drop.jpg"
+  answer: "Infinity Falls"
+  credit: "Photo: Adog104 / CC BY-SA 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Infinity_Falls_layout_drop.jpg"
+
+- image: "https://upload.wikimedia.org/wikipedia/commons/b/b1/Jazzy_Jellies_%282%29.PNG"
+  answer: "Jazzy Jellies"
+  credit: "Photo: SeaWorld / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Jazzy_Jellies_(2).PNG"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Sea_Carousel%2C_SeaWorld.jpg/1280px-Sea_Carousel%2C_SeaWorld.jpg"
+  answer: "The Sea Carousel"
+  credit: "Photo: SeaWorld / CC BY 2.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Sea_Carousel,_SeaWorld.jpg"
+
+- image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Sunny_Day_Carousel_Mar_2026.jpg/1280px-Sunny_Day_Carousel_Mar_2026.jpg"
+  answer: "Sesame Street Land: Sunny Day Carousel"
+  credit: "Photo: Quxyz / CC BY 4.0 via Wikimedia Commons"
+  source: "https://commons.wikimedia.org/wiki/File:Sunny_Day_Carousel_Mar_2026.jpg"
