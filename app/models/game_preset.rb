@@ -17,6 +17,7 @@ class GamePreset < ApplicationRecord
     "hand_size" => { label: "Challenge cards in hand", range: 1..8 },
     "risings" => { label: "Villain Rising cards in the deck (each adds a card per turn)", range: 0..12 },
     "outbreak_at" => { label: "Her areas spill into their neighbors at strength", range: 1..50 },
+    "youngling_max" => { label: "Youngling (Darth Vader) takes areas with influence at or below", range: 0..20 },
     "hard_mode" => { label: "Hard mode: the villain also moves when you fail a challenge", boolean: true },
     "price_forecast" => { label: "Forecast price (coins)", range: 0..50 },
     "price_stall" => { label: "Stall price (coins)", range: 0..50 },

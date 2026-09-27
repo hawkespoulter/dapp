@@ -56,8 +56,13 @@ module Villains
     def on_takeover(_area_state, _at); end
     def on_escalation(_at); end
 
+    # The rules as shown in this game (some mention its settings).
+    def rules
+      rules_text
+    end
+
     def as_json(*)
-      self.class.as_json
+      self.class.as_json.merge(rules:)
     end
 
     private

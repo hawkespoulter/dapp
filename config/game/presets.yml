@@ -14,6 +14,7 @@ sprint:
   starting_strength: 12
   risings: 1
   outbreak_at: 3
+  youngling_max: 2
   hard_mode: true
   price_forecast: 3
   price_stall: 5
@@ -30,6 +31,7 @@ full_day:
   starting_strength: 10
   risings: 4
   outbreak_at: 3
+  youngling_max: 2
   hard_mode: true
   price_forecast: 3
   price_stall: 5
@@ -48,6 +50,7 @@ multi_day:
   starting_strength: 10
   risings: 6
   outbreak_at: 3
+  youngling_max: 2
   hard_mode: true
   price_forecast: 3
   price_stall: 5
