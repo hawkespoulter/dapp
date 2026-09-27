@@ -18,6 +18,12 @@ class GamePreset < ApplicationRecord
     "risings" => { label: "Villain Rising cards in the deck (each adds a card per turn)", range: 0..12 },
     "outbreak_at" => { label: "Her areas spill into their neighbors at strength", range: 1..50 },
     "hard_mode" => { label: "Hard mode: the villain also moves when you fail a challenge", boolean: true },
+    "price_forecast" => { label: "Forecast price (coins)", range: 0..50 },
+    "price_stall" => { label: "Stall price (coins)", range: 0..50 },
+    "price_shield" => { label: "Shield price (coins)", range: 0..50 },
+    "price_redraw" => { label: "Redraw price (coins)", range: 0..50 },
+    "price_double_down" => { label: "Double Down price (coins)", range: 0..50 },
+    "price_safety_net" => { label: "Safety Net price (coins)", range: 0..50 },
   }.freeze
 
   validates :key, presence: true, uniqueness: true

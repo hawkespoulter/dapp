@@ -11,7 +11,7 @@ class Game < ApplicationRecord
   CODE_CHARS = ("A".."Z").to_a - %w[I O]
   # Event data the villain turn replay uses: the card played (or other named
   # action), the board when the turn began, and each area after a change.
-  REPLAY_DATA = %w[card note action area owner strength board].freeze
+  REPLAY_DATA = %w[card note action actor area owner strength board].freeze
 
   has_many :players, -> { order(:id) }, dependent: :destroy
   has_many :area_states, dependent: :destroy
@@ -47,8 +47,10 @@ class Game < ApplicationRecord
   def finished? = status == "finished"
 
   # The balance settings this game was created with (see GamePreset).
+  # Settings added since the game was created come from the defaults file.
   def settings
-    rules["settings"] || GamePreset.for(preset).settings
+    snapshot = rules["settings"]
+    snapshot ? GamePreset::DEFAULTS.fetch(preset, {}).merge(snapshot) : GamePreset.for(preset).settings
   end
 
   def board
@@ -86,8 +88,22 @@ class Game < ApplicationRecord
   # Hard mode: the villain also takes a turn when a challenge is failed.
   # Games from before it was a preset setting kept it in rules.
   def hard_mode?
-    settings.fetch("hard_mode") { rules["villain_on_fail"] } == true
+    snapshot = rules["settings"]
+    return settings["hard_mode"] == true unless snapshot
+
+    snapshot.fetch("hard_mode") { rules["villain_on_fail"] } == true
   end
+
+  # Power-ups in play (see Games::Powers).
+  def power(key, default)
+    powers.fetch(key, default)
+  end
+
+  def set_power(key, value)
+    self.powers = powers.merge(key => value)
+  end
+
+  def shielded?(area) = power("shields", []).include?(area)
 
   def area(name)
     areas_by_name.fetch(name) { raise ArgumentError, "#{name} is not in #{park}" }
@@ -143,14 +159,17 @@ class Game < ApplicationRecord
       game: {
         code: join_code, park:, preset:, preset_label: settings["label"], status:, result:,
         started_at:, ends_at:, next_tick_at:, server_time: Time.current,
-        tick_minutes: settings["tick_minutes"], hand_size:,
+        tick_minutes: settings["tick_minutes"], hand_size:, hard_mode: hard_mode?,
         tick_count:, escalation:, villain_rate: Games::VillainEngine.rate_for(escalation),
         coins:, influence_stash:, influence_price:,
         villain_cards_left: villain_draw.size, windows: rules["windows"] || [],
       },
       villain: villain,
       villain_rules: Games::VillainEngine.general_rules(self),
-      areas: board.areas.map { |name| area(name).as_json.merge(neighbors: board.neighbors(name), placement_cost: villain.placement_cost(name)) },
+      areas: board.areas.map do |name|
+        area(name).as_json.merge(neighbors: board.neighbors(name), placement_cost: villain.placement_cost(name), shielded: shielded?(name))
+      end,
+      powers: powers_for(player),
       players:,
       me: player && player.as_json.merge(hand: player.hand_cards, undo: undoable_message(player)),
       events: game_events.last(40).reverse,
@@ -168,9 +187,24 @@ class Game < ApplicationRecord
 
   private
 
+  # Prices and what's in play, with the charges and forecast that belong to
+  # this player.
+  def powers_for(player)
+    forecast = power("forecast", nil)
+    {
+      prices: Games::Actions::POWERS.index_with { settings["price_#{_1}"] },
+      stalls: power("stalls", 0),
+      shields: power("shields", []),
+      double_down: player ? power("double_down", []).count(player.id) : 0,
+      safety_net: player ? power("safety_net", []).count(player.id) : 0,
+      forecast: forecast && player && forecast["player"] == player.id ? forecast["cards"] : nil,
+    }
+  end
+
+  # A power-up can't be undone, and it also locks in whatever came before it.
   def undoable_message(player)
-    event = game_events.where(player_id: player.id, kind: Games::Actions::UNDOABLE).last
-    event.message if event&.data&.dig("undo") && !event.data["undone"]
+    event = game_events.where(player_id: player.id, kind: Games::Actions::UNDOABLE + ["power"]).last
+    event.message if event&.kind != "power" && event&.data&.dig("undo") && !event.data["undone"]
   end
 
   def park_is_playable

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_26_000006) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_27_000001) do
   create_table "area_states", force: :cascade do |t|
     t.integer "game_id", null: false
     t.string "area", null: false
@@ -87,6 +87,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_26_000006) do
     t.json "rules", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "powers", default: {}, null: false
     t.index ["join_code"], name: "index_games_on_join_code", unique: true
   end
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
+import ShieldIcon from "@mui/icons-material/Shield";
 import IMAGES from "~/images/Images";
 import { toCamelCase } from "~/constants.js";
 import { BOARD_LAYOUT, IMAGE_SIZE, villainColor } from "./boardLayout";
@@ -128,6 +129,13 @@ function GameMap({ park, areas, villainKey, onSelect, highlights = [], markers =
                 >
                   {area.strength}
                 </div>
+                {area.shielded && (
+                  <ShieldIcon
+                    className="absolute -right-4 -top-4 text-sky-300"
+                    sx={{ fontSize: 22, filter: "drop-shadow(0 0 1px #0f172a) drop-shadow(0 0 1px #0f172a)" }}
+                    titleAccess="Shielded"
+                  />
+                )}
               </div>
             );
           })}

@@ -9,6 +9,7 @@ const START_MS = 500;
 const WEAKENED = "#d97706";
 const LOST = "#dc2626";
 const SPILL = "#ea580c";
+const SHIELD = "#0284c7";
 
 // What pops up over an area when this event changes it, given its strength before.
 function markerFor(event, before, villainHex) {
@@ -24,6 +25,8 @@ function markerFor(event, before, villainHex) {
       return { text: "Taken!", color: villainHex };
     case "outbreak":
       return { text: "Spills over!", color: SPILL };
+    case "shielded":
+      return { text: "Shielded!", color: SHIELD };
     default:
       return null;
   }
@@ -75,12 +78,14 @@ function ActionBanner({ event, villain }) {
   const rising = event.card === "Villain Rising";
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-slate-400">{event.card ? `${villain.name} plays` : `${villain.name}'s`}</span>
+      <span className="text-sm text-slate-400">
+        {event.actor === "players" ? "You used" : event.card ? `${villain.name} plays` : `${villain.name}'s`}
+      </span>
       <span
         className={`rounded-md border-2 px-2 py-1 text-sm font-black uppercase tracking-wide ${
           rising ? "border-fuchsia-400 text-fuchsia-300" : "text-white"
-        }`}
-        style={rising ? undefined : { borderColor: villainColor(villain.key) }}
+        } ${event.actor === "players" ? "border-violet-400" : ""}`}
+        style={rising || event.actor === "players" ? undefined : { borderColor: villainColor(villain.key) }}
       >
         {event.card || event.action}
       </span>

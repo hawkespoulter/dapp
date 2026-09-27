@@ -74,6 +74,18 @@ class Api::V1::GamesController < ApplicationController
     render_state
   end
 
+  # POST /games/:code/power (power, area for Shield)
+  def power
+    actions.use_power!(params.require(:power), area: params[:area])
+    render_state
+  end
+
+  # POST /games/:code/forecast (index of the card to throw away)
+  def forecast
+    actions.forecast_discard!(params.require(:index))
+    render_state
+  end
+
   # POST /games/:code/undo
   def undo
     actions.undo!

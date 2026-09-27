@@ -11,6 +11,12 @@ module Games
     class Invalid < StandardError; end
 
     UNDOABLE = %w[completed failed bought placed].freeze
+    # Bought with team coins; prices are the price_<key> game settings.
+    POWERS = %w[forecast stall shield redraw double_down safety_net].freeze
+    POWER_NAMES = {
+      "forecast" => "Forecast", "stall" => "Stall", "shield" => "Shield",
+      "redraw" => "Redraw", "double_down" => "Double Down", "safety_net" => "Safety Net"
+    }.freeze
 
     def self.create!(park:, preset:, host_name:, rules: {})
       villain = Villains.for_park(park) or raise Invalid, "#{park} doesn't have a villain yet"
@@ -86,12 +92,16 @@ module Games
       locked(now, playing: true) do
         challenge = playable(challenge_id)
         coins = challenge.reward
+        doubled = take_charge("double_down")
+        coins *= 2 if doubled
         game.coins += coins
         me.coins += coins
         hand_before = [me.hand, me.card_lists]
         replace_card(challenge)
-        record("completed", "#{me.name} completed \"#{challenge.title}\" (+#{coins} coins).", now,
-               "coins" => coins, "earned" => coins, "hand" => hand_before, "discard" => challenge.id)
+        note = doubled ? ", doubled by Double Down" : ""
+        record("completed", "#{me.name} completed \"#{challenge.title}\" (+#{coins} coins#{note}).", now,
+               "coins" => coins, "earned" => coins, "hand" => hand_before, "discard" => challenge.id,
+               "double_down" => doubled || nil)
       end
     end
 
@@ -101,7 +111,10 @@ module Games
         hand_before = [me.hand, me.card_lists]
         replace_card(challenge)
         message = "#{me.name} failed \"#{challenge.title}\"."
-        if game.hard_mode?
+        if game.hard_mode? && take_charge("safety_net")
+          record("failed", "#{message} The Safety Net kept #{game.villain.display_name} still.", now,
+                 "hand" => hand_before, "discard" => challenge.id, "safety_net" => true)
+        elsif game.hard_mode?
           me.save!
           game.log!("failed", message, at: now, player: me)
           VillainEngine.new(game).handle(:challenge_failed, at: now)
@@ -162,7 +175,9 @@ module Games
     # already spent what it gained.
     def undo!(now = Time.current)
       locked(now) do
-        event = game.game_events.where(player_id: me.id, kind: UNDOABLE).last
+        event = game.game_events.where(player_id: me.id, kind: UNDOABLE + ["power"]).last
+        raise Invalid, "Power-ups can't be undone" if event&.kind == "power"
+
         undo = event&.data&.dig("undo")
         raise Invalid, "Nothing to undo" if undo.nil? || event.data["undone"]
 
@@ -198,13 +213,115 @@ module Games
         end
         me.save!
         game.challenge_discard = game.challenge_discard - [undo["discard"]] if undo["discard"]
+        %w[double_down safety_net].each { give_charge(_1) if undo[_1] }
         event.update!(data: event.data.merge("undone" => true))
         game.log!("undo", "#{me.name} undid: #{event.message}", at: now, player: me)
         game.save!
       end
     end
 
+    # Spends team coins on a power-up. Shield needs one of your areas.
+    def use_power!(power, area: nil, now: Time.current)
+      locked(now, playing: true) do
+        raise Invalid, "Unknown power-up #{power}" unless POWERS.include?(power)
+
+        price = game.settings["price_#{power}"].to_i
+        raise Invalid, "#{POWER_NAMES[power]} costs #{price} coins and the team has #{game.coins}" if price > game.coins
+
+        message = send("power_#{power}", area, now)
+        game.coins -= price
+        me.save!
+        game.log!("power", "#{me.name} used #{POWER_NAMES[power]}: #{message}", at: now, player: me,
+                                                                            power:, coins: price)
+        game.save!
+      end
+    end
+
+    # Throws away one of the three cards a Forecast revealed.
+    def forecast_discard!(index, now = Time.current)
+      locked(now, playing: true) do
+        forecast = game.power("forecast", nil)
+        raise Invalid, "You don't have a forecast to use" unless forecast && forecast["player"] == me.id
+        raise Invalid, "The villain's deck has changed since your forecast" unless game.villain_draw.first(forecast["cards"].size) == forecast["cards"]
+
+        index = index.to_i
+        raise Invalid, "Pick one of the forecast cards" unless index.between?(0, forecast["cards"].size - 1)
+
+        draw = game.villain_draw.dup
+        card = draw.delete_at(index)
+        game.villain_draw = draw
+        game.villain_discard = game.villain_discard + [card]
+        game.set_power("forecast", nil)
+        game.log!("forecast", "#{me.name} threw away #{card_name(card)} from the villain's deck.", at: now, player: me)
+        game.save!
+      end
+    end
+
     private
+
+    def power_forecast(_area, now)
+      raise Invalid, "Throw away a card from your last forecast first" if game.power("forecast", nil)
+
+      engine = VillainEngine.new(game)
+      engine.reshuffle_discard(now) if game.villain_draw.empty?
+      cards = game.villain_draw.first(3)
+      raise Invalid, "The villain's deck is empty" if cards.empty?
+
+      game.set_power("forecast", { "player" => me.id, "cards" => cards })
+      "the next cards are #{cards.map { card_name(_1) }.to_sentence}."
+    end
+
+    def power_stall(_area, _now)
+      game.set_power("stalls", game.power("stalls", 0) + 1)
+      "#{game.villain.display_name} will skip the next turn."
+    end
+
+    def power_shield(area, _now)
+      raise Invalid, "Pick one of your areas to shield" unless area && game.board.areas.include?(area) && game.area(area).players?
+      raise Invalid, "#{area} is already shielded" if game.shielded?(area)
+
+      game.set_power("shields", game.power("shields", []) + [area])
+      "#{area} is safe during #{game.villain.display_name}'s next turn."
+    end
+
+    def power_redraw(_area, _now)
+      old = me.hand
+      raise Invalid, "You have no cards to redraw" if old.empty?
+
+      fresh = game.draw_challenges(old.size)
+      old.each { game.discard_challenge(_1) }
+      me.deal(fresh, game.rng)
+      "a whole new hand."
+    end
+
+    def power_double_down(_area, _now)
+      give_charge("double_down")
+      "the next challenge they complete pays double."
+    end
+
+    def power_safety_net(_area, _now)
+      raise Invalid, "Safety Net only matters in hard mode" unless game.hard_mode?
+
+      give_charge("safety_net")
+      "the next challenge they fail won't wake #{game.villain.display_name}."
+    end
+
+    # Double Down and Safety Net charges belong to the player who bought them.
+    def give_charge(key)
+      game.set_power(key, game.power(key, []) + [me.id])
+    end
+
+    def take_charge(key)
+      charges = game.power(key, [])
+      return false unless (i = charges.index(me.id))
+
+      game.set_power(key, charges.dup.tap { _1.delete_at(i) })
+      true
+    end
+
+    def card_name(card)
+      card == VillainEngine::RISING ? "a Villain Rising" : card.delete_prefix("area:")
+    end
 
     # The acting player, taken from the locked game so hand changes are seen
     # by draw_challenges.

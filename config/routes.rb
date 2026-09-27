@@ -25,6 +25,8 @@ Rails.application.routes.draw do
           post :buy
           post :place
           post :villain_turn
+          post :power
+          post :forecast
         end
       end
     end

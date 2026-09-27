@@ -8,6 +8,8 @@ import AreaPanel from "./AreaPanel";
 import HandCard from "./HandCard";
 import AnswerPopup from "./AnswerPopup";
 import VillainTurnReplay from "./VillainTurnReplay";
+import PowerUps from "./PowerUps";
+import ForecastPopup from "./ForecastPopup";
 import useUnseenVillainTurns from "./useUnseenVillainTurns";
 import { errorMessage } from "./playerStorage";
 import {
@@ -15,6 +17,8 @@ import {
   useCompleteChallengeMutation,
   useFailChallengeMutation,
   useForceVillainTurnMutation,
+  useUsePowerUpMutation,
+  useForecastDiscardMutation,
   usePlaceInfluenceMutation,
   useUndoChallengeMutation,
 } from "~/store/apis/gameApi";
@@ -41,7 +45,9 @@ function GameBoard({ state, refetch }) {
   const [place, placeStatus] = usePlaceInfluenceMutation();
   const [undo, undoStatus] = useUndoChallengeMutation();
   const [forceTurn, forceTurnStatus] = useForceVillainTurnMutation();
-  const busy = [completeStatus, failStatus, buyStatus, placeStatus, undoStatus, forceTurnStatus].some(
+  const [buyPower, powerStatus] = useUsePowerUpMutation();
+  const [forecastDiscard, forecastStatus] = useForecastDiscardMutation();
+  const busy = [completeStatus, failStatus, buyStatus, placeStatus, undoStatus, forceTurnStatus, powerStatus, forecastStatus].some(
     (s) => s.isLoading,
   );
 
@@ -121,6 +127,17 @@ function GameBoard({ state, refetch }) {
         <p className="px-3 pt-4 text-sm text-slate-400">You&apos;re watching this game. Join above to play.</p>
       )}
 
+      {me && (
+        <Section title="Power-ups">
+          <PowerUps
+            state={state}
+            area={currentArea}
+            busy={busy}
+            onUse={(power, area) => run(buyPower({ code, power, area }))}
+          />
+        </Section>
+      )}
+
       <Section title="Team">
         <div className="flex flex-wrap gap-2">
           {players.map((p) => (
@@ -136,6 +153,14 @@ function GameBoard({ state, refetch }) {
         <VillainTurnReplay turns={newTurns} villain={villain} areas={areas} park={game.park} onClose={markTurnsSeen} />
       )}
       {answers && <AnswerPopup photos={answers} onClose={() => setAnswers(null)} />}
+      {state.powers?.forecast && (
+        <ForecastPopup
+          cards={state.powers.forecast}
+          villain={villain}
+          busy={busy}
+          onDiscard={(index) => run(forecastDiscard({ code, index }))}
+        />
+      )}
 
       <Section title={`${villain.name}'s rules`}>
         <ul className="list-disc pl-5 text-sm text-slate-300">

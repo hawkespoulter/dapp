@@ -67,6 +67,15 @@ module Games
       game.villain_turn_number = game.tick_count
       cards = self.class.rate_for(game.escalation)
       board = game.area_states.to_h { [_1.area, [_1.owner, _1.strength]] }
+      game.set_power("forecast", nil) # the top of the deck is about to change
+      if game.power("stalls", 0).positive?
+        game.set_power("stalls", game.power("stalls", 0) - 1)
+        game.log!("villain_turn", "#{villain.display_name} skips this turn.", at:, board:)
+        game.log!("stalled", "Stall! #{villain.display_name} skips this turn.", at:, action: "Stall", actor: "players",
+                                                                              note: "#{villain.display_name} skips this turn")
+        return
+      end
+
       game.log!("villain_turn", "#{villain.display_name} plays #{cards} #{'card'.pluralize(cards)}.", at:, board:)
       cards.times do
         break unless game.active?
@@ -74,6 +83,7 @@ module Games
         draw_card(at)
       end
       villain.on_tick(at) if game.active?
+      game.set_power("shields", []) # shields last one real turn
     ensure
       game.villain_turn_number = nil
     end
@@ -90,6 +100,11 @@ module Games
           state.update!(strength: state.strength + amount)
           game.log!("strength", "#{who}'s hold on #{name} grows (strength #{state.strength}).", at:, **area_after(state))
         end
+        return
+      end
+
+      if state.players? && game.shielded?(name)
+        game.log!("shielded", "The shield protects #{name}.", at:, **area_after(state))
         return
       end
 
@@ -161,11 +176,16 @@ module Games
       end
     end
 
+    public
+
+    # Deals the discard pile back into an empty deck (also used by Forecast).
     def reshuffle_discard(at)
       game.villain_draw = game.villain_discard.shuffle(random: game.rng)
       game.villain_discard = []
       game.log!("villain", "#{villain.display_name} regroups and reshuffles the villain deck.", at:)
     end
+
+    private
 
     def escalate(at)
       game.escalation += 1
