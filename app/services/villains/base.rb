@@ -15,11 +15,9 @@ module Villains
       @game = game
     end
 
-    # Called once when the game starts: splits the park at random. The villain
-    # spreads out from her lair to half the park, the players spread from the
-    # far side over the other half, and any odd area left over starts
-    # unclaimed. Each side then scatters its starting strength over its areas
-    # (at least 1 each).
+    # Called once when the game starts: deals half the park to each side at
+    # random (the lair plays no part), then each side scatters its starting
+    # strength over its areas (at least 1 each).
     def setup!(at)
       split = random_split
       strengths = %w[players villain].to_h do |side|
@@ -30,7 +28,7 @@ module Villains
         state.update!(owner:, strength: strengths.dig(owner, state.area) || 0)
       end
       held = game.area_states.select(&:villain?).map(&:area)
-      game.log!("villain", "#{display_name} rises from #{lair} and holds #{held.to_sentence}.", at:)
+      game.log!("villain", "#{display_name} holds #{held.to_sentence}.", at:)
     end
 
     # Whether knocking a players area to 0 hands it straight to the villain
@@ -70,24 +68,12 @@ module Villains
       strengths
     end
 
+    # Half the areas to each side, picked at random; with an odd number of
+    # areas the one left over starts unclaimed.
     def random_split
-      board = game.board
-      half = board.areas.size / 2
-      owners = {}
-      grow = lambda do |owner, seed|
-        owners[seed] = owner
-        while owners.count { _2 == owner } < half
-          mine = owners.select { _2 == owner }.keys
-          frontier = mine.flat_map { board.neighbors(_1) }.uniq - owners.keys
-          frontier = board.areas - owners.keys if frontier.empty?
-          owners[frontier.sample(random: game.rng)] = owner
-        end
-      end
-      grow.call("villain", lair)
-      open = board.areas - owners.keys
-      far = open.map { board.distance(lair, _1) }.max
-      grow.call("players", open.select { board.distance(lair, _1) == far }.sample(random: game.rng))
-      owners
+      areas = game.board.areas.shuffle(random: game.rng)
+      half = areas.size / 2
+      areas.first(half).to_h { [_1, "villain"] }.merge(areas.drop(half).first(half).to_h { [_1, "players"] })
     end
   end
 end

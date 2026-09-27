@@ -35,22 +35,4 @@ class ParkBoard
   def adjacent?(a, b)
     neighbors(a).include?(b)
   end
-
-  # Number of steps between two areas.
-  def distance(from, to)
-    seen = { from => 0 }
-    queue = [from]
-    until queue.empty?
-      area = queue.shift
-      return seen[area] if area == to
-
-      neighbors(area).each do |n|
-        next if seen.key?(n)
-
-        seen[n] = seen[area] + 1
-        queue << n
-      end
-    end
-    Float::INFINITY
-  end
 end

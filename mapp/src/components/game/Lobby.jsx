@@ -38,7 +38,6 @@ function Lobby({ state }) {
           <span className="h-3 w-3 rounded-full" style={{ backgroundColor: villainColor(villain.key) }} />
           <h2 className="text-xl font-bold">{villain.name}</h2>
         </div>
-        <p className="text-sm text-slate-400">Lair: {villain.lair}</p>
         <ul className="mt-2 list-disc pl-5 text-sm text-slate-300">
           {villain.rules.map((rule) => (
             <li key={rule}>{rule}</li>

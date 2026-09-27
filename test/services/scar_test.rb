@@ -10,10 +10,9 @@ class ScarTest < ActiveSupport::TestCase
     @now = @game.started_at
   end
 
-  test "Animal Kingdom starts two areas each with one unclaimed, Scar in Africa" do
+  test "Animal Kingdom starts two areas each with one unclaimed" do
     owners = @game.area_states.map(&:owner).tally
     assert_equal({ "villain" => 2, "players" => 2, "neutral" => 1 }, owners)
-    assert @game.area("Africa").villain?
   end
 
   test "Usurper: knocking an area to 0 hands it straight to Scar" do

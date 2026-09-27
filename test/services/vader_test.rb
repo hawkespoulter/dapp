@@ -10,11 +10,11 @@ class VaderTest < ActiveSupport::TestCase
     @now = @game.started_at
   end
 
-  test "Hollywood Studios is playable, with Vader rising from Galaxy's Edge" do
+  test "Hollywood Studios is playable, with Vader holding three of its seven areas" do
     assert_includes Game.playable_parks, "Hollywood Studios"
     assert_equal "vader", @game.villain_key
-    assert @game.area("Galaxy's Edge").villain?
     assert_equal 7, @game.area_states.size
+    assert_equal({ "villain" => 3, "players" => 3, "neutral" => 1 }, @game.area_states.map(&:owner).tally)
   end
 
   test "Might of the Empire: his own area cards place 2" do

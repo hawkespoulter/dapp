@@ -10,18 +10,17 @@ class VillainEngineTest < ActiveSupport::TestCase
     @now = @game.started_at
   end
 
-  test "starting splits the park in half, with the villain spreading from her lair" do
-    villain = @game.area_states.select(&:villain?)
-    players = @game.area_states.select(&:players?)
+  test "starting splits the park in half" do
+    assert_equal 3, @game.area_states.count(&:villain?)
+    assert_equal 3, @game.area_states.count(&:players?)
+  end
 
-    assert_equal 3, villain.size
-    assert_equal 3, players.size
-    assert_includes villain.map(&:area), "Fantasyland"
-    villain.each do |state|
-      next if state.area == "Fantasyland"
-
-      assert @game.board.neighbors(state.area).any? { @game.area(_1).villain? }, "#{state.area} should touch her other areas"
+  test "the split is fully random: the lair can start on either side" do
+    lair_owners = 20.times.map do |seed|
+      game, = start_game(seed:)
+      game.area("Fantasyland").owner
     end
+    assert_equal %w[players villain], lair_owners.uniq.sort
   end
 
   test "each side scatters its starting strength over its areas" do
