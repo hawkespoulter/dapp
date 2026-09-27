@@ -266,10 +266,12 @@ module Games
       game.save!
     end
 
-    # Swaps a played card for a new one.
+    # Swaps a played card for a new one in the same spot in the hand, so the
+    # other cards don't move.
     def replace_card(challenge)
       game.discard_challenge(challenge.id)
-      me.deal(me.hand - [challenge.id] + game.draw_challenges(1), game.rng)
+      fresh = game.draw_challenges(1).first
+      me.deal(me.hand.flat_map { _1 == challenge.id ? [fresh].compact : [_1] }, game.rng)
     end
 
     def snapshot(state)

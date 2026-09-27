@@ -123,6 +123,17 @@ class GameActionsTest < ActiveSupport::TestCase
     assert @game.area("Adventureland").villain?
   end
 
+  test "a new card takes the played card's place instead of joining the end" do
+    easy, hard, medium = %i[anywhere_easy anywhere_hard adventureland_easy].map { challenges(_1).id }
+    @host.update!(hand: [easy, hard, medium])
+    act.complete!(hard, @now)
+
+    hand = @host.reload.hand
+    assert_equal [easy, medium], [hand.first, hand.last]
+    refute_includes hand, hard
+    assert_equal 3, hand.size
+  end
+
   test "failing a challenge swaps the card" do
     give(@host, :anywhere_easy)
     act.fail!(challenges(:anywhere_easy).id, @now)
