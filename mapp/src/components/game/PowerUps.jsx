@@ -8,20 +8,20 @@ function powerList({ game, villain }, area) {
   const name = villain.name;
   const shieldable = area?.owner === "players" && !area.shielded;
   return [
-    { key: "forecast", title: "Forecast", text: `See ${name}'s next 3 cards and throw one away.` },
-    { key: "stall", title: "Stall", text: `${name} skips the next turn.` },
+    { key: "forecast", text: `See ${name}'s next 3 cards and throw one away.` },
+    { key: "stall", text: `${name} skips the next turn.` },
     {
       key: "shield",
-      title: "Shield",
+     
       text: `The area selected on the map can't lose influence on ${name}'s next turn.`,
       button: shieldable ? `Shield ${area.area}` : "Pick one of your areas",
       disabled: !shieldable,
     },
-    { key: "redraw", title: "Redraw", text: "Swap your whole hand for new challenges." },
-    { key: "double_down", title: "Double Down", text: "Your next completed challenge pays double." },
+    { key: "redraw", text: "Swap your whole hand for new challenges." },
+    { key: "double_down", text: "Your next completed challenge pays double." },
     game.hard_mode && {
       key: "safety_net",
-      title: "Safety Net",
+     
       text: `Your next failed challenge doesn't wake ${name}, and you can undo it.`,
     },
   ].filter(Boolean);
@@ -32,8 +32,9 @@ function activeEffects({ powers, villain }) {
   const effects = [];
   if (powers.stalls > 0) effects.push(`${villain.name} skips the next ${powers.stalls > 1 ? `${powers.stalls} turns` : "turn"}`);
   if (powers.shields.length > 0) effects.push(`Shielded: ${powers.shields.join(", ")}`);
-  if (powers.double_down > 0) effects.push(`Your Double Down${powers.double_down > 1 ? ` ×${powers.double_down}` : ""} is ready`);
-  if (powers.safety_net > 0) effects.push(`Your Safety Net${powers.safety_net > 1 ? ` ×${powers.safety_net}` : ""} is ready`);
+  const times = (n) => (n > 1 ? ` (×${n})` : "");
+  if (powers.double_down > 0) effects.push(`Your next completed challenge pays double${times(powers.double_down)}`);
+  if (powers.safety_net > 0) effects.push(`Your next failed challenge won't wake ${villain.name}${times(powers.safety_net)}`);
   return effects;
 }
 
@@ -55,16 +56,11 @@ function PowerUps({ state, area, busy, onUse }) {
         const short = game.coins < price;
         return (
           <div key={power.key} className="flex items-center gap-3 rounded-xl bg-slate-800 p-3 text-white">
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold">{power.title}</h3>
-                <span className="flex items-center gap-0.5 text-sm font-bold text-amber-300">
-                  <PaidIcon sx={{ fontSize: 16 }} />
-                  {price}
-                </span>
-              </div>
-              <p className="text-sm text-slate-300">{power.text}</p>
-            </div>
+            <span className="flex shrink-0 items-center gap-0.5 text-sm font-bold text-amber-300">
+              <PaidIcon sx={{ fontSize: 16 }} />
+              {price}
+            </span>
+            <p className="flex-1 text-sm text-slate-200">{power.text}</p>
             <button
               className="max-w-32 shrink-0 rounded-lg bg-violet-600 px-3 py-2 text-sm font-bold disabled:opacity-40"
               disabled={busy || short || power.disabled}
