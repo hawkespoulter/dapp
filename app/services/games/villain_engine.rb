@@ -10,7 +10,9 @@
 #                   1 and pushes into every neighbor too (internally an
 #                   "outbreak"; players never see that word or a count of
 #                   them). Thresholds come from the game's settings.
-#   * rising     -> escalation +1: the villain plays one more card per turn.
+#   * rising     -> escalation +1: the villain plays one more card per turn,
+#                   starting with the turn it's drawn on. It doesn't count as
+#                   one of the turn's cards.
 #
 # Everything the villain does starts from `handle(trigger)`, so new triggers
 # (e.g. a failed challenge, in hard mode) can be switched on per preset.
@@ -77,10 +79,14 @@ module Games
       end
 
       game.log!("villain_turn", "#{villain.display_name} plays #{cards} #{'card'.pluralize(cards)}.", at:, board:)
-      cards.times do
-        break unless game.active?
+      # A Villain Rising isn't one of the turn's cards, and the extra card it
+      # adds is played this turn.
+      played = 0
+      while game.active? && played < self.class.rate_for(game.escalation)
+        card = draw_card(at)
+        break if card.nil?
 
-        draw_card(at)
+        played += 1 unless card == RISING
       end
       villain.on_tick(at) if game.active?
       game.set_power("shields", []) # shields last one real turn
@@ -166,6 +172,11 @@ module Games
       game.villain_draw = rest
       return if card.nil?
 
+      play_card(card, at)
+      card
+    end
+
+    def play_card(card, at)
       name = card == RISING ? "Villain Rising" : card.delete_prefix("area:")
       game.log!("villain_card", "#{villain.display_name} plays #{name}.", at:, card: name, **(card == RISING ? {} : { area: name }))
       if card == RISING

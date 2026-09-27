@@ -111,20 +111,19 @@ class VillainEngineTest < ActiveSupport::TestCase
     assert_equal 2, @game.area("Adventureland").strength
   end
 
-  test "each villain rising makes her play one more card per turn, and nothing else" do
+  test "a villain rising adds a card to every turn, starting with the one it's drawn on" do
     neutral_board!(@game)
-    @game.villain_draw = ["rising", "area:Adventureland", "area:Tomorrowland", "area:Frontierland", "rising"]
-    @game.villain_discard = ["area:Liberty Square"]
+    @game.villain_draw = ["rising", "area:Adventureland", "area:Tomorrowland", "area:Frontierland", "area:Fantasyland",
+                          "area:Liberty Square"]
     @engine.villain_turn(@now)
 
     assert_equal 1, @game.escalation
-    assert_equal 2, Games::VillainEngine.rate_for(@game.escalation)
-    assert @game.area_states.all?(&:neutral?), "the rising hits no area"
-    assert_equal ["area:Liberty Square"], @game.villain_discard
+    assert %w[Adventureland Tomorrowland].all? { @game.area(_1).villain? }, "the rising isn't one of the cards, and adds one now"
+    assert @game.area("Frontierland").neutral?
 
     @engine.villain_turn(@now)
-    assert %w[Adventureland Tomorrowland].all? { @game.area(_1).villain? }, "she now plays two cards"
-    assert @game.area("Frontierland").neutral?
+    assert %w[Frontierland Fantasyland].all? { @game.area(_1).villain? }, "later turns play two cards too"
+    assert @game.area("Liberty Square").neutral?
   end
 
   test "spilling over never loses the game by itself" do
