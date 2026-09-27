@@ -7,8 +7,9 @@ import TeamPool from "./TeamPool";
 import AreaPanel from "./AreaPanel";
 import HandCard from "./HandCard";
 import AnswerPopup from "./AnswerPopup";
-import VillainTurnPopup from "./VillainTurnPopup";
-import { errorMessage, saveSeenVillainTurn, seenVillainTurn } from "./playerStorage";
+import VillainTurnReplay from "./VillainTurnReplay";
+import useUnseenVillainTurns from "./useUnseenVillainTurns";
+import { errorMessage } from "./playerStorage";
 import {
   useBuyInfluenceMutation,
   useCompleteChallengeMutation,
@@ -32,9 +33,7 @@ function GameBoard({ state, refetch }) {
   const [selected, setSelected] = useState(null);
   const [error, setError] = useState(null);
   const [answers, setAnswers] = useState(null);
-  // Villain turns up to this one have been shown. A phone opening the game
-  // for the first time starts from now rather than replaying old turns.
-  const [seenTurn, setSeenTurn] = useState(() => seenVillainTurn(game.code) ?? game.tick_count);
+  const [newTurns, markTurnsSeen] = useUnseenVillainTurns(state);
 
   const [complete, completeStatus] = useCompleteChallengeMutation();
   const [fail, failStatus] = useFailChallengeMutation();
@@ -45,16 +44,6 @@ function GameBoard({ state, refetch }) {
   const busy = [completeStatus, failStatus, buyStatus, placeStatus, undoStatus, forceTurnStatus].some(
     (s) => s.isLoading,
   );
-
-  useEffect(() => {
-    if (seenVillainTurn(game.code) == null) saveSeenVillainTurn(game.code, seenTurn);
-  }, [game.code, seenTurn]);
-
-  const newTurns = (state.villain_turns || []).filter((t) => t.turn > seenTurn);
-  const closeTurns = () => {
-    setSeenTurn(game.tick_count);
-    saveSeenVillainTurn(game.code, game.tick_count);
-  };
 
   useEffect(() => {
     if (!error) return;
@@ -144,7 +133,7 @@ function GameBoard({ state, refetch }) {
       </Section>
 
       {newTurns.length > 0 && (
-        <VillainTurnPopup turns={newTurns} villain={villain} areas={areas} onClose={closeTurns} />
+        <VillainTurnReplay turns={newTurns} villain={villain} areas={areas} park={game.park} onClose={markTurnsSeen} />
       )}
       {answers && <AnswerPopup photos={answers} onClose={() => setAnswers(null)} />}
 

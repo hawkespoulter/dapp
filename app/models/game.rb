@@ -9,6 +9,9 @@ class Game < ApplicationRecord
   STATUSES = %w[lobby active finished].freeze
   RESULTS = %w[gold silver bronze lost].freeze
   CODE_CHARS = ("A".."Z").to_a - %w[I O]
+  # Event data the villain turn replay uses: the card played, the board when
+  # the turn began, and each area as it stood after a change.
+  REPLAY_DATA = %w[card note area owner strength board].freeze
 
   has_many :players, -> { order(:id) }, dependent: :destroy
   has_many :area_states, dependent: :destroy
@@ -158,7 +161,7 @@ class Game < ApplicationRecord
   # show each player the turns they haven't seen yet.
   def villain_turns(count = 3)
     game_events.last(200).select { _1.data["turn"] }.group_by { _1.data["turn"] }.to_a.last(count).map do |turn, events|
-      { turn:, at: events.first.occurred_at, events: events.map { { kind: _1.kind, message: _1.message, card: _1.data["card"], note: _1.data["note"] }.compact } }
+      { turn:, at: events.first.occurred_at, events: events.map { { kind: _1.kind, message: _1.message, **_1.data.slice(*REPLAY_DATA).symbolize_keys } } }
     end
   end
 

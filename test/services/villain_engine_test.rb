@@ -149,6 +149,9 @@ class VillainEngineTest < ActiveSupport::TestCase
                   "Maleficent weakens your hold on Adventureland (strength 1)."],
                  turns.first[:events].pluck(:message)
     assert_equal "Adventureland", turns.first[:events][1][:card]
+    assert_equal ["players", 2], turns.first[:events][0][:board]["Adventureland"]
+    assert_equal({ area: "Adventureland", owner: "players", strength: 1 },
+                 turns.first[:events][2].slice(:area, :owner, :strength))
     assert_equal "lost_area", turns.last[:events].last[:kind]
   end
 

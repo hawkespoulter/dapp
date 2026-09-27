@@ -43,7 +43,7 @@ function useAreaHitTest(areaNames) {
     });
 }
 
-function GameMap({ park, areas, villainKey, onSelect }) {
+function GameMap({ park, areas, villainKey, onSelect, highlight }) {
   const layout = BOARD_LAYOUT[park];
   const color = villainColor(villainKey);
   const areaNames = areas.map((a) => a.area);
@@ -90,6 +90,11 @@ function GameMap({ park, areas, villainKey, onSelect }) {
             <div key={area.area}>
               <img src={src} style={{ ...fill, filter: OWNER_FILTERS[area.owner] }} alt="" draggable={false} />
               {area.owner === "villain" && <div style={{ ...mask(src), backgroundColor: color, opacity: 0.55 }} />}
+              {area.area === highlight && (
+                <div style={{ ...fill, opacity: 0.5 }}>
+                  <div className="animate-pulse" style={{ ...mask(src), backgroundColor: "white" }} />
+                </div>
+              )}
             </div>
           );
         })}
@@ -103,7 +108,9 @@ function GameMap({ park, areas, villainKey, onSelect }) {
             return (
               <div
                 key={area.area}
-                className="pointer-events-none absolute flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white/80 px-1 text-xs font-black text-white shadow"
+                className={`pointer-events-none absolute flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white/80 px-1 text-xs font-black text-white shadow transition-transform ${
+                  area.area === highlight ? "scale-150" : ""
+                }`}
                 style={{
                   left: pct(x, IMAGE_SIZE.width),
                   top: pct(y, IMAGE_SIZE.height),
@@ -128,4 +135,5 @@ GameMap.propTypes = {
   areas: PropTypes.array.isRequired,
   villainKey: PropTypes.string.isRequired,
   onSelect: PropTypes.func,
+  highlight: PropTypes.string,
 };

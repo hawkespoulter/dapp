@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import IMAGES from "~/images/Images";
 import { toCamelCase } from "~/constants.js";
 import GameMap from "./GameMap";
+import VillainTurnReplay from "./VillainTurnReplay";
+import useUnseenVillainTurns from "./useUnseenVillainTurns";
 
 const RESULTS = {
   gold: { title: "Gold!", logo: "Gold", filter: "none" },
@@ -15,6 +17,8 @@ function GameOver({ state }) {
   const { game, villain, areas, events } = state;
   const result = RESULTS[game.result] || RESULTS.lost;
   const summary = events.find((e) => e.kind === "finished");
+  // The turn that ended the game plays first, if this phone hasn't seen it.
+  const [finalTurns, markTurnsSeen] = useUnseenVillainTurns(state);
 
   return (
     <div className="min-h-screen bg-slate-950 pb-10 text-white">
@@ -32,6 +36,16 @@ function GameOver({ state }) {
         </Link>
       </div>
       <GameMap park={game.park} areas={areas} villainKey={villain.key} />
+      {finalTurns.length > 0 && (
+        <VillainTurnReplay
+          turns={finalTurns}
+          villain={villain}
+          areas={areas}
+          park={game.park}
+          closeLabel="See the result"
+          onClose={markTurnsSeen}
+        />
+      )}
     </div>
   );
 }

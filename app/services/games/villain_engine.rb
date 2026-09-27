@@ -52,7 +52,8 @@ module Games
       game.tick_count += 1
       game.villain_turn_number = game.tick_count
       cards = self.class.rate_for(game.escalation)
-      game.log!("villain_turn", "#{villain.display_name} plays #{cards} #{'card'.pluralize(cards)}.", at:)
+      board = game.area_states.to_h { [_1.area, [_1.owner, _1.strength]] }
+      game.log!("villain_turn", "#{villain.display_name} plays #{cards} #{'card'.pluralize(cards)}.", at:, board:)
       cards.times do
         break unless game.active?
 
@@ -73,7 +74,7 @@ module Games
           outbreak(name, at)
         else
           state.update!(strength: state.strength + amount)
-          game.log!("strength", "#{who}'s hold on #{name} grows (strength #{state.strength}).", at:, area: name)
+          game.log!("strength", "#{who}'s hold on #{name} grows (strength #{state.strength}).", at:, **area_after(state))
         end
         return
       end
@@ -84,17 +85,17 @@ module Games
         amount -= hit
         if state.strength.positive?
           state.save!
-          game.log!("weakened", "#{who} weakens your hold on #{name} (strength #{state.strength}).", at:, area: name)
+          game.log!("weakened", "#{who} weakens your hold on #{name} (strength #{state.strength}).", at:, **area_after(state))
           return
         end
         state.update!(owner: "neutral", strength: 0)
-        game.log!("lost_area", "#{who} knocked you out of #{name}.", at:, area: name)
+        game.log!("lost_area", "#{who} knocked you out of #{name.chomp('.')}.", at:, **area_after(state))
         amount = [amount, 1].max if villain.usurps?
       end
       return if amount.zero?
 
       state.update!(owner: "villain", strength: amount)
-      game.log!("takeover", "#{who} has taken #{name}!", at:, area: name)
+      game.log!("takeover", "#{who} has taken #{name}!", at:, **area_after(state))
       villain.on_takeover(state, at)
       check_loss!(at)
     end
@@ -125,6 +126,11 @@ module Games
 
     private
 
+    # An area as it stands after a change, for the turn replay on the phones.
+    def area_after(state)
+      { area: state.area, owner: state.owner, strength: state.strength }
+    end
+
     def draw_card(at)
       reshuffle_discard(at) if game.villain_draw.empty?
       card, *rest = game.villain_draw
@@ -132,7 +138,7 @@ module Games
       return if card.nil?
 
       name = card == RISING ? "Villain Rising" : card.delete_prefix("area:")
-      game.log!("villain_card", "#{villain.display_name} plays #{name}.", at:, card: name)
+      game.log!("villain_card", "#{villain.display_name} plays #{name}.", at:, card: name, **(card == RISING ? {} : { area: name }))
       if card == RISING
         escalate(at)
       else
@@ -160,7 +166,7 @@ module Games
       name = card.delete_prefix("area:")
       hit = game.settings["rising_push"]
       note = "from the bottom of her deck, hits for #{hit}"
-      game.log!("villain_card", "#{villain.display_name} plays #{name} #{note}.", at:, card: name, note:)
+      game.log!("villain_card", "#{villain.display_name} plays #{name} #{note}.", at:, card: name, note:, area: name)
       push(name, hit, at, from_outbreak: true)
 
       game.villain_draw = game.villain_discard.shuffle(random: game.rng) + game.villain_draw
