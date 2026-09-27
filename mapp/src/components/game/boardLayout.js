@@ -9,7 +9,7 @@ export const BOARD_LAYOUT = {
     // runs from the villages down to the Oasis.
     crop: { x: 0, y: 960, width: 1080, height: 800 },
     centers: {
-      "Africa": [400, 1160],
+      "Africa": [340, 1110],
       "Asia": [770, 1110],
       "Discovery Island": [545, 1300],
       "DinoLand U.S.A.": [760, 1460],
