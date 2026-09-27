@@ -37,6 +37,10 @@ const gameApi = createApi({
         providesTags: ["GameSettings"],
         query: () => "/game_settings",
       }),
+      fetchFinishedGames: builder.query({
+        providesTags: ["GameSettings"],
+        query: (page) => ({ url: "/finished_games", params: { page } }),
+      }),
       updateGameSettings: builder.mutation({
         invalidatesTags: ["GameSettings"],
         query: ({ key, settings }) => ({ url: `/game_settings/${key}`, method: "PATCH", body: { settings } }),
@@ -72,6 +76,7 @@ const gameApi = createApi({
 export const {
   useFetchGameParksQuery,
   useFetchGameSettingsQuery,
+  useFetchFinishedGamesQuery,
   useUpdateGameSettingsMutation,
   useResetGameSettingsMutation,
   useFetchGameQuery,

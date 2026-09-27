@@ -12,6 +12,7 @@ Rails.application.routes.draw do
       resources :shows
 
       get '/game_parks', to: 'games#parks'
+      get '/finished_games', to: 'game_settings#finished'
       resources :game_settings, only: %i[ index update ], param: :key do
         post :reset, on: :member
       end

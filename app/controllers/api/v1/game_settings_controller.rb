@@ -1,18 +1,32 @@
-# The Game settings page: tune each preset's balance and review finished
-# games (with the settings they were played under).
+# The Game settings page: tune each preset's balance and see the win/loss
+# record. Finished games (with the settings they were played under) have
+# their own paged list.
 class Api::V1::GameSettingsController < ApplicationController
+  FINISHED_PER_PAGE = 10
+
   before_action :set_preset, only: %i[ update reset ]
 
   # GET /game_settings
   def index
-    finished = Game.where(status: "finished").includes(:players).order(updated_at: :desc)
+    finished = Game.where(status: "finished")
     problem = Challenge.refresh
     render json: {
       challenges: { counts: Challenge.group(:park).count.transform_keys { _1 || Challenge::ANYWHERE }, problem: },
       presets: GamePreset.seeded,
       record: finished.group(:preset, :result).count.each_with_object({}) { |((preset, result), n), all| (all[preset] ||= {})[result] = n },
-      finished_games: finished.limit(30).map { finished_game(_1) },
+      finished_count: finished.count,
     }
+  end
+
+  # GET /finished_games?page=1 (newest first)
+  def finished
+    finished = Game.where(status: "finished")
+    total = finished.count
+    pages = [(total / FINISHED_PER_PAGE.to_f).ceil, 1].max
+    page = params.fetch(:page, 1).to_i.clamp(1, pages)
+    games = finished.includes(:players).order(updated_at: :desc, id: :desc)
+                    .offset((page - 1) * FINISHED_PER_PAGE).limit(FINISHED_PER_PAGE)
+    render json: { games: games.map { finished_game(_1) }, page:, pages:, total: }
   end
 
   # PATCH /game_settings/:key

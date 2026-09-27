@@ -2,19 +2,14 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {
   useFetchGameSettingsQuery,
   useResetGameSettingsMutation,
   useUpdateGameSettingsMutation,
 } from "~/store/apis/gameApi";
 import { errorMessage } from "./playerStorage";
-
-const RESULT_STYLES = {
-  gold: "text-amber-300",
-  silver: "text-slate-200",
-  bronze: "text-orange-400",
-  lost: "text-red-400",
-};
+import { RESULT_STYLES } from "./gameRules";
 const RESULTS = ["gold", "silver", "bronze", "lost"];
 
 const section = "rounded-xl bg-slate-800 p-4";
@@ -158,33 +153,14 @@ function ChallengeFile({ challenges }) {
   );
 }
 
-function FinishedGames({ games }) {
+function FinishedGamesLink({ count }) {
   return (
-    <div className={section}>
-      <h2 className="mb-2 text-lg font-bold">Finished games</h2>
-      {games.length === 0 && <p className="text-sm text-slate-400">No finished games yet.</p>}
-      <ul className="flex flex-col gap-2">
-        {games.map((g) => (
-          <li key={g.code}>
-            <Link to={`/game/${g.code}`} className="block rounded-lg bg-slate-900 px-3 py-2">
-              <div className="flex items-center justify-between">
-                <span className="font-bold tracking-widest">{g.code}</span>
-                <span className={`text-sm font-bold uppercase ${RESULT_STYLES[g.result]}`}>{g.result}</span>
-              </div>
-              <p className="text-xs text-slate-400">
-                {g.finished_at && new Date(g.finished_at).toLocaleDateString([], { month: "short", day: "numeric" })} · {g.park} ·{" "}
-                {g.preset_label} · {g.players.join(", ")}
-              </p>
-              {g.summary && <p className="mt-1 text-sm text-slate-300">{g.summary}</p>}
-              <p className="mt-1 text-xs text-slate-500">
-                Villain every {g.settings.tick_minutes} min · start strength {g.settings.starting_strength} ·{" "}
-                {g.settings.influence_price} coin/influence
-              </p>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Link to="/game/finished" className={`${section} flex items-center justify-between`}>
+      <span className="text-lg font-bold">Finished games</span>
+      <span className="flex items-center gap-1 text-sm text-slate-400">
+        {count} <ChevronRightIcon />
+      </span>
+    </Link>
   );
 }
 
@@ -221,7 +197,7 @@ function GameSettings() {
 
       <ChallengeFile challenges={data.challenges} />
       <Record presets={data.presets} record={data.record} />
-      <FinishedGames games={data.finished_games} />
+      <FinishedGamesLink count={data.finished_count} />
     </div>
   );
 }
@@ -230,5 +206,5 @@ export default GameSettings;
 
 PresetForm.propTypes = { preset: PropTypes.object.isRequired };
 Record.propTypes = { presets: PropTypes.array.isRequired, record: PropTypes.object.isRequired };
-FinishedGames.propTypes = { games: PropTypes.array.isRequired };
+FinishedGamesLink.propTypes = { count: PropTypes.number.isRequired };
 ChallengeFile.propTypes = { challenges: PropTypes.object.isRequired };

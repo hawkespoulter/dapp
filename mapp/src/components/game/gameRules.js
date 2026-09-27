@@ -28,3 +28,11 @@ export function strengthText(state, area) {
   if (area.owner === "players") return `Your strength ${area.strength}`;
   return "Nobody holds it";
 }
+
+// Text colors for each game result.
+export const RESULT_STYLES = {
+  gold: "text-amber-300",
+  silver: "text-slate-200",
+  bronze: "text-orange-400",
+  lost: "text-red-400",
+};

@@ -10,6 +10,7 @@ import Info from "./pages/Info.jsx";
 import GameHome from "./game/GameHome.jsx";
 import GameRoom from "./game/GameRoom.jsx";
 import GameSettings from "./game/GameSettings.jsx";
+import FinishedGames from "./game/FinishedGames.jsx";
 
 function AppRoutes() {
   return (
@@ -34,6 +35,7 @@ function AppRoutes() {
       <Route exact path="/info" element={<Info />} />
       <Route exact path="/game" element={<GameHome />} />
       <Route exact path="/game/settings" element={<GameSettings />} />
+      <Route exact path="/game/finished" element={<FinishedGames />} />
       <Route exact path="/game/:code" element={<GameRoom />} />
     </Routes>
   );
