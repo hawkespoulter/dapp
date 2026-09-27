@@ -19,6 +19,7 @@ class GamePreset < ApplicationRecord
     "rising_push" => { label: "Strength a Villain Rising hits for", range: 0..20 },
     "outbreak_at" => { label: "Her areas outbreak at strength", range: 1..50 },
     "outbreak_limit" => { label: "Outbreaks before you lose", range: 1..50 },
+    "hard_mode" => { label: "Hard mode: the villain also moves when you fail a challenge", boolean: true },
   }.freeze
 
   validates :key, presence: true, uniqueness: true
@@ -32,8 +33,15 @@ class GamePreset < ApplicationRecord
     end
   end
 
+  # All presets, creating them from the defaults file the first time and
+  # adding any setting the file has gained since, without touching values
+  # that were tuned.
   def self.seeded
     seed_defaults! unless exists?
+    all.each do |preset|
+      missing = DEFAULTS.fetch(preset.key, {}).except(*preset.settings.keys)
+      preset.update_columns(settings: preset.settings.merge(missing)) if missing.any?
+    end
     all
   end
 
@@ -53,7 +61,13 @@ class GamePreset < ApplicationRecord
   # this preset already has.
   def update_settings!(changes)
     edited = changes.to_h.slice(*settings.keys, "label").to_h do |field, value|
-      [field, FIELDS.dig(field, :range) ? value.to_s.strip.then { Integer(_1, exception: false) || _1 } : value.to_s.strip]
+      spec = FIELDS[field] || {}
+      value =
+        if spec[:range] then value.to_s.strip.then { Integer(_1, exception: false) || _1 }
+        elsif spec[:boolean] then ActiveModel::Type::Boolean.new.cast(value)
+        else value.to_s.strip
+        end
+      [field, value]
     end
     update!(settings: settings.merge(edited))
   end
@@ -75,6 +89,8 @@ class GamePreset < ApplicationRecord
       spec = FIELDS[field] or next
       if spec[:range] && !(value.is_a?(Integer) && spec[:range].cover?(value))
         errors.add(:base, "#{spec[:label]} must be a whole number from #{spec[:range].min} to #{spec[:range].max}")
+      elsif spec[:boolean] && ![true, false].include?(value)
+        errors.add(:base, "#{spec[:label]} must be on or off")
       elsif spec[:time] && !value.to_s.match?(/\A([01]\d|2[0-3]):[0-5]\d\z/)
         errors.add(:base, "#{spec[:label]} must be a time like 09:00")
       end

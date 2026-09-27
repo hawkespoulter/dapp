@@ -14,6 +14,7 @@ sprint:
   rising_push: 3
   outbreak_at: 3
   outbreak_limit: 4
+  hard_mode: true
 full_day:
   label: Full Day
   hours: 10
@@ -25,6 +26,7 @@ full_day:
   rising_push: 3
   outbreak_at: 3
   outbreak_limit: 6
+  hard_mode: true
 multi_day:
   label: Multi-day
   days: 3
@@ -38,3 +40,4 @@ multi_day:
   rising_push: 3
   outbreak_at: 3
   outbreak_limit: 8
+  hard_mode: true

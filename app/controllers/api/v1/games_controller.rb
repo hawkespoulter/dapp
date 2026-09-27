@@ -21,7 +21,7 @@ class Api::V1::GamesController < ApplicationController
       park: params.require(:park),
       preset: params.require(:preset),
       host_name: params.require(:name),
-      rules: params.fetch(:rules, {}).permit(:villain_on_fail, :days, :day_start, :day_end).to_h,
+      rules: params.fetch(:rules, {}).permit(:days, :day_start, :day_end).to_h,
     )
     render json: { token: player.auth_token, state: game.state_for(player) }, status: :created
   end

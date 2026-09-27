@@ -37,6 +37,25 @@ class GamePresetTest < ActiveSupport::TestCase
     refute preset.settings.key?("bogus")
   end
 
+  test "hard mode is on by default and can be switched off" do
+    preset = GamePreset.for("sprint")
+    assert_equal true, preset.settings["hard_mode"]
+
+    preset.update_settings!("hard_mode" => "false")
+    assert_equal false, preset.reload.settings["hard_mode"]
+    game, = start_game(preset: "sprint")
+    refute game.hard_mode?
+  end
+
+  test "settings added to the defaults file are filled in without losing tuned values" do
+    preset = GamePreset.for("full_day")
+    preset.update_columns(settings: preset.settings.except("hard_mode").merge("tick_minutes" => 7))
+
+    reloaded = GamePreset.for("full_day")
+    assert_equal true, reloaded.settings["hard_mode"]
+    assert_equal 7, reloaded.settings["tick_minutes"]
+  end
+
   test "reset brings back the defaults" do
     preset = GamePreset.for("sprint")
     preset.update_settings!("tick_minutes" => "7")

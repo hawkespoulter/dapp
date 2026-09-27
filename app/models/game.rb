@@ -80,6 +80,12 @@ class Game < ApplicationRecord
     settings["outbreak_at"]
   end
 
+  # Hard mode: the villain also takes a turn when a challenge is failed.
+  # Games from before it was a preset setting kept it in rules.
+  def hard_mode?
+    settings.fetch("hard_mode") { rules["villain_on_fail"] } == true
+  end
+
   def area(name)
     areas_by_name.fetch(name) { raise ArgumentError, "#{name} is not in #{park}" }
   end

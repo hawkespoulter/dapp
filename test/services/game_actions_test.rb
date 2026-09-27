@@ -128,7 +128,8 @@ class GameActionsTest < ActiveSupport::TestCase
     act.fail!(challenges(:anywhere_easy).id, @now)
 
     assert_equal 1, @host.reload.hand.size
-    assert_equal "failed", @game.game_events.last.kind
+    assert_includes @game.game_events.pluck(:kind), "failed"
+    assert_equal 1, @game.reload.tick_count, "hard mode wakes the villain"
   end
 
   test "hands only draw challenges for this park" do
@@ -218,7 +219,8 @@ class GameUndoTest < ActiveSupport::TestCase
     assert @game.next_tick_at.present?
   end
 
-  test "undo restores a failed card" do
+  test "undo restores a failed card outside hard mode" do
+    @game.update!(rules: @game.rules.merge("settings" => @game.settings.merge("hard_mode" => false)))
     give(@host, :anywhere_easy)
     act.fail!(challenges(:anywhere_easy).id, @now)
     act.undo!(@now)

@@ -17,7 +17,7 @@ module Games
       Game.transaction do
         preset_settings = GamePreset.for(preset).settings.merge(rules.slice("days", "day_start", "day_end"))
         game = Game.create!(park:, preset:, villain_key: villain.key,
-                            rules: rules.slice("villain_on_fail").merge("settings" => preset_settings))
+                            rules: { "settings" => preset_settings })
         game.board.areas.each { game.area_states.create!(area: _1) }
         host = game.players.create!(name: host_name, host: true)
         game.log!("joined", "#{host.name} created the game.", player: host)
@@ -93,7 +93,7 @@ module Games
         hand_before = [me.hand, me.card_lists]
         replace_card(challenge)
         message = "#{me.name} failed \"#{challenge.title}\"."
-        if game.rules["villain_on_fail"]
+        if game.hard_mode?
           me.save!
           game.log!("failed", message, at: now, player: me)
           VillainEngine.new(game).handle(:challenge_failed, at: now)

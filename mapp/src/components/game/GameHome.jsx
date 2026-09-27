@@ -48,7 +48,6 @@ function NewGameForm() {
   const [name, setName] = useState("");
   const [park, setPark] = useState("");
   const [preset, setPreset] = useState("full_day");
-  const [villainOnFail, setVillainOnFail] = useState(false);
   const [days, setDays] = useState(3);
 
   const parks = data?.parks || [];
@@ -57,7 +56,7 @@ function NewGameForm() {
 
   const submit = async (event) => {
     event.preventDefault();
-    const rules = { villain_on_fail: villainOnFail };
+    const rules = {};
     if (preset === "multi_day") rules.days = days;
     try {
       const { token, state } = await createGame({ name: name.trim(), park: chosenPark, preset, rules }).unwrap();
@@ -106,11 +105,6 @@ function NewGameForm() {
           <input className={`${input} mt-1`} type="number" min={2} max={7} value={days} onChange={(e) => setDays(Number(e.target.value))} />
         </label>
       )}
-
-      <label className="flex items-center gap-2 text-sm text-slate-300">
-        <input type="checkbox" checked={villainOnFail} onChange={(e) => setVillainOnFail(e.target.checked)} />
-        Hard mode: the villain also moves when you fail a challenge
-      </label>
 
       {error && <p className="text-sm text-red-300">{errorMessage(error)}</p>}
       <button className="rounded-lg bg-emerald-600 py-2 font-bold disabled:opacity-40" disabled={isLoading || !name.trim() || !chosenPark}>

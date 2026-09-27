@@ -12,7 +12,7 @@
 #                   takes a push of 3, and the discard pile goes back on top.
 #
 # Everything the villain does starts from `handle(trigger)`, so new triggers
-# (e.g. a failed challenge) can be switched on per game through `rules`.
+# (e.g. a failed challenge, in hard mode) can be switched on per preset.
 module Games
   class VillainEngine
     RATE_TRACK = [1, 1, 2, 2, 3].freeze
@@ -39,7 +39,7 @@ module Games
     def handle(trigger, at:)
       case trigger
       when :timer then villain_turn(at)
-      when :challenge_failed then villain_turn(at) if game.rules["villain_on_fail"]
+      when :challenge_failed then villain_turn(at) if game.hard_mode?
       else raise ArgumentError, "Unknown villain trigger #{trigger}"
       end
     end

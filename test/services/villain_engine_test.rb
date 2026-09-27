@@ -176,12 +176,20 @@ class VillainEngineTest < ActiveSupport::TestCase
     assert_equal "bronze", @game.result
   end
 
-  test "failed challenges only wake the villain when the rule is on" do
-    @engine.handle(:challenge_failed, at: @now)
-    assert_equal 0, @game.tick_count
-
-    @game.rules = @game.rules.merge("villain_on_fail" => true)
+  test "failed challenges only wake the villain in hard mode" do
+    assert @game.hard_mode?, "hard mode is on by default"
     @engine.handle(:challenge_failed, at: @now)
     assert_equal 1, @game.tick_count
+
+    @game.rules = @game.rules.merge("settings" => @game.settings.merge("hard_mode" => false))
+    @engine.handle(:challenge_failed, at: @now)
+    assert_equal 1, @game.tick_count
+  end
+
+  test "games from before hard mode was a setting keep their old rule" do
+    @game.rules = { "settings" => @game.settings.except("hard_mode"), "villain_on_fail" => true }
+    assert @game.hard_mode?
+    @game.rules = { "settings" => @game.settings.except("hard_mode") }
+    refute @game.hard_mode?
   end
 end

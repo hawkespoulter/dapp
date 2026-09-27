@@ -68,19 +68,31 @@ function PresetForm({ preset }) {
               <label className="text-sm" htmlFor={`${preset.key}-${field.key}`}>
                 {field.label}
                 {!isDefault && preset.defaults && (
-                  <span className="block text-xs text-slate-500">default {preset.defaults[field.key]}</span>
+                  <span className="block text-xs text-slate-500">
+                    default {field.boolean ? (preset.defaults[field.key] ? "on" : "off") : preset.defaults[field.key]}
+                  </span>
                 )}
               </label>
-              <input
-                id={`${preset.key}-${field.key}`}
-                className={input}
-                type={field.time ? "time" : "number"}
-                inputMode={field.time ? undefined : "numeric"}
-                min={field.min}
-                max={field.max}
-                value={values[field.key] ?? ""}
-                onChange={(e) => edit(field.key, e.target.value)}
-              />
+              {field.boolean ? (
+                <input
+                  id={`${preset.key}-${field.key}`}
+                  className="h-6 w-6 shrink-0 accent-emerald-500"
+                  type="checkbox"
+                  checked={values[field.key] === true}
+                  onChange={(e) => edit(field.key, e.target.checked)}
+                />
+              ) : (
+                <input
+                  id={`${preset.key}-${field.key}`}
+                  className={input}
+                  type={field.time ? "time" : "number"}
+                  inputMode={field.time ? undefined : "numeric"}
+                  min={field.min}
+                  max={field.max}
+                  value={values[field.key] ?? ""}
+                  onChange={(e) => edit(field.key, e.target.value)}
+                />
+              )}
             </li>
           );
         })}
