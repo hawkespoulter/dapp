@@ -15,8 +15,7 @@ class GamePreset < ApplicationRecord
     "starting_strength" => { label: "Starting strength per side", range: 1..100 },
     "influence_price" => { label: "Coins per influence", range: 1..20 },
     "hand_size" => { label: "Challenge cards in hand", range: 1..8 },
-    "risings" => { label: "Villain Rising cards in her deck", range: 0..12 },
-    "rising_push" => { label: "Strength a Villain Rising hits for", range: 0..20 },
+    "risings" => { label: "Villain Rising cards in the deck (each adds a card per turn)", range: 0..12 },
     "outbreak_at" => { label: "Her areas spill into their neighbors at strength", range: 1..50 },
     "hard_mode" => { label: "Hard mode: the villain also moves when you fail a challenge", boolean: true },
   }.freeze

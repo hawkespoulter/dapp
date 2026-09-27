@@ -86,7 +86,7 @@ class VillainEngineTest < ActiveSupport::TestCase
 
     @engine.push("Tomorrowland", 1, @now)
     assert_equal 1, @game.outbreaks
-    assert_equal 3, @game.area("Tomorrowland").strength
+    assert_equal 4, @game.area("Tomorrowland").strength, "a spilling area grows too"
     assert @game.area("Main Street, U.S.A.").villain?
     assert @game.area("Fantasyland").villain?
   end
@@ -111,18 +111,20 @@ class VillainEngineTest < ActiveSupport::TestCase
     assert_equal 2, @game.area("Adventureland").strength
   end
 
-  test "a villain rising escalates and hits the bottom area card hard" do
+  test "each villain rising makes her play one more card per turn, and nothing else" do
     neutral_board!(@game)
-    set_area(@game, "Tomorrowland", owner: "players", strength: 2)
-    @game.villain_draw = ["rising", "area:Adventureland", "area:Tomorrowland"]
-    @game.villain_discard = ["area:Frontierland"]
+    @game.villain_draw = ["rising", "area:Adventureland", "area:Tomorrowland", "area:Frontierland", "rising"]
+    @game.villain_discard = ["area:Liberty Square"]
     @engine.villain_turn(@now)
 
     assert_equal 1, @game.escalation
-    assert @game.area("Tomorrowland").villain?
-    assert_equal 1, @game.area("Tomorrowland").strength
-    assert_equal %w[area:Adventureland], @game.villain_draw.last(1)
-    assert_equal [], @game.villain_discard
+    assert_equal 2, Games::VillainEngine.rate_for(@game.escalation)
+    assert @game.area_states.all?(&:neutral?), "the rising hits no area"
+    assert_equal ["area:Liberty Square"], @game.villain_discard
+
+    @engine.villain_turn(@now)
+    assert %w[Adventureland Tomorrowland].all? { @game.area(_1).villain? }, "she now plays two cards"
+    assert @game.area("Frontierland").neutral?
   end
 
   test "spilling over never loses the game by itself" do
@@ -218,12 +220,12 @@ class VillainEngineTest < ActiveSupport::TestCase
   test "the general villain rules use this game's numbers" do
     rules = @game.state_for(@host)[:villain_rules]
 
-    assert_includes rules.first, "every #{@game.settings['tick_minutes']} minutes, and whenever you fail a challenge"
+    assert_includes rules.first, "every #{@game.settings['tick_minutes']} minutes, and if you fail a challenge"
     assert_includes rules.fourth, "at #{@game.outbreak_at} or more"
-    assert_includes rules.fifth, "From the 2nd on, Maleficent plays 2 cards a turn and from the 4th on, Maleficent plays 3 cards a turn."
+    assert_includes rules.fifth, "hides 4 Villain Rising cards. Each one makes the villain play one more card per turn."
 
-    @game.rules = @game.rules.merge("settings" => @game.settings.merge("risings" => 2))
-    assert_match(/From the 2nd on, Maleficent plays 2 cards a turn\.\z/, Games::VillainEngine.general_rules(@game).fifth)
+    @game.rules = @game.rules.merge("settings" => @game.settings.merge("risings" => 0))
+    refute(Games::VillainEngine.general_rules(@game).any? { _1.include?("Rising") })
 
     @game.rules = @game.rules.merge("settings" => @game.settings.merge("hard_mode" => false))
     refute_includes Games::VillainEngine.general_rules(@game).first, "fail"

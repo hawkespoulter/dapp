@@ -6,22 +6,21 @@
 #   * area card  -> the villain pushes 1 into that area: it weakens a players
 #                   area (at 0 the area is unclaimed), claims an unclaimed one
 #                   at strength 1, and strengthens one of her own. Drawing her
-#                   own area at strength 3+ makes it spill over instead,
-#                   pushing into every neighbor (internally an "outbreak";
-#                   players never see that word or a count of them).
-#                   Thresholds come from the game's settings.
-#   * rising     -> escalation +1 (more cards per turn), the bottom area card
-#                   takes a push of 3, and the discard pile goes back on top.
+#                   own area at strength 3+ makes it spill over: it grows by
+#                   1 and pushes into every neighbor too (internally an
+#                   "outbreak"; players never see that word or a count of
+#                   them). Thresholds come from the game's settings.
+#   * rising     -> escalation +1: the villain plays one more card per turn.
 #
 # Everything the villain does starts from `handle(trigger)`, so new triggers
 # (e.g. a failed challenge, in hard mode) can be switched on per preset.
 module Games
   class VillainEngine
-    RATE_TRACK = [1, 1, 2, 2, 3].freeze
     RISING = "rising".freeze
 
+    # Cards the villain plays per turn: one, plus one per Villain Rising.
     def self.rate_for(escalation)
-      RATE_TRACK[[escalation, RATE_TRACK.size - 1].min]
+      1 + escalation
     end
 
     def self.build_deck(board, risings, rng)
@@ -33,22 +32,15 @@ module Games
     # The rules every villain plays by, with this game's numbers, as shown
     # under the villain's own rules on the players' phones.
     def self.general_rules(game)
-      name = game.villain.display_name
       s = game.settings
       risings = s["risings"]
-      # The Rising that first reaches each faster rate, if this game's deck has that many.
-      speedups = RATE_TRACK.each_with_index.chunk_while { _1.first == _2.first }.map(&:first).drop(1)
-                           .select { |_, rising| rising <= risings }
-                           .map { |rate, rising| "from the #{rising.ordinalize} on, #{name} plays #{rate} cards a turn" }
-      rising_rule = "#{risings} Villain Rising #{'card'.pluralize(risings)} #{risings == 1 ? 'is' : 'are'} hidden in the deck. "                     "Each one hits the bottom card of the deck for #{s['rising_push']} and shuffles the cards already "                     "played back on top, so they come up again soon."
-      rising_rule += " #{speedups.to_sentence.upcase_first}." if speedups.any?
       [
-        "#{name} takes a turn every #{s['tick_minutes']} minutes#{', and whenever you fail a challenge' if game.hard_mode?}.",
-        "Each turn #{name} plays #{RATE_TRACK.first} #{'card'.pluralize(RATE_TRACK.first)} from a deck with two cards for every area.",
-        "An area card pushes 1 into that area: yours loses 1 (at 0 it's unclaimed), an unclaimed one becomes #{name}'s at 1, and #{name}'s own grows by 1.",
-        "If #{name}'s area is already at #{s['outbreak_at']} or more, it spills over instead: every area next to it takes a push of 1.",
-        (rising_rule if risings.positive?),
-        "You lose if #{name} takes the whole park, or if time runs out while #{name} holds more areas than you.",
+        "The villain takes a turn every #{s['tick_minutes']} minutes#{', and if you fail a challenge' if game.hard_mode?}.",
+        "Each turn the villain plays area cards from a deck with two cards for every area.",
+        "An area card puts 1 influence point into that area.",
+        "If a villain's area is already at #{s['outbreak_at']} or more, it spills over. That area and every adjacent area get one influence.",
+        ("The deck also hides #{risings} Villain Rising #{'card'.pluralize(risings)}. Each one makes the villain play one more card per turn." if risings.positive?),
+        "You lose if the villain claims the whole park, or if time runs out while the villain holds more areas than you.",
       ].compact
     end
 
@@ -179,26 +171,16 @@ module Games
       game.escalation += 1
       rate = self.class.rate_for(game.escalation)
       game.log!("rising", "Villain Rising! #{villain.display_name} now plays #{rate} #{'card'.pluralize(rate)} a turn.", at:)
-
-      draw = game.villain_draw.dup
-      index = draw.rindex { _1.start_with?("area:") }
-      card = index ? draw.delete_at(index) : "area:#{game.board.areas.sample(random: game.rng)}"
-      game.villain_draw = draw
-      game.villain_discard = game.villain_discard + [card]
-      name = card.delete_prefix("area:")
-      hit = game.settings["rising_push"]
-      note = "from the bottom of her deck, hits for #{hit}"
-      game.log!("villain_card", "#{villain.display_name} plays #{name} #{note}.", at:, card: name, note:, area: name)
-      push(name, hit, at, from_outbreak: true)
-
-      game.villain_draw = game.villain_discard.shuffle(random: game.rng) + game.villain_draw
-      game.villain_discard = []
       villain.on_escalation(at)
     end
 
+    # The area grows by 1 and pushes into every neighbor.
     def outbreak(name, at)
       game.outbreaks += 1
       game.log!("outbreak", "#{villain.display_name}'s hold on #{name} spills over into its neighbors!", at:, area: name)
+      state = game.area(name)
+      state.update!(strength: state.strength + 1)
+      game.log!("strength", "#{villain.display_name}'s hold on #{name} grows (strength #{state.strength}).", at:, **area_after(state))
       game.board.neighbors(name).each do |neighbor|
         break unless game.active?
 

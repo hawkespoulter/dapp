@@ -6,23 +6,21 @@
 sprint:
   label: Sprint (2-4 hours)
   hours: 3
-  tick_minutes: 30
+  tick_minutes: 35
   hand_size: 2
   influence_price: 1
   starting_strength: 10
   risings: 2
-  rising_push: 3
   outbreak_at: 3
   hard_mode: true
 full_day:
   label: Full Day
   hours: 10
-  tick_minutes: 36
+  tick_minutes: 41
   hand_size: 3
   influence_price: 1
   starting_strength: 10
   risings: 4
-  rising_push: 3
   outbreak_at: 3
   hard_mode: true
 multi_day:
@@ -35,6 +33,5 @@ multi_day:
   influence_price: 1
   starting_strength: 10
   risings: 6
-  rising_push: 3
   outbreak_at: 3
   hard_mode: true
