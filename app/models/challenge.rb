@@ -88,7 +88,9 @@ class Challenge < ApplicationRecord
       end
       raise InvalidFile, "#{file}: should be a list of challenges (each starting with \"- title:\")" unless list.is_a?(Array)
 
-      list.map do |entry|
+      list.each_with_index.map do |entry, i|
+        raise InvalidFile, "#{file}: challenge #{i + 1} is empty. Give it a title or delete the stray \"-\"." unless entry.is_a?(Hash)
+
         unknown = entry.keys - FIELDS
         raise InvalidFile, "#{file}: #{entry['title']}: unknown field #{unknown.join(', ')}" if unknown.any?
         if entry.key?("list") && !entry["list"].is_a?(Hash)

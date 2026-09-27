@@ -123,6 +123,19 @@ class ChallengeTest < ActiveSupport::TestCase
     assert_match "put the description in quotes", error.message
   end
 
+  test "an empty entry is reported instead of breaking the deck" do
+    with_files("anywhere.yml" => "- {title: Good, reward: 1}
+") do |dir|
+      Challenge.sync!(dir)
+      write(dir, "anywhere.yml" => "- {title: Good, reward: 1}
+-
+")
+
+      assert_match "anywhere.yml: challenge 2 is empty", Challenge.refresh(dir)
+    end
+    assert Challenge.exists?(title: "Good")
+  end
+
   test "a broken file keeps the last good deck and reports the problem" do
     with_files("anywhere.yml" => "- {title: Good, reward: 1}\n") do |dir|
       Challenge.sync!(dir)
