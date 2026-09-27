@@ -7,7 +7,7 @@ module Villains
     self.tagline = "Mistress of All Evil"
     self.rules_text = [
       "Thorn Wall: while she holds Fantasyland, influence placed in the areas next to it counts half (2 per point of strength).",
-      "Dragon Form: from her second Villain Rising on, outbreaks push 2 into each neighbor instead of 1.",
+      "Dragon Form: from her second Villain Rising on, when her strong areas spill over they push 2 into each neighbor instead of 1.",
     ]
 
     def placement_cost(area)
@@ -21,7 +21,7 @@ module Villains
     def on_escalation(at)
       return unless game.escalation == 2
 
-      game.log!("villain", "Maleficent takes her Dragon Form! Outbreaks now push 2 into each neighbor.", at:)
+      game.log!("villain", "Maleficent takes her Dragon Form! Her strong areas now spill 2 into each neighbor.", at:)
     end
 
     private

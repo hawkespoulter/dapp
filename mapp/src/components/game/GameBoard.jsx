@@ -7,11 +7,13 @@ import TeamPool from "./TeamPool";
 import AreaPanel from "./AreaPanel";
 import HandCard from "./HandCard";
 import AnswerPopup from "./AnswerPopup";
-import { errorMessage } from "./playerStorage";
+import VillainTurnPopup from "./VillainTurnPopup";
+import { errorMessage, saveSeenVillainTurn, seenVillainTurn } from "./playerStorage";
 import {
   useBuyInfluenceMutation,
   useCompleteChallengeMutation,
   useFailChallengeMutation,
+  useForceVillainTurnMutation,
   usePlaceInfluenceMutation,
   useUndoChallengeMutation,
 } from "~/store/apis/gameApi";
@@ -30,13 +32,29 @@ function GameBoard({ state, refetch }) {
   const [selected, setSelected] = useState(null);
   const [error, setError] = useState(null);
   const [answers, setAnswers] = useState(null);
+  // Villain turns up to this one have been shown. A phone opening the game
+  // for the first time starts from now rather than replaying old turns.
+  const [seenTurn, setSeenTurn] = useState(() => seenVillainTurn(game.code) ?? game.tick_count);
 
   const [complete, completeStatus] = useCompleteChallengeMutation();
   const [fail, failStatus] = useFailChallengeMutation();
   const [buy, buyStatus] = useBuyInfluenceMutation();
   const [place, placeStatus] = usePlaceInfluenceMutation();
   const [undo, undoStatus] = useUndoChallengeMutation();
-  const busy = [completeStatus, failStatus, buyStatus, placeStatus, undoStatus].some((s) => s.isLoading);
+  const [forceTurn, forceTurnStatus] = useForceVillainTurnMutation();
+  const busy = [completeStatus, failStatus, buyStatus, placeStatus, undoStatus, forceTurnStatus].some(
+    (s) => s.isLoading,
+  );
+
+  useEffect(() => {
+    if (seenVillainTurn(game.code) == null) saveSeenVillainTurn(game.code, seenTurn);
+  }, [game.code, seenTurn]);
+
+  const newTurns = (state.villain_turns || []).filter((t) => t.turn > seenTurn);
+  const closeTurns = () => {
+    setSeenTurn(game.tick_count);
+    saveSeenVillainTurn(game.code, game.tick_count);
+  };
 
   useEffect(() => {
     if (!error) return;
@@ -71,7 +89,6 @@ function GameBoard({ state, refetch }) {
         park={game.park}
         areas={areas}
         villainKey={villain.key}
-        outbreakAt={game.outbreak_at}
         onSelect={setSelected}
       />
 
@@ -126,6 +143,9 @@ function GameBoard({ state, refetch }) {
         </div>
       </Section>
 
+      {newTurns.length > 0 && (
+        <VillainTurnPopup turns={newTurns} villain={villain} areas={areas} onClose={closeTurns} />
+      )}
       {answers && <AnswerPopup photos={answers} onClose={() => setAnswers(null)} />}
 
       <Section title={`${villain.name}'s rules`}>
@@ -134,6 +154,16 @@ function GameBoard({ state, refetch }) {
             <li key={rule}>{rule}</li>
           ))}
         </ul>
+      </Section>
+
+      <Section title="Testing">
+        <button
+          className="w-full rounded-lg border border-slate-700 py-2 text-sm text-slate-300 disabled:opacity-40"
+          disabled={busy}
+          onClick={() => run(forceTurn({ code }))}
+        >
+          Make {villain.name} move now
+        </button>
       </Section>
     </div>
   );

@@ -31,7 +31,7 @@ function GameOver({ state }) {
           New game
         </Link>
       </div>
-      <GameMap park={game.park} areas={areas} villainKey={villain.key} outbreakAt={game.outbreak_at} />
+      <GameMap park={game.park} areas={areas} villainKey={villain.key} />
     </div>
   );
 }

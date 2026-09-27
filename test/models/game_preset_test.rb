@@ -56,6 +56,13 @@ class GamePresetTest < ActiveSupport::TestCase
     assert_equal 7, reloaded.settings["tick_minutes"]
   end
 
+  test "settings dropped from the defaults file are removed" do
+    preset = GamePreset.for("sprint")
+    preset.update_columns(settings: preset.settings.merge("outbreak_limit" => 4))
+
+    refute GamePreset.for("sprint").settings.key?("outbreak_limit")
+  end
+
   test "reset brings back the defaults" do
     preset = GamePreset.for("sprint")
     preset.update_settings!("tick_minutes" => "7")

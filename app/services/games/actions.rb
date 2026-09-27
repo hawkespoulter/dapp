@@ -73,6 +73,14 @@ module Games
       end
     end
 
+    # For testing: the villain takes a turn right now. Her timer is unchanged.
+    def force_villain_turn!(now = Time.current)
+      locked(now, playing: true) do
+        VillainEngine.new(game).villain_turn(now)
+        game.save!
+      end
+    end
+
     # Challenges can be done anywhere. They pay coins into the team pool.
     def complete!(challenge_id, now = Time.current)
       locked(now, playing: true) do

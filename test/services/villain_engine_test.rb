@@ -125,14 +125,38 @@ class VillainEngineTest < ActiveSupport::TestCase
     assert_equal [], @game.villain_discard
   end
 
-  test "hitting the outbreak limit loses the game" do
+  test "spilling over never loses the game by itself" do
     neutral_board!(@game)
-    @game.outbreaks = @game.outbreak_limit - 1
+    @game.outbreaks = 50
     set_area(@game, "Frontierland", owner: "villain", strength: 3)
     @engine.push("Frontierland", 1, @now)
 
-    assert @game.finished?
-    assert_equal "lost", @game.result
+    assert @game.active?
+    refute_includes @game.state_for(@host)[:game].keys, :outbreaks
+  end
+
+  test "what she does on a turn is grouped under that turn for the pop-up" do
+    neutral_board!(@game)
+    set_area(@game, "Adventureland", owner: "players", strength: 2)
+    @game.villain_draw = ["area:Adventureland", "area:Adventureland"]
+    @game.log!("bought", "Someone bought influence.")
+    @engine.villain_turn(@now)
+    @engine.villain_turn(@now)
+
+    turns = @game.state_for(@host)[:villain_turns]
+    assert_equal [1, 2], turns.pluck(:turn)
+    assert_equal ["Maleficent plays 1 card.", "Maleficent weakens your hold on Adventureland (strength 1)."],
+                 turns.first[:events].pluck(:message)
+    assert_equal "lost_area", turns.last[:events].last[:kind]
+  end
+
+  test "the testing button makes her move now without moving her timer" do
+    next_tick = @game.next_tick_at
+    Games::Actions.new(@game, @host).force_villain_turn!(@now)
+
+    assert_equal 1, @game.reload.tick_count
+    assert_equal next_tick, @game.next_tick_at
+    assert_equal 1, @game.villain_turns.last[:turn]
   end
 
   test "the villain taking the whole park loses the game" do

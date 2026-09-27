@@ -24,6 +24,7 @@ Rails.application.routes.draw do
           post :undo
           post :buy
           post :place
+          post :villain_turn
         end
       end
     end

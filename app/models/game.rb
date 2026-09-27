@@ -24,6 +24,10 @@ class Game < ApplicationRecord
 
   attr_writer :rng
 
+  # Set while the villain takes a turn, so what she does is logged under that
+  # turn's number (see #villain_turns).
+  attr_accessor :villain_turn_number
+
   def self.unique_code
     loop do
       code = Array.new(6) { CODE_CHARS.sample }.join
@@ -68,10 +72,6 @@ class Game < ApplicationRecord
     settings["hand_size"]
   end
 
-  def outbreak_limit
-    settings["outbreak_limit"]
-  end
-
   def influence_price
     settings["influence_price"]
   end
@@ -100,6 +100,7 @@ class Game < ApplicationRecord
   end
 
   def log!(kind, message, at: Time.current, player: nil, **data)
+    data = data.merge(turn: villain_turn_number) if villain_turn_number
     game_events.create!(kind:, message:, player:, data: data.deep_stringify_keys, occurred_at: at)
   end
 
@@ -140,8 +141,8 @@ class Game < ApplicationRecord
         code: join_code, park:, preset:, preset_label: settings["label"], status:, result:,
         started_at:, ends_at:, next_tick_at:, server_time: Time.current,
         tick_minutes: settings["tick_minutes"], hand_size:,
-        escalation:, outbreaks:, outbreak_limit:, villain_rate: Games::VillainEngine.rate_for(escalation),
-        coins:, influence_stash:, influence_price:, outbreak_at:,
+        tick_count:, escalation:, villain_rate: Games::VillainEngine.rate_for(escalation),
+        coins:, influence_stash:, influence_price:,
         villain_cards_left: villain_draw.size, windows: rules["windows"] || [],
       },
       villain: villain,
@@ -149,7 +150,16 @@ class Game < ApplicationRecord
       players:,
       me: player && player.as_json.merge(hand: player.hand_cards, undo: undoable_message(player)),
       events: game_events.last(40).reverse,
+      villain_turns:,
     }
+  end
+
+  # What the villain did on her last few turns, oldest first, so phones can
+  # show each player the turns they haven't seen yet.
+  def villain_turns(count = 3)
+    game_events.last(200).select { _1.data["turn"] }.group_by { _1.data["turn"] }.to_a.last(count).map do |turn, events|
+      { turn:, at: events.first.occurred_at, events: events.map { { kind: _1.kind, message: _1.message } } }
+    end
   end
 
   private

@@ -6,8 +6,10 @@
 #   * area card  -> the villain pushes 1 into that area: it weakens a players
 #                   area (at 0 the area is unclaimed), claims an unclaimed one
 #                   at strength 1, and strengthens one of her own. Drawing her
-#                   own area at strength 3+ is an outbreak instead, which
-#                   pushes into every neighbor. Thresholds come from the game's settings.
+#                   own area at strength 3+ makes it spill over instead,
+#                   pushing into every neighbor (internally an "outbreak";
+#                   players never see that word or a count of them).
+#                   Thresholds come from the game's settings.
 #   * rising     -> escalation +1 (more cards per turn), the bottom area card
 #                   takes a push of 3, and the discard pile goes back on top.
 #
@@ -44,14 +46,21 @@ module Games
       end
     end
 
+    # Everything logged during a turn is tagged with its number, which is
+    # what the villain turn pop-up on the players' phones shows.
     def villain_turn(at)
       game.tick_count += 1
-      self.class.rate_for(game.escalation).times do
+      game.villain_turn_number = game.tick_count
+      cards = self.class.rate_for(game.escalation)
+      game.log!("villain_turn", "#{villain.display_name} plays #{cards} #{'card'.pluralize(cards)}.", at:)
+      cards.times do
         break unless game.active?
 
         draw_card(at)
       end
       villain.on_tick(at) if game.active?
+    ensure
+      game.villain_turn_number = nil
     end
 
     # The villain pushes `amount` into an area.
@@ -154,7 +163,7 @@ module Games
 
     def outbreak(name, at)
       game.outbreaks += 1
-      game.log!("outbreak", "Outbreak in #{name}! (#{game.outbreaks}/#{game.outbreak_limit})", at:, area: name)
+      game.log!("outbreak", "#{villain.display_name}'s hold on #{name} spills over into its neighbors!", at:, area: name)
       game.board.neighbors(name).each do |neighbor|
         break unless game.active?
 
@@ -163,14 +172,11 @@ module Games
       check_loss!(at)
     end
 
+    # Besides running out of time behind, the only way to lose.
     def check_loss!(at)
-      return unless game.active?
+      return unless game.active? && game.area_states.all?(&:villain?)
 
-      if game.outbreaks >= game.outbreak_limit
-        finish!("lost", "Too many outbreaks. #{villain.display_name} has overrun the park.", at)
-      elsif game.area_states.all?(&:villain?)
-        finish!("lost", "#{villain.display_name} has taken the whole park.", at)
-      end
+      finish!("lost", "#{villain.display_name} has taken the whole park.", at)
     end
 
     def finish!(result, message, at)

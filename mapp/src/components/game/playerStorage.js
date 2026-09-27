@@ -41,6 +41,27 @@ export function savedGames() {
     .sort((a, b) => b.savedAt - a.savedAt);
 }
 
+// The last villain turn this phone has shown, per game.
+const SEEN_KEY = "parkGame.seenVillainTurn";
+
+export function seenVillainTurn(code) {
+  try {
+    return JSON.parse(localStorage.getItem(SEEN_KEY))?.[code.toUpperCase()] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveSeenVillainTurn(code, turn) {
+  try {
+    const all = JSON.parse(localStorage.getItem(SEEN_KEY)) || {};
+    all[code.toUpperCase()] = turn;
+    localStorage.setItem(SEEN_KEY, JSON.stringify(all));
+  } catch {
+    // without storage the pop-up just won't remember across reloads
+  }
+}
+
 export function errorMessage(error) {
   return error?.data?.error || error?.error || "Something went wrong";
 }

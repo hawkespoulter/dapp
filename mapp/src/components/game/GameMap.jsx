@@ -43,7 +43,7 @@ function useAreaHitTest(areaNames) {
     });
 }
 
-function GameMap({ park, areas, villainKey, outbreakAt, onSelect }) {
+function GameMap({ park, areas, villainKey, onSelect }) {
   const layout = BOARD_LAYOUT[park];
   const color = villainColor(villainKey);
   const areaNames = areas.map((a) => a.area);
@@ -100,13 +100,10 @@ function GameMap({ park, areas, villainKey, outbreakAt, onSelect }) {
           .map((area) => {
             const [x, y] = layout.centers[area.area];
             const hers = area.owner === "villain";
-            const breakingOut = hers && area.strength >= outbreakAt;
             return (
               <div
                 key={area.area}
-                className={`pointer-events-none absolute flex h-6 min-w-6 items-center justify-center rounded-full border-2 px-1 text-xs font-black text-white shadow ${
-                  breakingOut ? "border-red-400 animate-pulse" : "border-white/80"
-                }`}
+                className="pointer-events-none absolute flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white/80 px-1 text-xs font-black text-white shadow"
                 style={{
                   left: pct(x, IMAGE_SIZE.width),
                   top: pct(y, IMAGE_SIZE.height),
@@ -130,6 +127,5 @@ GameMap.propTypes = {
   park: PropTypes.string.isRequired,
   areas: PropTypes.array.isRequired,
   villainKey: PropTypes.string.isRequired,
-  outbreakAt: PropTypes.number.isRequired,
   onSelect: PropTypes.func,
 };

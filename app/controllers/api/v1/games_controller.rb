@@ -68,6 +68,12 @@ class Api::V1::GamesController < ApplicationController
     render_state
   end
 
+  # POST /games/:code/villain_turn (testing: make the villain move now)
+  def villain_turn
+    actions.force_villain_turn!
+    render_state
+  end
+
   # POST /games/:code/undo
   def undo
     actions.undo!

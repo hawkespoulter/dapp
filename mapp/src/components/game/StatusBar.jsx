@@ -31,10 +31,9 @@ function StatusBar({ game, villain, onVillainDue }) {
         </div>
         <span className="text-xs text-slate-400">Game {game.code}</span>
       </div>
-      <div className="mt-2 grid grid-cols-4 gap-1">
+      <div className="mt-2 grid grid-cols-3 gap-1">
         <Stat label="Villain moves" value={formatDuration(nextMove)} warn={nextMove != null && nextMove < 60} />
         <Stat label="Cards/turn" value={game.villain_rate} />
-        <Stat label="Outbreaks" value={`${game.outbreaks}/${game.outbreak_limit}`} warn={game.outbreak_limit - game.outbreaks <= 1} />
         <Stat label="Time left" value={formatDuration(timeLeft)} />
       </div>
     </div>

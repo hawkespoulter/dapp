@@ -62,6 +62,7 @@ const gameApi = createApi({
       placeInfluence: action(builder, "place", "POST", ({ area, count }) => ({ area, count })),
       failChallenge: action(builder, "fail", "POST", ({ challengeId }) => ({ challenge_id: challengeId })),
       undoChallenge: action(builder, "undo", "POST"),
+      forceVillainTurn: action(builder, "villain_turn", "POST"),
     };
   },
 });
@@ -80,6 +81,7 @@ export const {
   useUndoChallengeMutation,
   useBuyInfluenceMutation,
   usePlaceInfluenceMutation,
+  useForceVillainTurnMutation,
 } = gameApi;
 
 export { gameApi };

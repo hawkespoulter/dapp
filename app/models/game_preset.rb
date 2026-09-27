@@ -17,8 +17,7 @@ class GamePreset < ApplicationRecord
     "hand_size" => { label: "Challenge cards in hand", range: 1..8 },
     "risings" => { label: "Villain Rising cards in her deck", range: 0..12 },
     "rising_push" => { label: "Strength a Villain Rising hits for", range: 0..20 },
-    "outbreak_at" => { label: "Her areas outbreak at strength", range: 1..50 },
-    "outbreak_limit" => { label: "Outbreaks before you lose", range: 1..50 },
+    "outbreak_at" => { label: "Her areas spill into their neighbors at strength", range: 1..50 },
     "hard_mode" => { label: "Hard mode: the villain also moves when you fail a challenge", boolean: true },
   }.freeze
 
@@ -34,13 +33,14 @@ class GamePreset < ApplicationRecord
   end
 
   # All presets, creating them from the defaults file the first time and
-  # adding any setting the file has gained since, without touching values
-  # that were tuned.
+  # keeping them in step with it: settings the file has gained are added and
+  # ones it dropped are removed, without touching values that were tuned.
   def self.seeded
     seed_defaults! unless exists?
     all.each do |preset|
-      missing = DEFAULTS.fetch(preset.key, {}).except(*preset.settings.keys)
-      preset.update_columns(settings: preset.settings.merge(missing)) if missing.any?
+      defaults = DEFAULTS.fetch(preset.key, {})
+      synced = defaults.merge(preset.settings.slice(*defaults.keys))
+      preset.update_columns(settings: synced) if synced != preset.settings
     end
     all
   end
