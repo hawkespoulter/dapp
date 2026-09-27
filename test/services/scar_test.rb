@@ -25,13 +25,13 @@ class ScarTest < ActiveSupport::TestCase
     assert_equal 1, @game.area("Pandora").strength
   end
 
-  test "Hyena Pack: a Villain Rising hits every players area bordering his" do
+  test "Be Prepared: every turn his hyenas hit each players area bordering his" do
     neutral_board!(@game)
-    set_area(@game, "Africa", owner: "villain", strength: 3)
+    set_area(@game, "Africa", owner: "villain", strength: 1)
     set_area(@game, "Pandora", owner: "players", strength: 2)
     set_area(@game, "Asia", owner: "players", strength: 2)
     set_area(@game, "DinoLand U.S.A.", owner: "players", strength: 2)
-    @game.villain_draw = ["rising", "area:Africa"] # the rising strengthens Africa itself
+    @game.villain_draw = ["area:Africa"]
     @engine.villain_turn(@now)
 
     assert_equal 1, @game.area("Pandora").strength

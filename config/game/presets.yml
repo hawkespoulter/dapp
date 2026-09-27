@@ -6,7 +6,7 @@
 sprint:
   label: Sprint (2-4 hours)
   hours: 3
-  tick_minutes: 25
+  tick_minutes: 30
   hand_size: 2
   influence_price: 1
   starting_strength: 10
@@ -17,7 +17,7 @@ sprint:
 full_day:
   label: Full Day
   hours: 10
-  tick_minutes: 38
+  tick_minutes: 36
   hand_size: 3
   influence_price: 1
   starting_strength: 10

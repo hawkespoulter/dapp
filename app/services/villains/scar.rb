@@ -6,15 +6,16 @@ module Villains
     self.lair = "Africa"
     self.tagline = "Long live the king"
     self.rules_text = [
-      "Hyena Pack: at every Villain Rising, hyenas knock 1 strength off each of your areas that borders his territory.",
-      "Usurper: when Scar knocks one of your areas to 0 he takes it on the spot, instead of leaving it unclaimed.",
+      "Be Prepared: On every turn, hyenas decrease strength of neighboring areas by one.",
+      "Long Live the King: when Scar decreases your influence to 0 in one of your areas to 0 he claims the area instantly.",
     ]
 
     def usurps?
       true
     end
 
-    def on_escalation(at)
+    # Be Prepared: at the end of every turn.
+    def on_tick(at)
       targets = game.area_states.select do |state|
         state.players? && game.board.neighbors(state.area).any? { game.area(_1).villain? }
       end
