@@ -8,7 +8,7 @@ import AreaPanel from "./AreaPanel";
 import HandCard from "./HandCard";
 import AnswerPopup from "./AnswerPopup";
 import VillainTurnReplay from "./VillainTurnReplay";
-import PowerUps from "./PowerUps";
+import Store from "./Store";
 import ForecastPopup from "./ForecastPopup";
 import useUnseenVillainTurns from "./useUnseenVillainTurns";
 import { errorMessage } from "./playerStorage";
@@ -77,7 +77,7 @@ function GameBoard({ state, refetch }) {
     <div className="min-h-screen bg-slate-950 pb-10">
       <div className="sticky top-[56px] z-40 shadow-lg">
         <StatusBar game={game} villain={villain} onVillainDue={refetch} />
-        <TeamPool game={game} busy={busy} onBuy={(count) => run(buy({ code, count }))} />
+        <TeamPool game={game} />
       </div>
 
       <GameMap
@@ -128,12 +128,13 @@ function GameBoard({ state, refetch }) {
       )}
 
       {me && (
-        <Section title="Power-ups">
-          <PowerUps
+        <Section title="Store">
+          <Store
             state={state}
             area={currentArea}
             busy={busy}
-            onUse={(power, area) => run(buyPower({ code, power, area }))}
+            onBuyInfluence={(count) => run(buy({ code, count }))}
+            onUsePower={(power, area) => run(buyPower({ code, power, area }))}
           />
         </Section>
       )}
