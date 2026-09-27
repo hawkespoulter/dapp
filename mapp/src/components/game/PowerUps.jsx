@@ -4,25 +4,22 @@ import PaidIcon from "@mui/icons-material/Paid";
 // Power-ups the team buys with its shared coins. Redraw, Double Down and
 // Safety Net are for the player who buys them; Shield protects the area
 // selected on the map.
-function powerList({ game, villain }, area) {
-  const name = villain.name;
+function powerList({ game }, area) {
   const shieldable = area?.owner === "players" && !area.shielded;
   return [
-    { key: "forecast", text: `See ${name}'s next 3 cards and throw one away.` },
-    { key: "stall", text: `${name} skips the next turn.` },
+    { key: "forecast", text: `See the villain's next 3 cards and throw one away.` },
+    { key: "stall", text: `Skip the villain's next turn.` },
     {
       key: "shield",
-     
-      text: `The area selected on the map can't lose influence on ${name}'s next turn.`,
+      text: `The area selected on the map can't lose influence on the villain's next turn.`,
       button: shieldable ? `Shield ${area.area}` : "Pick one of your areas",
       disabled: !shieldable,
     },
-    { key: "redraw", text: "Swap your whole hand for new challenges." },
+    { key: "redraw", text: "Draw a new hand." },
     { key: "double_down", text: "Your next completed challenge pays double." },
     game.hard_mode && {
       key: "safety_net",
-     
-      text: `Your next failed challenge doesn't wake ${name}, and you can undo it.`,
+      text: `Villain doesn't move on your next failed challenge.`,
     },
   ].filter(Boolean);
 }
