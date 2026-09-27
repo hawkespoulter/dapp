@@ -131,6 +131,8 @@ module Games
       game.villain_draw = rest
       return if card.nil?
 
+      name = card == RISING ? "Villain Rising" : card.delete_prefix("area:")
+      game.log!("villain_card", "#{villain.display_name} plays #{name}.", at:, card: name)
       if card == RISING
         escalate(at)
       else
@@ -147,14 +149,19 @@ module Games
 
     def escalate(at)
       game.escalation += 1
-      game.log!("rising", "Villain Rising! #{villain.display_name} now plays #{self.class.rate_for(game.escalation)} cards a turn.", at:)
+      rate = self.class.rate_for(game.escalation)
+      game.log!("rising", "Villain Rising! #{villain.display_name} now plays #{rate} #{'card'.pluralize(rate)} a turn.", at:)
 
       draw = game.villain_draw.dup
       index = draw.rindex { _1.start_with?("area:") }
       card = index ? draw.delete_at(index) : "area:#{game.board.areas.sample(random: game.rng)}"
       game.villain_draw = draw
       game.villain_discard = game.villain_discard + [card]
-      push(card.delete_prefix("area:"), game.settings["rising_push"], at, from_outbreak: true)
+      name = card.delete_prefix("area:")
+      hit = game.settings["rising_push"]
+      note = "from the bottom of her deck, hits for #{hit}"
+      game.log!("villain_card", "#{villain.display_name} plays #{name} #{note}.", at:, card: name, note:)
+      push(name, hit, at, from_outbreak: true)
 
       game.villain_draw = game.villain_discard.shuffle(random: game.rng) + game.villain_draw
       game.villain_discard = []

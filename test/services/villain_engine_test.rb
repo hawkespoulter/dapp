@@ -145,8 +145,10 @@ class VillainEngineTest < ActiveSupport::TestCase
 
     turns = @game.state_for(@host)[:villain_turns]
     assert_equal [1, 2], turns.pluck(:turn)
-    assert_equal ["Maleficent plays 1 card.", "Maleficent weakens your hold on Adventureland (strength 1)."],
+    assert_equal ["Maleficent plays 1 card.", "Maleficent plays Adventureland.",
+                  "Maleficent weakens your hold on Adventureland (strength 1)."],
                  turns.first[:events].pluck(:message)
+    assert_equal "Adventureland", turns.first[:events][1][:card]
     assert_equal "lost_area", turns.last[:events].last[:kind]
   end
 

@@ -158,7 +158,7 @@ class Game < ApplicationRecord
   # show each player the turns they haven't seen yet.
   def villain_turns(count = 3)
     game_events.last(200).select { _1.data["turn"] }.group_by { _1.data["turn"] }.to_a.last(count).map do |turn, events|
-      { turn:, at: events.first.occurred_at, events: events.map { { kind: _1.kind, message: _1.message } } }
+      { turn:, at: events.first.occurred_at, events: events.map { { kind: _1.kind, message: _1.message, card: _1.data["card"], note: _1.data["note"] }.compact } }
     end
   end
 

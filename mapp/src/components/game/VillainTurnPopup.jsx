@@ -27,11 +27,25 @@ function VillainTurnPopup({ turns, villain, areas, onClose }) {
         </div>
         {turns.map((turn) => (
           <ul key={turn.turn} className="mt-3 flex flex-col gap-1 border-t border-slate-700 pt-2 text-sm">
-            {turn.events.map((event, i) => (
-              <li key={i} className={TONE[event.kind] || "text-slate-200"}>
-                {event.message}
-              </li>
-            ))}
+            {turn.events.map((event, i) =>
+              event.card ? (
+                <li key={i} className="mt-1 flex items-center gap-2">
+                  <span
+                    className={`rounded-md border-2 px-2 py-1 text-xs font-black uppercase tracking-wide ${
+                      event.card === "Villain Rising" ? "border-fuchsia-400 text-fuchsia-300" : "text-white"
+                    }`}
+                    style={event.card === "Villain Rising" ? undefined : { borderColor: villainColor(villain.key) }}
+                  >
+                    {event.card}
+                  </span>
+                  <span className="text-xs text-slate-400">{event.note || "card played"}</span>
+                </li>
+              ) : (
+                <li key={i} className={`pl-3 ${TONE[event.kind] || "text-slate-200"}`}>
+                  {event.message}
+                </li>
+              ),
+            )}
           </ul>
         ))}
         <p className="mt-3 rounded-lg bg-slate-900 px-3 py-2 text-sm">
