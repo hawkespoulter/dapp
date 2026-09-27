@@ -18,7 +18,7 @@ function AreaPanel({ state, area, busy, onPlace }) {
   let main;
   if (plan.goal === "strengthen") {
     const short = stash > 0 ? `Need ${plan.step} per point here` : "No influence to place";
-    main = { count: all, label: all >= plan.step ? `Place all (${all})` : short };
+    main = { count: all, label: all >= plan.step ? `Place ${all}` : short };
   } else if (all >= plan.cost) {
     main = { count: plan.cost, label: `Place ${plan.cost} · ${plan.goal}` };
   } else {
