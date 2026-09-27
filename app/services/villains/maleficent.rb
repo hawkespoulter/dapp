@@ -5,13 +5,9 @@ module Villains
     self.park = "Magic Kingdom"
     self.lair = "Fantasyland"
     self.rules_text = [
-      "Thorn Wall: while she holds Fantasyland, influence placed in the areas next to it counts half (2 per point of strength).",
+      "Thorn Wall: you can't set foot in any area Maleficent controls. Stay in the rest of the park until you win it back (you can still place influence there).",
       "Dragon Form: from her second Villain Rising on, when her strong areas spill over they push 2 into each neighbor instead of 1.",
     ]
-
-    def placement_cost(area)
-      thorn_wall?(area) ? 2 : 1
-    end
 
     def outbreak_spread
       dragon_form? ? 2 : 1
@@ -24,10 +20,6 @@ module Villains
     end
 
     private
-
-    def thorn_wall?(area)
-      game.area(lair).villain? && game.board.adjacent?(area, lair)
-    end
 
     def dragon_form?
       game.escalation >= 2

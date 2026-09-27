@@ -92,16 +92,15 @@ class GameActionsTest < ActiveSupport::TestCase
     assert @game.area("Frontierland").reload.players?
   end
 
-  test "Thorn Wall makes each point cost 2 next to a villain-held Fantasyland" do
+  test "Thorn Wall is a rule for the park, not the board: influence costs 1 everywhere" do
     set_area(@game, "Fantasyland", owner: "villain", strength: 3)
     set_area(@game, "Tomorrowland", owner: "players", strength: 1)
-    stash!(5)
-    error = assert_raises(Games::Actions::Invalid) { act.place_influence!("Tomorrowland", 1, @now) }
-    assert_match "cost 2 influence", error.message
+    stash!(2)
+    act.place_influence!("Tomorrowland", 1, @now)
+    act.place_influence!("Fantasyland", 1, @now)
 
-    act.place_influence!("Tomorrowland", 5, @now)
-    assert_equal 3, @game.area("Tomorrowland").reload.strength
-    assert_equal 1, @game.reload.influence_stash
+    assert_equal 2, @game.area("Tomorrowland").reload.strength
+    assert_equal 2, @game.area("Fantasyland").reload.strength
   end
 
   test "holding every area wins the game" do
