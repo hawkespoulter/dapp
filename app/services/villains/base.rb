@@ -44,6 +44,11 @@ module Villains
       1
     end
 
+    # Influence an area card puts into its area.
+    def card_push(_area_state)
+      1
+    end
+
     # Influence each neighbor receives when one of her areas spills over.
     def outbreak_spread
       1

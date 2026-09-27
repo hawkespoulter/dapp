@@ -16,6 +16,20 @@ export const BOARD_LAYOUT = {
       "Pandora": [380, 1535],
     },
   },
+  "Hollywood Studios": {
+    // The empty ground above Tower of Terror and below Galaxy's Edge is
+    // cropped off.
+    crop: { x: 0, y: 500, width: 1080, height: 1240 },
+    centers: {
+      "Sunset Boulevard": [300, 700],
+      "Toy Story Land": [165, 1180],
+      "Animation Courtyard": [455, 1010],
+      "Hollywood Boulevard": [540, 1320],
+      "Echo Lake": [860, 1260],
+      "Muppet Courtyard": [820, 1560],
+      "Galaxy's Edge": [380, 1640],
+    },
+  },
   "Magic Kingdom": {
     crop: { x: 20, y: 470, width: 1040, height: 740 },
     centers: {
@@ -32,6 +46,7 @@ export const BOARD_LAYOUT = {
 export const VILLAIN_COLORS = {
   maleficent: "#9333ea",
   scar: "#c2410c",
+  vader: "#be123c",
 };
 
 export const villainColor = (key) => VILLAIN_COLORS[key] || "#9333ea";

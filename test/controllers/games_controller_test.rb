@@ -3,7 +3,7 @@ require "test_helper"
 class GamesControllerTest < ActionDispatch::IntegrationTest
   test "create, join, start and play over the API" do
     get api_v1_game_parks_url
-    assert_equal ["Animal Kingdom", "Magic Kingdom"], response.parsed_body["parks"].map { _1["park"] }
+    assert_equal ["Animal Kingdom", "Magic Kingdom", "Hollywood Studios"], response.parsed_body["parks"].map { _1["park"] }
 
     post api_v1_games_url, params: { park: "Magic Kingdom", preset: "sprint", name: "Hawkes" }, as: :json
     assert_response :created

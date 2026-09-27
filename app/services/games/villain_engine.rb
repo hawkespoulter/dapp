@@ -103,7 +103,7 @@ module Games
 
       if state.villain?
         if state.strength >= game.outbreak_at && !from_outbreak
-          outbreak(name, at)
+          outbreak(name, at, grow: amount)
         else
           state.update!(strength: state.strength + amount)
           game.log!("strength", "#{who}'s hold on #{name} grows (strength #{state.strength}).", at:, **area_after(state))
@@ -185,11 +185,22 @@ module Games
         escalate(at)
       else
         game.villain_discard = game.villain_discard + [card]
-        push(card.delete_prefix("area:"), 1, at)
+        name = card.delete_prefix("area:")
+        push(name, villain.card_push(game.area(name)), at)
       end
     end
 
     public
+
+    # A villain power takes one of the players' areas outright, keeping its
+    # strength.
+    def seize(name, at)
+      state = game.area(name)
+      state.update!(owner: "villain")
+      game.log!("takeover", "#{villain.display_name} has taken #{name}!", at:, **area_after(state))
+      villain.on_takeover(state, at)
+      check_loss!(at)
+    end
 
     # Deals the discard pile back into an empty deck (also used by Forecast).
     def reshuffle_discard(at)
@@ -207,12 +218,13 @@ module Games
       villain.on_escalation(at)
     end
 
-    # The area grows by 1 and pushes into every neighbor.
-    def outbreak(name, at)
+    # The area grows by what the card pushed (usually 1) and pushes into
+    # every neighbor.
+    def outbreak(name, at, grow: 1)
       game.outbreaks += 1
       game.log!("outbreak", "#{villain.display_name}'s hold on #{name} spills over into its neighbors!", at:, area: name)
       state = game.area(name)
-      state.update!(strength: state.strength + 1)
+      state.update!(strength: state.strength + grow)
       game.log!("strength", "#{villain.display_name}'s hold on #{name} grows (strength #{state.strength}).", at:, **area_after(state))
       game.board.neighbors(name).each do |neighbor|
         break unless game.active?

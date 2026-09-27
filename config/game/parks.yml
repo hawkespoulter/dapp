@@ -19,3 +19,12 @@ Animal Kingdom:
     Asia: [Discovery Island, Africa, "DinoLand U.S.A."]
     "DinoLand U.S.A.": [Discovery Island, Asia]
     Pandora: [Discovery Island, Africa]
+Hollywood Studios:
+  adjacency:
+    Hollywood Boulevard: [Sunset Boulevard, Animation Courtyard, Toy Story Land, Echo Lake, Muppet Courtyard, "Galaxy's Edge"]
+    Sunset Boulevard: [Hollywood Boulevard, Animation Courtyard, Toy Story Land]
+    Animation Courtyard: [Hollywood Boulevard, Sunset Boulevard, Toy Story Land]
+    Toy Story Land: [Hollywood Boulevard, Sunset Boulevard, Animation Courtyard, "Galaxy's Edge"]
+    Echo Lake: [Hollywood Boulevard, Muppet Courtyard]
+    Muppet Courtyard: [Hollywood Boulevard, Echo Lake, "Galaxy's Edge"]
+    "Galaxy's Edge": [Hollywood Boulevard, Toy Story Land, Muppet Courtyard]
