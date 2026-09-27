@@ -14,10 +14,12 @@ module Villains
       true
     end
 
-    # Be Prepared: at the end of every turn.
+    # Be Prepared: at the end of every turn the hyenas push 1 into every area
+    # bordering his territory: yours lose 1, unclaimed ones become his. The
+    # targets are picked before the raid, so areas it takes don't spread it.
     def on_tick(at)
-      targets = game.area_states.select do |state|
-        state.players? && game.board.neighbors(state.area).any? { game.area(_1).villain? }
+      targets = game.area_states.reject(&:villain?).select do |state|
+        game.board.neighbors(state.area).any? { game.area(_1).villain? }
       end
       return if targets.empty?
 

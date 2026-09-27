@@ -25,7 +25,7 @@ class ScarTest < ActiveSupport::TestCase
     assert_equal 1, @game.area("Pandora").strength
   end
 
-  test "Be Prepared: every turn his hyenas hit each players area bordering his" do
+  test "Be Prepared: every turn his hyenas hit every area bordering his" do
     neutral_board!(@game)
     set_area(@game, "Africa", owner: "villain", strength: 1)
     set_area(@game, "Pandora", owner: "players", strength: 2)
@@ -36,6 +36,8 @@ class ScarTest < ActiveSupport::TestCase
 
     assert_equal 1, @game.area("Pandora").strength
     assert_equal 1, @game.area("Asia").strength
-    assert_equal 2, @game.area("DinoLand U.S.A.").strength # borders no Scar area
+    assert @game.area("Discovery Island").villain?, "unclaimed areas next to his fall to the hyenas"
+    assert_equal 1, @game.area("Discovery Island").strength
+    assert_equal 2, @game.area("DinoLand U.S.A.").strength # borders no Scar area before the raid
   end
 end
