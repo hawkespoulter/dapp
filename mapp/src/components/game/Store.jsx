@@ -39,7 +39,7 @@ function Influence({ game, busy, onBuy }) {
           disabled={busy || canBuy < 2}
           onClick={() => onBuy(canBuy)}
         >
-          Buy all{canBuy > 1 ? ` (${canBuy})` : ""}
+          Buy {canBuy > 1 ? canBuy : "all"}
         </button>
       </div>
     </div>
