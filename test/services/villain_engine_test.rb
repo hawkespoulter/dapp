@@ -215,6 +215,20 @@ class VillainEngineTest < ActiveSupport::TestCase
     assert_equal 1, @game.tick_count
   end
 
+  test "the general villain rules use this game's numbers" do
+    rules = @game.state_for(@host)[:villain_rules]
+
+    assert_includes rules.first, "every #{@game.settings['tick_minutes']} minutes, and whenever you fail a challenge"
+    assert_includes rules.fourth, "at #{@game.outbreak_at} or more"
+    assert_includes rules.fifth, "From the 2nd on, Maleficent plays 2 cards a turn and from the 4th on, Maleficent plays 3 cards a turn."
+
+    @game.rules = @game.rules.merge("settings" => @game.settings.merge("risings" => 2))
+    assert_match(/From the 2nd on, Maleficent plays 2 cards a turn\.\z/, Games::VillainEngine.general_rules(@game).fifth)
+
+    @game.rules = @game.rules.merge("settings" => @game.settings.merge("hard_mode" => false))
+    refute_includes Games::VillainEngine.general_rules(@game).first, "fail"
+  end
+
   test "games from before hard mode was a setting keep their old rule" do
     @game.rules = { "settings" => @game.settings.except("hard_mode"), "villain_on_fail" => true }
     assert @game.hard_mode?

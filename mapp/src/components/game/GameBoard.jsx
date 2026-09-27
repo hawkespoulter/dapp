@@ -145,6 +145,14 @@ function GameBoard({ state, refetch }) {
         </ul>
       </Section>
 
+      <Section title="Villain rules">
+        <ul className="list-disc pl-5 text-sm text-slate-300">
+          {state.villain_rules.map((rule) => (
+            <li key={rule}>{rule}</li>
+          ))}
+        </ul>
+      </Section>
+
       <Section title="Testing">
         <button
           className="w-full rounded-lg border border-slate-700 py-2 text-sm text-slate-300 disabled:opacity-40"

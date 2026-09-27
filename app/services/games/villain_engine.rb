@@ -30,6 +30,28 @@ module Games
       piles.flat_map { |pile| (pile + [RISING]).shuffle(random: rng) }
     end
 
+    # The rules every villain plays by, with this game's numbers, as shown
+    # under the villain's own rules on the players' phones.
+    def self.general_rules(game)
+      name = game.villain.display_name
+      s = game.settings
+      risings = s["risings"]
+      # The Rising that first reaches each faster rate, if this game's deck has that many.
+      speedups = RATE_TRACK.each_with_index.chunk_while { _1.first == _2.first }.map(&:first).drop(1)
+                           .select { |_, rising| rising <= risings }
+                           .map { |rate, rising| "from the #{rising.ordinalize} on, #{name} plays #{rate} cards a turn" }
+      rising_rule = "#{risings} Villain Rising #{'card'.pluralize(risings)} #{risings == 1 ? 'is' : 'are'} hidden in the deck. "                     "Each one hits the bottom card of the deck for #{s['rising_push']} and shuffles the cards already "                     "played back on top, so they come up again soon."
+      rising_rule += " #{speedups.to_sentence.upcase_first}." if speedups.any?
+      [
+        "#{name} takes a turn every #{s['tick_minutes']} minutes#{', and whenever you fail a challenge' if game.hard_mode?}.",
+        "Each turn #{name} plays #{RATE_TRACK.first} #{'card'.pluralize(RATE_TRACK.first)} from a deck with two cards for every area.",
+        "An area card pushes 1 into that area: yours loses 1 (at 0 it's unclaimed), an unclaimed one becomes #{name}'s at 1, and #{name}'s own grows by 1.",
+        "If #{name}'s area is already at #{s['outbreak_at']} or more, it spills over instead: every area next to it takes a push of 1.",
+        (rising_rule if risings.positive?),
+        "You lose if #{name} takes the whole park, or if time runs out while #{name} holds more areas than you.",
+      ].compact
+    end
+
     attr_reader :game
 
     def initialize(game)

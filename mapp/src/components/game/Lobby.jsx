@@ -50,6 +50,15 @@ function Lobby({ state }) {
       </div>
 
       <div className="rounded-xl bg-slate-800 p-4">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">Villain rules</h2>
+        <ul className="mt-2 list-disc pl-5 text-sm text-slate-300">
+          {state.villain_rules.map((rule) => (
+            <li key={rule}>{rule}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="rounded-xl bg-slate-800 p-4">
         <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Players</h2>
         <ul className="flex flex-col gap-1">
           {players.map((p) => (

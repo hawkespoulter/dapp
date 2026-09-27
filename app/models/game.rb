@@ -149,6 +149,7 @@ class Game < ApplicationRecord
         villain_cards_left: villain_draw.size, windows: rules["windows"] || [],
       },
       villain: villain,
+      villain_rules: Games::VillainEngine.general_rules(self),
       areas: board.areas.map { |name| area(name).as_json.merge(neighbors: board.neighbors(name), placement_cost: villain.placement_cost(name)) },
       players:,
       me: player && player.as_json.merge(hand: player.hand_cards, undo: undoable_message(player)),
