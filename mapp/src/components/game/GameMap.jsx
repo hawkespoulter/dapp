@@ -43,7 +43,15 @@ function useAreaHitTest(areaNames) {
     });
 }
 
-function GameMap({ park, areas, villainKey, onSelect, highlight }) {
+// A label that pops up over an area and drifts upward (villain turn replay).
+const POP_KEYFRAMES = `@keyframes area-pop {
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+  25% { transform: translate(-50%, -130%) scale(1.35); opacity: 1; }
+  45% { transform: translate(-50%, -125%) scale(1); }
+  100% { transform: translate(-50%, -150%) scale(1); opacity: 1; }
+}`;
+
+function GameMap({ park, areas, villainKey, onSelect, highlight, marker }) {
   const layout = BOARD_LAYOUT[park];
   const color = villainColor(villainKey);
   const areaNames = areas.map((a) => a.area);
@@ -91,7 +99,7 @@ function GameMap({ park, areas, villainKey, onSelect, highlight }) {
               <img src={src} style={{ ...fill, filter: OWNER_FILTERS[area.owner] }} alt="" draggable={false} />
               {area.owner === "villain" && <div style={{ ...mask(src), backgroundColor: color, opacity: 0.55 }} />}
               {area.area === highlight && (
-                <div style={{ ...fill, opacity: 0.5 }}>
+                <div style={{ ...fill, opacity: 0.6 }}>
                   <div className="animate-pulse" style={{ ...mask(src), backgroundColor: "white" }} />
                 </div>
               )}
@@ -108,21 +116,39 @@ function GameMap({ park, areas, villainKey, onSelect, highlight }) {
             return (
               <div
                 key={area.area}
-                className={`pointer-events-none absolute flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white/80 px-1 text-xs font-black text-white shadow transition-transform ${
-                  area.area === highlight ? "scale-150" : ""
-                }`}
-                style={{
-                  left: pct(x, IMAGE_SIZE.width),
-                  top: pct(y, IMAGE_SIZE.height),
-                  transform: "translate(-50%, -50%)",
-                  backgroundColor: hers ? color : "#0284c7",
-                }}
-                title={`Strength ${area.strength}`}
+                className="pointer-events-none absolute"
+                style={{ left: pct(x, IMAGE_SIZE.width), top: pct(y, IMAGE_SIZE.height), transform: "translate(-50%, -50%)" }}
               >
-                {area.strength}
+                <div
+                  className={`flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white/80 px-1 text-xs font-black text-white shadow transition-transform duration-300 ${
+                    area.area === highlight ? "scale-150" : ""
+                  }`}
+                  style={{ backgroundColor: hers ? color : "#0284c7" }}
+                  title={`Strength ${area.strength}`}
+                >
+                  {area.strength}
+                </div>
               </div>
             );
           })}
+
+        {marker && layout.centers[marker.area] && (
+          <>
+            <style>{POP_KEYFRAMES}</style>
+            <div
+              key={marker.id}
+              className="pointer-events-none absolute whitespace-nowrap rounded-full px-3 py-1 text-lg font-black text-white shadow-lg ring-2 ring-white"
+              style={{
+                left: pct(layout.centers[marker.area][0], IMAGE_SIZE.width),
+                top: pct(layout.centers[marker.area][1], IMAGE_SIZE.height),
+                backgroundColor: marker.color,
+                animation: "area-pop 0.9s ease-out forwards",
+              }}
+            >
+              {marker.text}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -136,4 +162,5 @@ GameMap.propTypes = {
   villainKey: PropTypes.string.isRequired,
   onSelect: PropTypes.func,
   highlight: PropTypes.string,
+  marker: PropTypes.shape({ id: PropTypes.any, area: PropTypes.string, text: PropTypes.string, color: PropTypes.string }),
 };

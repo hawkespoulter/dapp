@@ -1,72 +1,95 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import GameMap from "./GameMap";
 import { villainColor } from "./boardLayout";
 
 const STEP_MS = 1100;
-const CARD_MS = 1600;
+const CARD_MS = 1500;
+const START_MS = 500;
+const WEAKENED = "#d97706";
+const LOST = "#dc2626";
+const SPILL = "#ea580c";
 
-// Events the players should notice first.
-const TONE = {
-  takeover: "text-red-300",
-  lost_area: "text-red-300",
-  weakened: "text-amber-300",
-  rising: "text-fuchsia-300 font-bold",
-  outbreak: "text-orange-300",
-  villain_turn: "text-slate-400 italic",
-  finished: "text-red-300 font-bold",
-};
+// What pops up over an area when this event changes it, given its strength before.
+function markerFor(event, before, villainHex) {
+  const [, was = 0] = before || [];
+  switch (event.kind) {
+    case "strength":
+      return { text: `+${event.strength - was}`, color: villainHex };
+    case "weakened":
+      return { text: `\u2212${was - event.strength}`, color: WEAKENED };
+    case "lost_area":
+      return { text: `\u2212${was}`, color: LOST };
+    case "takeover":
+      return { text: "Taken!", color: villainHex };
+    case "outbreak":
+      return { text: "Spills over!", color: SPILL };
+    default:
+      return null;
+  }
+}
 
-// One frame per event: the board as it stood after that event. Each turn
-// starts from the board recorded when it began; each change then updates
-// the area it names.
-function buildFrames(turns, areas) {
+// One frame per event: the board after it, the area to light up, what pops
+// up there, and the card (or named action) being played. Each turn starts
+// from the board recorded when it began.
+function buildFrames(turns, areas, villainHex) {
   let board = Object.fromEntries(areas.map((a) => [a.area, [a.owner, a.strength]]));
+  let action = null;
   return turns.flatMap((turn) =>
-    turn.events.map((event) => {
-      if (event.board) board = { ...event.board };
-      else if (event.area && event.owner) board = { ...board, [event.area]: [event.owner, event.strength] };
-      return { event, board, turn: turn.turn };
+    turn.events.map((event, i) => {
+      if (event.board) {
+        board = { ...event.board };
+        action = null;
+      }
+      const marker = event.area ? markerFor(event, board[event.area], villainHex) : null;
+      if (event.area && event.owner) board = { ...board, [event.area]: [event.owner, event.strength] };
+      if (event.card || event.action) action = event;
+      return {
+        board,
+        action,
+        highlight: event.area,
+        marker: marker && { ...marker, area: event.area, id: `${turn.turn}-${i}` },
+      };
     }),
   );
 }
 
-function CardChip({ event, villainKey }) {
+function ActionBanner({ event, villain }) {
+  if (!event) return <p className="text-sm italic text-slate-400">{villain.name} gets ready…</p>;
   const rising = event.card === "Villain Rising";
   return (
-    <span className="flex items-center gap-2">
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-slate-400">{event.card ? `${villain.name} plays` : `${villain.name}'s`}</span>
       <span
-        className={`rounded-md border-2 px-2 py-1 text-xs font-black uppercase tracking-wide ${
+        className={`rounded-md border-2 px-2 py-1 text-sm font-black uppercase tracking-wide ${
           rising ? "border-fuchsia-400 text-fuchsia-300" : "text-white"
         }`}
-        style={rising ? undefined : { borderColor: villainColor(villainKey) }}
+        style={rising ? undefined : { borderColor: villainColor(villain.key) }}
       >
-        {event.card}
+        {event.card || event.action}
       </span>
-      <span className="text-xs text-slate-400">{event.note || "card played"}</span>
-    </span>
+      {event.note && <span className="text-xs text-slate-400">{event.note}</span>}
+    </div>
   );
 }
 
-// Plays the villain's turns on the map one step at a time: each card and
-// each hit lights up its area while the strengths change, with the moves
-// listed underneath. Only the button closes it.
+// Plays the villain's turns on the map one step at a time: the card being
+// played shows above the map, and each change lights up its area with a
+// label popping up over it. Only the button closes it.
 function VillainTurnReplay({ turns, villain, areas, park, closeLabel = "Got it", onClose }) {
-  const frames = useMemo(() => buildFrames(turns, areas), [turns, areas]);
+  const villainHex = villainColor(villain.key);
+  const frames = useMemo(() => buildFrames(turns, areas, villainHex), [turns, areas, villainHex]);
   const [step, setStep] = useState(0);
   const last = frames.length - 1;
   const playing = step < last;
-  const current = useRef(null);
 
   useEffect(() => {
     if (!playing) return undefined;
-    const id = setTimeout(() => setStep((s) => s + 1), frames[step].event.card ? CARD_MS : STEP_MS);
+    const next = frames[step + 1];
+    const wait = step === 0 ? START_MS : next.action !== frames[step].action ? CARD_MS : STEP_MS;
+    const id = setTimeout(() => setStep((s) => s + 1), wait);
     return () => clearTimeout(id);
   }, [step, playing, frames]);
-
-  useEffect(() => {
-    current.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [step]);
 
   const frame = frames[Math.min(step, last)];
   const shownAreas = areas.map((a) => {
@@ -79,34 +102,25 @@ function VillainTurnReplay({ turns, villain, areas, park, closeLabel = "Got it",
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3" role="dialog" aria-modal="true">
-      <div className="flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-xl bg-slate-800 text-white shadow-xl">
-        <div className="flex items-center gap-2 px-4 pt-3 pb-2">
-          <span className="h-3 w-3 rounded-full" style={{ backgroundColor: villainColor(villain.key) }} />
+      <div className="flex w-full max-w-md flex-col overflow-hidden rounded-xl bg-slate-800 text-white shadow-xl">
+        <div className="flex items-center gap-2 px-4 pt-3">
+          <span className="h-3 w-3 rounded-full" style={{ backgroundColor: villainHex }} />
           <h2 className="flex-1 text-lg font-bold">{title}</h2>
-          <span className="text-xs text-slate-400">
-            You {ours} · {villain.name} {hers}
+          <span className="text-sm">
+            You <span className="font-bold text-sky-300">{ours}</span> · {villain.name}{" "}
+            <span className="font-bold" style={{ color: villainHex }}>{hers}</span>
           </span>
         </div>
-        <GameMap park={park} areas={shownAreas} villainKey={villain.key} highlight={frame.event.area} />
-
-        <ol className="min-h-24 flex-1 overflow-y-auto px-4 py-2 text-sm">
-          {frames.slice(0, step + 1).map(({ event, turn }, i) => (
-            <li
-              key={i}
-              ref={i === step ? current : null}
-              className={`rounded px-2 py-1 transition-colors ${i === step && playing ? "bg-slate-700" : ""} ${
-                i > 0 && frames[i - 1].turn !== turn ? "mt-2 border-t border-slate-700 pt-2" : ""
-              }`}
-            >
-              {event.card ? (
-                <CardChip event={event} villainKey={villain.key} />
-              ) : (
-                <span className={TONE[event.kind] || "text-slate-200"}>{event.message}</span>
-              )}
-            </li>
-          ))}
-        </ol>
-
+        <div className="flex min-h-12 items-center px-4 py-2">
+          <ActionBanner event={frame.action} villain={villain} />
+        </div>
+        <GameMap
+          park={park}
+          areas={shownAreas}
+          villainKey={villain.key}
+          highlight={playing ? frame.highlight : undefined}
+          marker={playing ? frame.marker : undefined}
+        />
         <div className="flex gap-2 p-3">
           {playing ? (
             <button className="flex-1 rounded-lg bg-slate-700 py-2 font-bold" onClick={() => setStep(last)}>
@@ -138,4 +152,4 @@ VillainTurnReplay.propTypes = {
   closeLabel: PropTypes.string,
   onClose: PropTypes.func.isRequired,
 };
-CardChip.propTypes = { event: PropTypes.object.isRequired, villainKey: PropTypes.string.isRequired };
+ActionBanner.propTypes = { event: PropTypes.object, villain: PropTypes.object.isRequired };

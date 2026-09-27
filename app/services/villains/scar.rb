@@ -23,7 +23,7 @@ module Villains
       end
       return if targets.empty?
 
-      game.log!("villain", "Scar's hyenas raid #{targets.map(&:area).to_sentence}!", at:)
+      game.log!("villain", "Scar's hyenas raid #{targets.map(&:area).to_sentence}!", at:, action: "Hyena raid")
       targets.each { engine.push(_1.area, 1, at, from_outbreak: true) }
     end
 

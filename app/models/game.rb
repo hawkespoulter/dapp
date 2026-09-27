@@ -9,9 +9,9 @@ class Game < ApplicationRecord
   STATUSES = %w[lobby active finished].freeze
   RESULTS = %w[gold silver bronze lost].freeze
   CODE_CHARS = ("A".."Z").to_a - %w[I O]
-  # Event data the villain turn replay uses: the card played, the board when
-  # the turn began, and each area as it stood after a change.
-  REPLAY_DATA = %w[card note area owner strength board].freeze
+  # Event data the villain turn replay uses: the card played (or other named
+  # action), the board when the turn began, and each area after a change.
+  REPLAY_DATA = %w[card note action area owner strength board].freeze
 
   has_many :players, -> { order(:id) }, dependent: :destroy
   has_many :area_states, dependent: :destroy
