@@ -75,7 +75,9 @@ function GameBoard({ state, refetch }) {
 
   return (
     <div className="min-h-screen bg-slate-950 pb-10">
-      <div className="sticky top-[56px] z-40 shadow-lg">
+      {/* One solid background, extended up under the fixed navbar so no gap or
+          seam shows the page behind it while scrolling. */}
+      <div className="sticky top-[56px] z-40 bg-slate-900 shadow-lg before:absolute before:inset-x-0 before:bottom-full before:h-4 before:bg-slate-900 before:content-['']">
         <StatusBar game={game} villain={villain} onVillainDue={refetch} />
         <TeamPool game={game} />
       </div>
