@@ -11,8 +11,8 @@ sprint:
   tick_minutes: 36
   hand_size: 3
   influence_price: 1
-  starting_strength: 10
-  risings: 2
+  starting_strength: 12
+  risings: 1
   outbreak_at: 3
   hard_mode: true
   price_forecast: 3
@@ -24,7 +24,7 @@ sprint:
 full_day:
   label: Full Day
   hours: 10
-  tick_minutes: 41
+  tick_minutes: 55
   hand_size: 3
   influence_price: 1
   starting_strength: 10
@@ -42,7 +42,7 @@ multi_day:
   days: 3
   day_start: "09:00"
   day_end: "21:00"
-  tick_minutes: 42
+  tick_minutes: 62
   hand_size: 3
   influence_price: 1
   starting_strength: 10

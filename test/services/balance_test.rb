@@ -12,13 +12,14 @@ class BalanceTest < ActiveSupport::TestCase
   def act = Games::Actions.new(@game, @host)
 
   test "a running game's balance can be changed, and it's logged" do
-    act.update_balance!({ "tick_minutes" => "55", "influence_price" => "2", "hard_mode" => "false" }, @now)
+    old_tick = @game.settings["tick_minutes"]
+    act.update_balance!({ "tick_minutes" => "99", "influence_price" => "2", "hard_mode" => "false" }, @now)
     @game.reload
 
-    assert_equal 55, @game.settings["tick_minutes"]
+    assert_equal 99, @game.settings["tick_minutes"]
     assert_equal 2, @game.influence_price
     refute @game.hard_mode?
-    assert_match "Villain moves every (minutes) 41 → 55", @game.game_events.last.message
+    assert_match "Villain moves every (minutes) #{old_tick} → 99", @game.game_events.last.message
     assert_match "Hard mode: the villain also moves when you fail a challenge on → off", @game.game_events.last.message
   end
 
@@ -32,9 +33,10 @@ class BalanceTest < ActiveSupport::TestCase
   end
 
   test "bad values are refused and nothing changes" do
+    old_tick = @game.settings["tick_minutes"]
     error = assert_raises(Games::Actions::Invalid) { act.update_balance!({ "tick_minutes" => "0" }, @now) }
     assert_match "Villain moves every", error.message
-    assert_equal 41, @game.reload.settings["tick_minutes"]
+    assert_equal old_tick, @game.reload.settings["tick_minutes"]
   end
 
   test "a new game length moves the end of the game" do
