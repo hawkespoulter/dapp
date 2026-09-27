@@ -21,7 +21,7 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     state = response.parsed_body
     assert_equal "active", state.dig("game", "status")
-    assert_equal 2, state.dig("me", "hand").size
+    assert_equal 3, state.dig("me", "hand").size
     assert_equal 6, state["areas"].size
 
     host = { "X-Player-Token" => host_token }

@@ -7,7 +7,7 @@ sprint:
   label: Sprint (2-4 hours)
   hours: 3
   tick_minutes: 35
-  hand_size: 2
+  hand_size: 3
   influence_price: 1
   starting_strength: 10
   risings: 2
