@@ -6,6 +6,7 @@ import StatusBar from "./StatusBar";
 import TeamPool from "./TeamPool";
 import AreaPanel from "./AreaPanel";
 import HandCard from "./HandCard";
+import AnswerPopup from "./AnswerPopup";
 import { errorMessage } from "./playerStorage";
 import {
   useBuyInfluenceMutation,
@@ -28,6 +29,7 @@ function GameBoard({ state, refetch }) {
   const { game, villain, areas, players, me } = state;
   const [selected, setSelected] = useState(null);
   const [error, setError] = useState(null);
+  const [answers, setAnswers] = useState(null);
 
   const [complete, completeStatus] = useCompleteChallengeMutation();
   const [fail, failStatus] = useFailChallengeMutation();
@@ -44,6 +46,15 @@ function GameBoard({ state, refetch }) {
 
   const run = (promise) => promise.unwrap().catch((e) => setError(errorMessage(e)));
   const code = game.code;
+
+  // Failing a photo card reveals where the photos were taken.
+  const failCard = (card) => {
+    const photos = (card.list || []).filter((item) => typeof item === "object");
+    fail({ code, challengeId: card.id })
+      .unwrap()
+      .then(() => photos.length > 0 && setAnswers(photos))
+      .catch((e) => setError(errorMessage(e)));
+  };
 
   // Until someone taps the map, show one of the areas the team holds.
   const current = selected || areas.find((a) => a.owner === "players")?.area || areas[0].area;
@@ -95,7 +106,7 @@ function GameBoard({ state, refetch }) {
                 card={card}
                 busy={busy}
                 onComplete={(c) => run(complete({ code, challengeId: c.id }))}
-                onFail={(c) => run(fail({ code, challengeId: c.id }))}
+                onFail={failCard}
               />
             ))}
           </div>
@@ -114,6 +125,8 @@ function GameBoard({ state, refetch }) {
           ))}
         </div>
       </Section>
+
+      {answers && <AnswerPopup photos={answers} onClose={() => setAnswers(null)} />}
 
       <Section title={`${villain.name}'s rules`}>
         <ul className="list-disc pl-5 text-sm text-slate-300">

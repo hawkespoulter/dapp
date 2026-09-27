@@ -1,33 +1,6 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
 import PaidIcon from "@mui/icons-material/Paid";
 
-// A photo dealt with a card (e.g. GeoGuessr): the picture, its credit, and
-// where it was taken behind a Show answer button.
-function Photo({ photo }) {
-  const [revealed, setRevealed] = useState(false);
-  return (
-    <figure className="mt-2">
-      <img className="w-full rounded-lg" src={photo.image} alt="Where was this taken?" loading="lazy" />
-      {photo.credit && (
-        <figcaption className="mt-1 text-[10px] text-slate-500">
-          {photo.source ? (
-            <a href={photo.source} target="_blank" rel="noreferrer" className="underline">
-              {photo.credit}
-            </a>
-          ) : (
-            photo.credit
-          )}
-        </figcaption>
-      )}
-      {photo.answer && (
-        <button className="mt-1 text-xs text-sky-400" onClick={() => setRevealed(!revealed)}>
-          {revealed ? photo.answer : "Show answer"}
-        </button>
-      )}
-    </figure>
-  );
-}
 
 function HandCard({ card, busy, onComplete, onFail }) {
   const items = card.list || [];
@@ -43,8 +16,16 @@ function HandCard({ card, busy, onComplete, onFail }) {
         </span>
       </div>
       {card.description && <p className="mt-1 text-sm text-slate-300">{card.description}</p>}
+      {/* Photos (e.g. GeoGuessr) show on their own; the answer and credit
+          appear when the card is failed (see AnswerPopup). */}
       {photos.map((photo) => (
-        <Photo key={photo.image} photo={photo} />
+        <img
+          key={photo.image}
+          className="mt-2 w-full rounded-lg"
+          src={photo.image}
+          alt="Where was this taken?"
+          loading="lazy"
+        />
       ))}
       {words.length > 0 && (
         <ul className="mt-2 grid list-disc grid-cols-2 gap-x-4 pl-5 text-sm text-slate-200">
@@ -81,4 +62,3 @@ HandCard.propTypes = {
   onComplete: PropTypes.func.isRequired,
   onFail: PropTypes.func.isRequired,
 };
-Photo.propTypes = { photo: PropTypes.object.isRequired };
