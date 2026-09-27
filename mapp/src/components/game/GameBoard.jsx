@@ -96,19 +96,8 @@ function GameBoard({ state, refetch }) {
         onPlace={(count) => run(place({ code, area: current, count }))}
       />
 
-      {error && <div className="mx-3 mt-3 rounded-lg bg-red-900/80 px-3 py-2 text-sm text-red-100">{error}</div>}
-
-      {me?.undo && (
-        <div className="mx-3 mt-3 flex items-center gap-2 rounded-lg bg-slate-800 px-3 py-2 text-sm text-slate-300">
-          <span className="flex-1">{me.undo}</span>
-          <button
-            className="flex items-center gap-1 rounded-lg bg-slate-700 px-3 py-1.5 font-bold text-white disabled:opacity-40"
-            disabled={busy}
-            onClick={() => run(undo({ code }))}
-          >
-            <UndoIcon sx={{ fontSize: 16 }} /> Undo
-          </button>
-        </div>
+      {error && (
+        <div className="fixed inset-x-3 bottom-4 z-50 rounded-lg bg-red-900 px-3 py-2 text-sm text-red-100 shadow-lg">{error}</div>
       )}
 
       {me ? (
@@ -180,6 +169,19 @@ function GameBoard({ state, refetch }) {
           ))}
         </ul>
       </Section>
+
+      {me?.undo && (
+        <div className="mx-3 mt-4 flex items-center gap-2 rounded-lg bg-slate-800 px-3 py-2 text-sm text-slate-300">
+          <span className="flex-1">{me.undo}</span>
+          <button
+            className="flex items-center gap-1 rounded-lg bg-slate-700 px-3 py-1.5 font-bold text-white disabled:opacity-40"
+            disabled={busy}
+            onClick={() => run(undo({ code }))}
+          >
+            <UndoIcon sx={{ fontSize: 16 }} /> Undo
+          </button>
+        </div>
+      )}
 
       <Section title="Testing">
         <button
