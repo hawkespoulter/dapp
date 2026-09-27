@@ -3,10 +3,10 @@
 # area states and log events freely.
 module Villains
   class Base
-    class_attribute :key, :display_name, :park, :lair, :tagline, :rules_text
+    class_attribute :key, :display_name, :park, :lair, :rules_text
 
     def self.as_json(*)
-      { key:, name: display_name, park:, lair:, tagline:, rules: rules_text }
+      { key:, name: display_name, park:, lair:, rules: rules_text }
     end
 
     attr_reader :game

@@ -82,7 +82,7 @@ function NewGameForm() {
       </label>
       {villain && (
         <p className="text-sm text-slate-300">
-          Villain: <span className="font-bold" style={{ color: villainColor(villain.key) }}>{villain.name}</span> <span className="italic text-slate-400">— {villain.tagline}</span>
+          Villain: <span className="font-bold" style={{ color: villainColor(villain.key) }}>{villain.name}</span>
         </p>
       )}
 

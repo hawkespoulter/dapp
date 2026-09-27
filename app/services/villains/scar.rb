@@ -4,7 +4,6 @@ module Villains
     self.display_name = "Scar"
     self.park = "Animal Kingdom"
     self.lair = "Africa"
-    self.tagline = "Long live the king"
     self.rules_text = [
       "Be Prepared: On every turn, hyenas decrease strength of neighboring areas by one.",
       "Long Live the King: when Scar decreases your influence to 0 in one of your areas to 0 he claims the area instantly.",

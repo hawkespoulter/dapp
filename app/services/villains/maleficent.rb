@@ -4,7 +4,6 @@ module Villains
     self.display_name = "Maleficent"
     self.park = "Magic Kingdom"
     self.lair = "Fantasyland"
-    self.tagline = "Mistress of All Evil"
     self.rules_text = [
       "Thorn Wall: while she holds Fantasyland, influence placed in the areas next to it counts half (2 per point of strength).",
       "Dragon Form: from her second Villain Rising on, when her strong areas spill over they push 2 into each neighbor instead of 1.",

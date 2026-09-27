@@ -6,7 +6,6 @@ module Villains
     self.display_name = "Darth Vader"
     self.park = "Hollywood Studios"
     self.lair = "Galaxy's Edge"
-    self.tagline = "Dark Lord of the Sith"
     self.rules_text = [
       "Might of the Empire: when Darth Vader draws one of his own areas, he places 2 influence there instead of 1.",
       "Youngling: at the end of every turn, your weakest area with #{YOUNGLING_MAX} or less influence that borders his territory becomes his, keeping its influence.",
