@@ -10,6 +10,7 @@ import AnswerPopup from "./AnswerPopup";
 import VillainTurnReplay from "./VillainTurnReplay";
 import Store from "./Store";
 import ForecastPopup from "./ForecastPopup";
+import SettingsForm from "./SettingsForm";
 import useUnseenVillainTurns from "./useUnseenVillainTurns";
 import { errorMessage } from "./playerStorage";
 import {
@@ -19,6 +20,7 @@ import {
   useForceVillainTurnMutation,
   useUsePowerUpMutation,
   useForecastDiscardMutation,
+  useUpdateBalanceMutation,
   usePlaceInfluenceMutation,
   useUndoChallengeMutation,
 } from "~/store/apis/gameApi";
@@ -47,6 +49,8 @@ function GameBoard({ state, refetch }) {
   const [forceTurn, forceTurnStatus] = useForceVillainTurnMutation();
   const [buyPower, powerStatus] = useUsePowerUpMutation();
   const [forecastDiscard, forecastStatus] = useForecastDiscardMutation();
+  const [updateBalance] = useUpdateBalanceMutation();
+  const [showBalance, setShowBalance] = useState(false);
   const busy = [completeStatus, failStatus, buyStatus, placeStatus, undoStatus, forceTurnStatus, powerStatus, forecastStatus].some(
     (s) => s.isLoading,
   );
@@ -181,6 +185,28 @@ function GameBoard({ state, refetch }) {
             <UndoIcon sx={{ fontSize: 16 }} /> Undo
           </button>
         </div>
+      )}
+
+      {me && (
+        <Section title="Balance">
+          <button
+            className="w-full rounded-lg border border-slate-700 py-2 text-sm text-slate-300"
+            onClick={() => setShowBalance(!showBalance)}
+          >
+            {showBalance ? "Hide" : "Tweak this game's balance"}
+          </button>
+          {showBalance && (
+            <div className="mt-3 rounded-xl bg-slate-800 p-4 text-white">
+              <SettingsForm
+                id={`game-${code}`}
+                fields={state.balance.fields}
+                settings={state.balance.settings}
+                note="Changes this game right away. A new villain timer starts after the turn that's already scheduled."
+                onSave={(settings) => updateBalance({ code, settings }).unwrap()}
+              />
+            </div>
+          )}
+        </Section>
       )}
 
       <Section title="Testing">

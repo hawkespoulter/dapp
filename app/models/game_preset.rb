@@ -25,6 +25,9 @@ class GamePreset < ApplicationRecord
     "price_double_down" => { label: "Double Down price (coins)", range: 0..50 },
     "price_safety_net" => { label: "Safety Net price (coins)", range: 0..50 },
   }.freeze
+  # Settings that can still change once a game is under way. The others set
+  # the game up (the split, the villain deck, multi-day windows).
+  LIVE_FIELDS = (FIELDS.keys - %w[days day_start day_end starting_strength risings]).freeze
 
   validates :key, presence: true, uniqueness: true
   validate :settings_in_range
@@ -62,10 +65,10 @@ class GamePreset < ApplicationRecord
     update!(settings: DEFAULTS.fetch(key))
   end
 
-  # Takes edited values from the settings page, keeping only known fields
-  # this preset already has.
-  def update_settings!(changes)
-    edited = changes.to_h.slice(*settings.keys, "label").to_h do |field, value|
+  # Edited values from a form, limited to `allowed` fields and turned into
+  # integers / booleans where the field calls for it.
+  def self.coerce(changes, allowed)
+    changes.to_h.slice(*allowed).to_h do |field, value|
       spec = FIELDS[field] || {}
       value =
         if spec[:range] then value.to_s.strip.then { Integer(_1, exception: false) || _1 }
@@ -74,34 +77,50 @@ class GamePreset < ApplicationRecord
         end
       [field, value]
     end
-    update!(settings: settings.merge(edited))
   end
 
-  def as_json(*)
-    fields = FIELDS.filter_map do |field, spec|
-      next unless settings.key?(field)
+  # What's wrong with a set of settings, as sentences.
+  def self.problems(settings)
+    problems = []
+    problems << "Settings need a label" if settings["label"].blank?
+    settings.each do |field, value|
+      spec = FIELDS[field] or next
+      if spec[:range] && !(value.is_a?(Integer) && spec[:range].cover?(value))
+        problems << "#{spec[:label]} must be a whole number from #{spec[:range].min} to #{spec[:range].max}"
+      elsif spec[:boolean] && ![true, false].include?(value)
+        problems << "#{spec[:label]} must be on or off"
+      elsif spec[:time] && !value.to_s.match?(/\A([01]\d|2[0-3]):[0-5]\d\z/)
+        problems << "#{spec[:label]} must be a time like 09:00"
+      end
+    end
+    if settings["day_start"] && settings["day_end"] && settings["day_start"] >= settings["day_end"]
+      problems << "Each day has to end after it starts"
+    end
+    problems
+  end
+
+  # The form fields for these settings, in FIELDS order.
+  def self.fields_for(keys)
+    FIELDS.filter_map do |field, spec|
+      next unless keys.include?(field)
 
       spec.except(:range).merge(key: field, min: spec[:range]&.min, max: spec[:range]&.max)
     end
-    { key:, label: settings["label"], settings:, defaults: DEFAULTS[key], fields: }
+  end
+
+  # Takes edited values from the settings page, keeping only known fields
+  # this preset already has.
+  def update_settings!(changes)
+    update!(settings: settings.merge(self.class.coerce(changes, settings.keys + ["label"])))
+  end
+
+  def as_json(*)
+    { key:, label: settings["label"], settings:, defaults: DEFAULTS[key], fields: self.class.fields_for(settings.keys) }
   end
 
   private
 
   def settings_in_range
-    errors.add(:settings, "need a label") if settings["label"].blank?
-    settings.each do |field, value|
-      spec = FIELDS[field] or next
-      if spec[:range] && !(value.is_a?(Integer) && spec[:range].cover?(value))
-        errors.add(:base, "#{spec[:label]} must be a whole number from #{spec[:range].min} to #{spec[:range].max}")
-      elsif spec[:boolean] && ![true, false].include?(value)
-        errors.add(:base, "#{spec[:label]} must be on or off")
-      elsif spec[:time] && !value.to_s.match?(/\A([01]\d|2[0-3]):[0-5]\d\z/)
-        errors.add(:base, "#{spec[:label]} must be a time like 09:00")
-      end
-    end
-    if settings["day_start"] && settings["day_end"] && settings["day_start"] >= settings["day_end"]
-      errors.add(:base, "Each day has to end after it starts")
-    end
+    self.class.problems(settings).each { errors.add(:base, _1) }
   end
 end

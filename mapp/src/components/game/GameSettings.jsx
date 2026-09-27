@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -9,100 +9,28 @@ import {
   useUpdateGameSettingsMutation,
 } from "~/store/apis/gameApi";
 import { errorMessage } from "./playerStorage";
+import SettingsForm from "./SettingsForm";
 import { RESULT_STYLES } from "./gameRules";
 const RESULTS = ["gold", "silver", "bronze", "lost"];
 
 const section = "rounded-xl bg-slate-800 p-4";
-const input = "w-24 rounded-lg bg-slate-900 px-3 py-2 text-right text-white";
 
-// Edit one preset's balance. Values are kept as typed and checked by the
-// server on save.
+// Edit one preset's balance: the defaults for new games of that length.
 function PresetForm({ preset }) {
-  const [values, setValues] = useState(preset.settings);
-  const [saved, setSaved] = useState(false);
-  const [confirmReset, setConfirmReset] = useState(false);
-  const [update, updateStatus] = useUpdateGameSettingsMutation();
-  const [reset, resetStatus] = useResetGameSettingsMutation();
-
-  useEffect(() => setValues(preset.settings), [preset.settings]);
-
-  const changed = preset.fields.some((f) => String(values[f.key]) !== String(preset.settings[f.key]));
-  const busy = updateStatus.isLoading || resetStatus.isLoading;
-  const error = updateStatus.error || resetStatus.error;
-
-  const save = async () => {
-    const edits = Object.fromEntries(preset.fields.map((f) => [f.key, values[f.key]]));
-    try {
-      await update({ key: preset.key, settings: edits }).unwrap();
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch {
-      // shown below
-    }
-  };
-
-  const doReset = () => {
-    if (!confirmReset) return setConfirmReset(true);
-    setConfirmReset(false);
-    updateStatus.reset();
-    reset(preset.key);
-  };
-
-  const edit = (field, value) => {
-    updateStatus.reset();
-    setValues({ ...values, [field]: value });
-  };
+  const [update] = useUpdateGameSettingsMutation();
+  const [reset] = useResetGameSettingsMutation();
 
   return (
     <div className={section}>
-      <ul className="flex flex-col gap-3">
-        {preset.fields.map((field) => {
-          const isDefault = String(preset.settings[field.key]) === String(preset.defaults?.[field.key]);
-          return (
-            <li key={field.key} className="flex items-center justify-between gap-3">
-              <label className="text-sm" htmlFor={`${preset.key}-${field.key}`}>
-                {field.label}
-                {!isDefault && preset.defaults && (
-                  <span className="block text-xs text-slate-500">
-                    default {field.boolean ? (preset.defaults[field.key] ? "on" : "off") : preset.defaults[field.key]}
-                  </span>
-                )}
-              </label>
-              {field.boolean ? (
-                <input
-                  id={`${preset.key}-${field.key}`}
-                  className="h-6 w-6 shrink-0 accent-emerald-500"
-                  type="checkbox"
-                  checked={values[field.key] === true}
-                  onChange={(e) => edit(field.key, e.target.checked)}
-                />
-              ) : (
-                <input
-                  id={`${preset.key}-${field.key}`}
-                  className={input}
-                  type={field.time ? "time" : "number"}
-                  inputMode={field.time ? undefined : "numeric"}
-                  min={field.min}
-                  max={field.max}
-                  value={values[field.key] ?? ""}
-                  onChange={(e) => edit(field.key, e.target.value)}
-                />
-              )}
-            </li>
-          );
-        })}
-      </ul>
-
-      {error && <p className="mt-3 text-sm text-red-300">{errorMessage(error)}</p>}
-      <div className="mt-4 flex gap-2">
-        <button className="flex-1 rounded-lg bg-emerald-600 py-2 font-bold disabled:opacity-40" disabled={busy || !changed} onClick={save}>
-          {saved ? "Saved" : "Save"}
-        </button>
-        <button className="rounded-lg bg-slate-700 px-4 py-2 text-sm disabled:opacity-40" disabled={busy} onClick={doReset}>
-          {confirmReset ? "Tap again to reset" : "Reset to defaults"}
-        </button>
-      </div>
-      <p className="mt-2 text-xs text-slate-500">Changes apply to games created after you save.</p>
+      <SettingsForm
+        id={preset.key}
+        fields={preset.fields}
+        settings={preset.settings}
+        defaults={preset.defaults}
+        note="Changes apply to games created after you save. To change a game in progress, use Balance at the bottom of its board."
+        onSave={(edits) => update({ key: preset.key, settings: edits }).unwrap()}
+        onReset={() => reset(preset.key).unwrap()}
+      />
     </div>
   );
 }

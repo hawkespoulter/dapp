@@ -174,7 +174,15 @@ class Game < ApplicationRecord
       me: player && player.as_json.merge(hand: player.hand_cards, undo: undoable_message(player)),
       events: game_events.last(40).reverse,
       villain_turns:,
+      balance: balance_form,
     }
+  end
+
+  # This game's settings that can still be changed mid-game, for the in-game
+  # Balance panel.
+  def balance_form
+    keys = settings.keys & GamePreset::LIVE_FIELDS
+    { fields: GamePreset.fields_for(keys), settings: settings.slice(*keys) }
   end
 
   # What the villain did on her last few turns, oldest first, so phones can

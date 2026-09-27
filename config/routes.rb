@@ -28,6 +28,7 @@ Rails.application.routes.draw do
           post :villain_turn
           post :power
           post :forecast
+          patch :balance
         end
       end
     end

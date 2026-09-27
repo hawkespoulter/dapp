@@ -220,6 +220,42 @@ module Games
       end
     end
 
+    # Changes this game's balance while it's running (or in the lobby). The
+    # villain's timer change applies from the turn after the one already
+    # scheduled; a new game length moves the end; hands grow or shrink to a
+    # new hand size.
+    def update_balance!(changes, now = Time.current)
+      locked(now) do
+        raise Invalid, "The game is over" if game.finished?
+
+        before = game.settings
+        edited = GamePreset.coerce(changes, before.keys & GamePreset::LIVE_FIELDS)
+        after = before.merge(edited)
+        problems = GamePreset.problems(after)
+        raise Invalid, problems.to_sentence if problems.any?
+
+        changed = edited.reject { |field, value| before[field] == value }
+        raise Invalid, "Nothing changed" if changed.empty?
+
+        game.rules = game.rules.merge("settings" => after)
+        if changed.key?("hours") && game.active?
+          ends_at = game.started_at + after["hours"].hours
+          raise Invalid, "That would end the game before now" if ends_at <= now
+
+          game.rules = game.rules.merge("windows" => [[game.started_at, ends_at]])
+          game.ends_at = ends_at
+        end
+        resize_hands if changed.key?("hand_size") && game.active?
+
+        summary = changed.map do |field, value|
+          label = GamePreset::FIELDS.dig(field, :label) || field
+          "#{label} #{show_setting(before[field])} → #{show_setting(value)}"
+        end
+        game.log!("settings", "#{me.name} changed this game's balance: #{summary.join('; ')}.", at: now, player: me)
+        game.save!
+      end
+    end
+
     # Spends team coins on a power-up. Shield needs one of your areas.
     def use_power!(power, area: nil, now: Time.current)
       locked(now, playing: true) do
@@ -317,6 +353,24 @@ module Games
 
       game.set_power(key, charges.dup.tap { _1.delete_at(i) })
       true
+    end
+
+    # Deals extra cards to short hands and discards the last cards of long ones.
+    def resize_hands
+      game.players.each do |player|
+        hand = player.hand
+        if hand.size > game.hand_size
+          hand.drop(game.hand_size).each { game.discard_challenge(_1) }
+          player.deal(hand.first(game.hand_size), game.rng)
+        elsif hand.size < game.hand_size
+          player.deal(hand + game.draw_challenges(game.hand_size - hand.size), game.rng)
+        end
+        player.save!
+      end
+    end
+
+    def show_setting(value)
+      value == true ? "on" : value == false ? "off" : value.to_s
     end
 
     def card_name(card)

@@ -86,6 +86,12 @@ class Api::V1::GamesController < ApplicationController
     render_state
   end
 
+  # PATCH /games/:code/balance (settings: changed values)
+  def balance
+    actions.update_balance!(params.require(:settings).permit!.to_h)
+    render_state
+  end
+
   # POST /games/:code/undo
   def undo
     actions.undo!

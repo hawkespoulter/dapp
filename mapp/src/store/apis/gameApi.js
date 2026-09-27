@@ -69,6 +69,7 @@ const gameApi = createApi({
       forceVillainTurn: action(builder, "villain_turn", "POST"),
       usePowerUp: action(builder, "power", "POST", ({ power, area }) => ({ power, area })),
       forecastDiscard: action(builder, "forecast", "POST", ({ index }) => ({ index })),
+      updateBalance: action(builder, "balance", "PATCH", ({ settings }) => ({ settings })),
     };
   },
 });
@@ -91,6 +92,7 @@ export const {
   useForceVillainTurnMutation,
   useUsePowerUpMutation,
   useForecastDiscardMutation,
+  useUpdateBalanceMutation,
 } = gameApi;
 
 export { gameApi };
