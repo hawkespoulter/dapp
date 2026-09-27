@@ -40,6 +40,12 @@ class VillainEngineTest < ActiveSupport::TestCase
     assert starts.uniq.size > 1
   end
 
+  test "a deck can have no Villain Risings" do
+    deck = Games::VillainEngine.build_deck(@game.board, 0, Random.new(1))
+    assert_equal 12, deck.size
+    refute_includes deck, "rising"
+  end
+
   test "starting sets up the deck, clock and hands" do
     assert_equal 12 + 4, @game.villain_draw.size
     assert_equal 4, @game.villain_draw.count("rising")

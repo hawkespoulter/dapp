@@ -27,6 +27,8 @@ module Games
 
     def self.build_deck(board, risings, rng)
       areas = (board.areas.map { "area:#{_1}" } * 2).shuffle(random: rng)
+      return areas if risings.zero?
+
       piles = areas.each_slice((areas.size / risings.to_f).ceil).to_a
       piles.flat_map { |pile| (pile + [RISING]).shuffle(random: rng) }
     end
