@@ -2,11 +2,13 @@
 # that, balance is tuned on the in-app Game settings page (and "Reset to
 # defaults" there brings back these values). Field meanings and allowed
 # ranges live in GamePreset::FIELDS. Tuned for Animal Kingdom, the main
-# playtest park.
+# playtest park, so the balance sim wins about 40% of games (3 challenge
+# attempts an hour, 1 in 10 failed in hard mode, no power-ups); people should
+# do better than the sim.
 sprint:
   label: Sprint (2-4 hours)
   hours: 3
-  tick_minutes: 35
+  tick_minutes: 36
   hand_size: 3
   influence_price: 1
   starting_strength: 10
@@ -40,7 +42,7 @@ multi_day:
   days: 3
   day_start: "09:00"
   day_end: "21:00"
-  tick_minutes: 45
+  tick_minutes: 42
   hand_size: 3
   influence_price: 1
   starting_strength: 10
