@@ -51,7 +51,7 @@ const POP_KEYFRAMES = `@keyframes area-pop {
   100% { transform: translate(-50%, -150%) scale(1); opacity: 1; }
 }`;
 
-function GameMap({ park, areas, villainKey, onSelect, highlight, marker }) {
+function GameMap({ park, areas, villainKey, onSelect, highlights = [], markers = [] }) {
   const layout = BOARD_LAYOUT[park];
   const color = villainColor(villainKey);
   const areaNames = areas.map((a) => a.area);
@@ -98,7 +98,7 @@ function GameMap({ park, areas, villainKey, onSelect, highlight, marker }) {
             <div key={area.area}>
               <img src={src} style={{ ...fill, filter: OWNER_FILTERS[area.owner] }} alt="" draggable={false} />
               {area.owner === "villain" && <div style={{ ...mask(src), backgroundColor: color, opacity: 0.55 }} />}
-              {area.area === highlight && (
+              {highlights.includes(area.area) && (
                 <div style={{ ...fill, opacity: 0.6 }}>
                   <div className="animate-pulse" style={{ ...mask(src), backgroundColor: "white" }} />
                 </div>
@@ -121,7 +121,7 @@ function GameMap({ park, areas, villainKey, onSelect, highlight, marker }) {
               >
                 <div
                   className={`flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white/80 px-1 text-xs font-black text-white shadow transition-transform duration-300 ${
-                    area.area === highlight ? "scale-150" : ""
+                    highlights.includes(area.area) ? "scale-150" : ""
                   }`}
                   style={{ backgroundColor: hers ? color : "#0284c7" }}
                   title={`Strength ${area.strength}`}
@@ -132,9 +132,10 @@ function GameMap({ park, areas, villainKey, onSelect, highlight, marker }) {
             );
           })}
 
-        {marker && layout.centers[marker.area] && (
-          <>
-            <style>{POP_KEYFRAMES}</style>
+        {markers.length > 0 && <style>{POP_KEYFRAMES}</style>}
+        {markers
+          .filter((marker) => layout.centers[marker.area])
+          .map((marker) => (
             <div
               key={marker.id}
               className="pointer-events-none absolute whitespace-nowrap rounded-full px-3 py-1 text-lg font-black text-white shadow-lg ring-2 ring-white"
@@ -147,8 +148,7 @@ function GameMap({ park, areas, villainKey, onSelect, highlight, marker }) {
             >
               {marker.text}
             </div>
-          </>
-        )}
+          ))}
       </div>
     </div>
   );
@@ -161,6 +161,8 @@ GameMap.propTypes = {
   areas: PropTypes.array.isRequired,
   villainKey: PropTypes.string.isRequired,
   onSelect: PropTypes.func,
-  highlight: PropTypes.string,
-  marker: PropTypes.shape({ id: PropTypes.any, area: PropTypes.string, text: PropTypes.string, color: PropTypes.string }),
+  highlights: PropTypes.arrayOf(PropTypes.string),
+  markers: PropTypes.arrayOf(
+    PropTypes.shape({ id: PropTypes.any, area: PropTypes.string, text: PropTypes.string, color: PropTypes.string }),
+  ),
 };

@@ -29,29 +29,45 @@ function markerFor(event, before, villainHex) {
   }
 }
 
-// One frame per event: the board after it, the area to light up, what pops
-// up there, and the card (or named action) being played. Each turn starts
-// from the board recorded when it began.
+// One frame per event: the board after it, the areas to light up, what pops
+// up over them, and the card (or named action) being played. The hits of a
+// named action like a hyena raid strike the whole park at once, so they
+// share one frame. Each turn starts from the board recorded when it began.
 function buildFrames(turns, areas, villainHex) {
   let board = Object.fromEntries(areas.map((a) => [a.area, [a.owner, a.strength]]));
   let action = null;
-  return turns.flatMap((turn) =>
-    turn.events.map((event, i) => {
+  const frames = [];
+  turns.forEach((turn) =>
+    turn.events.forEach((event, i) => {
       if (event.board) {
         board = { ...event.board };
         action = null;
       }
-      const marker = event.area ? markerFor(event, board[event.area], villainHex) : null;
+      const pop = event.area ? markerFor(event, board[event.area], villainHex) : null;
+      const marker = pop && { ...pop, area: event.area, id: `${turn.turn}-${i}` };
       if (event.area && event.owner) board = { ...board, [event.area]: [event.owner, event.strength] };
-      if (event.card || event.action) action = event;
-      return {
+      const starts = Boolean(event.card || event.action);
+      if (starts) action = event;
+
+      const volley = action?.action && !starts ? action : null;
+      const prev = frames[frames.length - 1];
+      if (volley && prev?.volley === volley) {
+        prev.board = board;
+        if (!prev.highlights.includes(event.area)) prev.highlights.push(event.area);
+        // An area knocked out then taken shows only the last label.
+        if (marker) prev.markers = [...prev.markers.filter((m) => m.area !== event.area), marker];
+        return;
+      }
+      frames.push({
         board,
         action,
-        highlight: event.area,
-        marker: marker && { ...marker, area: event.area, id: `${turn.turn}-${i}` },
-      };
+        volley,
+        highlights: event.area ? [event.area] : [],
+        markers: marker ? [marker] : [],
+      });
     }),
   );
+  return frames;
 }
 
 function ActionBanner({ event, villain }) {
@@ -118,8 +134,8 @@ function VillainTurnReplay({ turns, villain, areas, park, closeLabel = "Got it",
           park={park}
           areas={shownAreas}
           villainKey={villain.key}
-          highlight={playing ? frame.highlight : undefined}
-          marker={playing ? frame.marker : undefined}
+          highlights={frame.highlights}
+          markers={frame.markers}
         />
         <div className="flex gap-2 p-3">
           {playing ? (
