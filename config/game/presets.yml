@@ -33,12 +33,12 @@ full_day:
   outbreak_at: 3
   youngling_max: 2
   hard_mode: true
-  price_forecast: 3
-  price_stall: 5
-  price_shield: 3
-  price_redraw: 2
+  price_forecast: 1
+  price_stall: 2
+  price_shield: 1
+  price_redraw: 1
   price_double_down: 2
-  price_safety_net: 3
+  price_safety_net: 2
 multi_day:
   label: Multi-day
   days: 3
@@ -52,9 +52,9 @@ multi_day:
   outbreak_at: 3
   youngling_max: 2
   hard_mode: true
-  price_forecast: 3
-  price_stall: 5
-  price_shield: 3
-  price_redraw: 2
+  price_forecast: 1
+  price_stall: 2
+  price_shield: 1
+  price_redraw: 1
   price_double_down: 2
-  price_safety_net: 3
+  price_safety_net: 2
