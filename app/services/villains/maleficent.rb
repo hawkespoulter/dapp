@@ -9,6 +9,11 @@ module Villains
       "Dragon Form: from her second Villain Rising on, when her strong areas spill over they push 2 into each neighbor instead of 1.",
     ]
 
+    # Thorn Wall.
+    def enterable?(area_state)
+      !area_state.villain?
+    end
+
     def outbreak_spread
       dragon_form? ? 2 : 1
     end

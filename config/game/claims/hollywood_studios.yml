@@ -1,0 +1,22 @@
+# Claim challenges for Hollywood Studios. See README.md.
+Hollywood Boulevard:
+  - title: Walk of Fame
+    description: Strike your best movie-star pose as a group in front of the Chinese Theater.
+Sunset Boulevard:
+  - title: Going Down
+    description: Take a group photo with the Tower of Terror behind you, everyone looking terrified.
+Echo Lake:
+  - title: Gertie Sighting
+    description: Find Gertie the dinosaur on Echo Lake and take a group photo with her.
+Toy Story Land:
+  - title: Toy Sized
+    description: Find a giant toy in Toy Story Land and take a photo that makes the group look tiny next to it.
+Galaxy's Edge:
+  - title: Falcon Crew
+    description: Take a group photo in front of the Millennium Falcon.
+Animation Courtyard:
+  - title: Drawn In
+    description: Find a character or poster in Animation Courtyard and everyone copies its pose for a photo.
+Muppet Courtyard:
+  - title: Muppet Voices
+    description: Everyone does their best Muppet voice for 10 seconds, on video, in Muppet Courtyard.

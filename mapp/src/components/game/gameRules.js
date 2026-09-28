@@ -15,10 +15,15 @@ export function placementPlan(state, name) {
     return { blocked: "Hold an area next to it to attack", step };
   }
   if (area.owner === "villain") {
-    return { step, cost: (area.strength + 1) * step, goal: "take it", hint: `Each point knocks ${villain.name}'s strength down by 1.` };
+    return {
+      step,
+      cost: area.strength * step,
+      goal: "drive them out",
+      hint: `Each point knocks ${villain.name}'s strength down by 1. At 0 it's unclaimed.`,
+    };
   }
   if (area.owner === "neutral") {
-    return { step, cost: step, goal: "claim it", hint: "One point claims it at strength 1." };
+    return { claimOnly: true, step };
   }
   return { step, goal: "strengthen", hint: "Each point adds 1 strength." };
 }

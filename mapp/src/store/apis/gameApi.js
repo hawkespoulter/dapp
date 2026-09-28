@@ -70,6 +70,8 @@ const gameApi = createApi({
       usePowerUp: action(builder, "power", "POST", ({ power, area }) => ({ power, area })),
       forecastDiscard: action(builder, "forecast", "POST", ({ index }) => ({ index })),
       updateBalance: action(builder, "balance", "PATCH", ({ settings }) => ({ settings })),
+      completeClaim: action(builder, "claim", "POST", ({ area }) => ({ area })),
+      failClaim: action(builder, "claim_fail", "POST", ({ area }) => ({ area })),
     };
   },
 });
@@ -93,6 +95,8 @@ export const {
   useUsePowerUpMutation,
   useForecastDiscardMutation,
   useUpdateBalanceMutation,
+  useCompleteClaimMutation,
+  useFailClaimMutation,
 } = gameApi;
 
 export { gameApi };

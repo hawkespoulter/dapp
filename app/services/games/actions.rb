@@ -10,7 +10,7 @@ module Games
   class Actions
     class Invalid < StandardError; end
 
-    UNDOABLE = %w[completed failed bought placed].freeze
+    UNDOABLE = %w[completed failed bought placed claimed].freeze
     # Bought with team coins; prices are the price_<key> game settings.
     POWERS = %w[forecast stall shield redraw double_down safety_net].freeze
     POWER_NAMES = {
@@ -110,18 +110,31 @@ module Games
         challenge = playable(challenge_id)
         hand_before = [me.hand, me.card_lists]
         replace_card(challenge)
-        message = "#{me.name} failed \"#{challenge.title}\"."
-        if game.hard_mode? && take_charge("safety_net")
-          record("failed", "#{message} The Safety Net kept #{game.villain.display_name} still.", now,
-                 "hand" => hand_before, "discard" => challenge.id, "safety_net" => true)
-        elsif game.hard_mode?
-          me.save!
-          game.log!("failed", message, at: now, player: me)
-          VillainEngine.new(game).handle(:challenge_failed, at: now)
-          game.save!
-        else
-          record("failed", message, now, "hand" => hand_before, "discard" => challenge.id)
-        end
+        failed("#{me.name} failed \"#{challenge.title}\".", now, "hand" => hand_before, "discard" => challenge.id)
+      end
+    end
+
+    # Completing an area's claim challenge there takes the area at strength 1,
+    # whether it was unclaimed or the villain's.
+    def complete_claim!(area, now = Time.current)
+      locked(now, playing: true) do
+        state = claimable(area)
+        card = game.claim_card(area)
+        before = snapshot(state)
+        state.update!(owner: "players", strength: 1)
+        game.claim_attempted!(area)
+        record("claimed", "#{me.name} completed \"#{card.title}\" and claimed #{area}!", now,
+               "areas" => { area => [before, snapshot(state)] })
+      end
+    end
+
+    # A failed claim challenge counts as a failed challenge.
+    def fail_claim!(area, now = Time.current)
+      locked(now, playing: true) do
+        claimable(area)
+        card = game.claim_card(area)
+        game.claim_attempted!(area)
+        failed("#{me.name} failed \"#{card.title}\" in #{area}.", now, {})
       end
     end
 
@@ -153,6 +166,8 @@ module Games
           raise Invalid, "To attack #{area} you need to hold an area next to it"
         end
 
+        raise Invalid, "Claim #{area} by completing its claim challenge there" if state.neutral?
+
         step_cost = game.villain.placement_cost(area)
         if count < step_cost
           raise Invalid, "#{game.villain.display_name} makes each point in #{area} cost #{step_cost} influence"
@@ -160,6 +175,7 @@ module Games
 
         before = snapshot(state)
         points = count / step_cost
+        points = [points, state.strength].min if state.villain? # it stops at unclaimed
         spent = points * step_cost
         points.times { push_toward_players(state) }
         state.save!
@@ -355,6 +371,35 @@ module Games
       true
     end
 
+    # Logs a failed challenge (a hand card or a claim challenge). In hard mode
+    # the villain takes a turn unless the player's Safety Net catches it.
+    def failed(message, now, undo)
+      if game.hard_mode? && take_charge("safety_net")
+        record("failed", "#{message} The Safety Net kept #{game.villain.display_name} still.", now,
+               undo.merge("safety_net" => true))
+      elsif game.hard_mode?
+        me.save!
+        game.log!("failed", message, at: now, player: me)
+        VillainEngine.new(game).handle(:challenge_failed, at: now)
+        game.save!
+      else
+        record("failed", message, now, undo)
+      end
+    end
+
+    # An area the team can go and claim.
+    def claimable(area)
+      raise Invalid, "#{area} is not in #{game.park}" unless game.board.areas.include?(area)
+
+      state = game.area(area)
+      raise Invalid, "#{area} is already yours" if state.players?
+      unless game.villain.enterable?(state)
+        raise Invalid, "You can't enter #{area} while #{game.villain.display_name} holds it"
+      end
+
+      state
+    end
+
     # Deals extra cards to short hands and discards the last cards of long ones.
     def resize_hands
       game.players.each do |player|
@@ -401,12 +446,12 @@ module Games
     end
 
     # Moves an area one point toward the players.
+    # Moves an area one point toward the players: a villain area weakens (at 0
+    # it's unclaimed) and one of theirs grows. Claiming takes a claim challenge.
     def push_toward_players(state)
       if state.villain?
         state.strength -= 1
         state.owner = "neutral" if state.strength.zero?
-      elsif state.neutral?
-        state.assign_attributes(owner: "players", strength: 1)
       else
         state.strength += 1
       end
@@ -416,8 +461,7 @@ module Games
       villain = game.villain.display_name
       from = before["owner"]
       result =
-        if state.players? && from != "players" then "and claimed it (strength #{state.strength})!"
-        elsif state.players? then "(strength #{state.strength})"
+        if state.players? then "(strength #{state.strength})"
         elsif state.neutral? then "and drove #{villain} out"
         else "(#{villain}'s strength #{state.strength})"
         end

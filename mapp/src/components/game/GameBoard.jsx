@@ -21,6 +21,8 @@ import {
   useUsePowerUpMutation,
   useForecastDiscardMutation,
   useUpdateBalanceMutation,
+  useCompleteClaimMutation,
+  useFailClaimMutation,
   usePlaceInfluenceMutation,
   useUndoChallengeMutation,
 } from "~/store/apis/gameApi";
@@ -50,10 +52,21 @@ function GameBoard({ state, refetch }) {
   const [buyPower, powerStatus] = useUsePowerUpMutation();
   const [forecastDiscard, forecastStatus] = useForecastDiscardMutation();
   const [updateBalance] = useUpdateBalanceMutation();
+  const [completeClaim, completeClaimStatus] = useCompleteClaimMutation();
+  const [failClaim, failClaimStatus] = useFailClaimMutation();
   const [showBalance, setShowBalance] = useState(false);
-  const busy = [completeStatus, failStatus, buyStatus, placeStatus, undoStatus, forceTurnStatus, powerStatus, forecastStatus].some(
-    (s) => s.isLoading,
-  );
+  const busy = [
+    completeStatus,
+    failStatus,
+    buyStatus,
+    placeStatus,
+    undoStatus,
+    forceTurnStatus,
+    powerStatus,
+    forecastStatus,
+    completeClaimStatus,
+    failClaimStatus,
+  ].some((s) => s.isLoading);
 
   useEffect(() => {
     if (!error) return;
@@ -98,6 +111,7 @@ function GameBoard({ state, refetch }) {
         area={currentArea}
         busy={busy || !me}
         onPlace={(count) => run(place({ code, area: current, count }))}
+        onClaim={(done) => run((done ? completeClaim : failClaim)({ code, area: current }))}
       />
 
       {error && (

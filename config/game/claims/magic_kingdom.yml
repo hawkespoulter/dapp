@@ -1,0 +1,19 @@
+# Claim challenges for Magic Kingdom. See README.md.
+Main Street, U.S.A.:
+  - title: Window Names
+    description: Find a second-floor window on Main Street with a name painted on it and read it out together.
+Adventureland:
+  - title: Skipper Pun
+    description: By the Jungle Cruise, everyone tells their best skipper-style pun. Groan loudly.
+Frontierland:
+  - title: Quick Draw
+    description: Two of you have a "quick draw" duel with Big Thunder Mountain behind you while the rest film it.
+Liberty Square:
+  - title: Let Freedom Ring
+    description: Find the Liberty Bell replica and take a group photo with it.
+Fantasyland:
+  - title: Castle Wish
+    description: From Fantasyland, find a spot where you can see Cinderella Castle and everyone makes a wish out loud.
+Tomorrowland:
+  - title: People Movers
+    description: Take a group photo with the PeopleMover track overhead.

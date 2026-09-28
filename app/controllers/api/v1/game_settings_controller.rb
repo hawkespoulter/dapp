@@ -12,6 +12,7 @@ class Api::V1::GameSettingsController < ApplicationController
     problem = Challenge.refresh
     render json: {
       challenges: { counts: Challenge.group(:park).count.transform_keys { _1 || Challenge::ANYWHERE }, problem: },
+      claims: ClaimChallenge.summary,
       presets: GamePreset.seeded,
       record: finished.group(:preset, :result).count.each_with_object({}) { |((preset, result), n), all| (all[preset] ||= {})[result] = n },
       finished_count: finished.count,

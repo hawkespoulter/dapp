@@ -105,6 +105,18 @@ class Game < ApplicationRecord
 
   def shielded?(area) = power("shields", []).include?(area)
 
+  # The claim challenge up next in an area; the game takes turns through an
+  # area's cards as they're attempted.
+  def claim_card(area)
+    cards = ClaimChallenge.cards(park, area)
+    cards[rules.dig("claim_attempts", area).to_i % cards.size]
+  end
+
+  def claim_attempted!(area)
+    attempts = rules.fetch("claim_attempts", {})
+    self.rules = rules.merge("claim_attempts" => attempts.merge(area => attempts[area].to_i + 1))
+  end
+
   def area(name)
     areas_by_name.fetch(name) { raise ArgumentError, "#{name} is not in #{park}" }
   end
@@ -167,7 +179,9 @@ class Game < ApplicationRecord
       villain: villain,
       villain_rules: Games::VillainEngine.general_rules(self),
       areas: board.areas.map do |name|
-        area(name).as_json.merge(neighbors: board.neighbors(name), placement_cost: villain.placement_cost(name), shielded: shielded?(name))
+        state = area(name)
+        state.as_json.merge(neighbors: board.neighbors(name), placement_cost: villain.placement_cost(name), shielded: shielded?(name),
+                            claim: state.players? ? nil : claim_card(name), enterable: villain.enterable?(state))
       end,
       powers: powers_for(player),
       players:,

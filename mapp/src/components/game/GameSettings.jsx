@@ -63,14 +63,24 @@ function Record({ presets, record }) {
   );
 }
 
-function ChallengeFile({ challenges }) {
+function ChallengeFile({ challenges, claims }) {
   const counts = Object.entries(challenges.counts);
+  const claimCounts = Object.entries(claims?.counts || {});
   return (
     <div className={section}>
       <h2 className="mb-1 text-lg font-bold">Challenges</h2>
       <p className="text-sm text-slate-400">
         Loaded: {counts.map(([group, n]) => `${n} ${group}`).join(" · ") || "none yet"}
       </p>
+      <p className="text-sm text-slate-400">
+        Claim challenges: {claimCounts.map(([park, n]) => `${n} ${park}`).join(" · ") || "none yet"}
+      </p>
+      {claims?.problem && (
+        <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-red-950 p-2 text-xs text-red-200">
+          {claims.problem}
+          {"\n\n"}Areas in that file use a stand-in claim challenge until this is fixed.
+        </pre>
+      )}
       {challenges.problem && (
         <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-red-950 p-2 text-xs text-red-200">
           {challenges.problem}
@@ -123,7 +133,7 @@ function GameSettings() {
       </div>
       <PresetForm key={current.key} preset={current} />
 
-      <ChallengeFile challenges={data.challenges} />
+      <ChallengeFile challenges={data.challenges} claims={data.claims} />
       <Record presets={data.presets} record={data.record} />
       <FinishedGamesLink count={data.finished_count} />
     </div>
@@ -135,4 +145,4 @@ export default GameSettings;
 PresetForm.propTypes = { preset: PropTypes.object.isRequired };
 Record.propTypes = { presets: PropTypes.array.isRequired, record: PropTypes.object.isRequired };
 FinishedGamesLink.propTypes = { count: PropTypes.number.isRequired };
-ChallengeFile.propTypes = { challenges: PropTypes.object.isRequired };
+ChallengeFile.propTypes = { challenges: PropTypes.object.isRequired, claims: PropTypes.object };

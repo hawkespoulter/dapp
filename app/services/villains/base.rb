@@ -42,6 +42,12 @@ module Villains
       1
     end
 
+    # Whether the team can go into an area in the park (to do its claim
+    # challenge, say).
+    def enterable?(_area_state)
+      true
+    end
+
     # Influence an area card puts into its area.
     def card_push(_area_state)
       1
