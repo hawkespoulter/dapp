@@ -4,12 +4,12 @@
   description: Find a Hidden Mickey. You can look up hidden Mickey Locations but you must see it.
   reward: 1
 
-- title: Character Moment
+- title: Character Photo
   description: Get a photo with any costumed character. You do not have to wait in line.
   reward: 2
 
 - title: Snack Attack
-  description: Buy and finish a snack you've never had before.
+  description: Buy a snack you've never had before.
   reward: 1
 
 - title: Back to Back
@@ -21,14 +21,22 @@
   reward: 1
 
 - title: Wait It Out
-  description: Ride an attraction with a posted wait of 45 minutes or more.
-  reward: 3
+  description: Ride an attraction with a wait of 45 minutes or more.
+  reward: 5
 
 - title: GeoGuessr
-  description: Make it to the location the photo was taken within ten minutes.
+  description: Visit the location of the photo.
   list: {from: geoguessr, count: 1}
-  reward: 2
+  reward: 3
 
-- title: Soaked
+- title: Splish Splash
   description: Ride any water ride. One of you has to come off visibly wet.
   reward: 3
+
+- title: Bluddle uddle um dum
+  description: Wash your hands in a themed bathroom.
+  reward: 1
+
+- title: Pin Trading
+  description: Trade a mystery pin for a pin from the park. 
+  reward: 5

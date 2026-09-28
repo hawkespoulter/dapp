@@ -12,3 +12,31 @@
 - title: Gorilla Spotting
   description: Spot a gorilla on the Gorilla Falls Exploration Trail.
   reward: 2
+
+- title: Artist o'clock
+  description: Complete the drawing class at Rafiki's Planet Watch.
+  reward: 3
+
+- title: Winged Encounters
+  description: Watch the winged encounters show
+  reward: 2
+
+- title: Lion King
+  description: Watch the Lion King show
+  reward: 3
+
+- title: Hail Puppy
+  description: Spot the painted dogs on the Safari
+  reward: 10
+
+- title: Animal Kingdom big 5
+  description: "Spot the following on the Safari: Elephant, Lion, Rhino, Giraffe, Cheetah"
+  reward: 3
+
+- title: Welcome to the Jungle
+  description: "Spot 3 of the following on the Maharaja Jungle Trek: Tiger, Komodo Dragon, Monkey, Fruit Bat, Water Buffalo"
+  reward: 2
+
+- title: Sexy Yeti
+  description: Scare a team mate on Expedition Everest, they must legitimately jump
+  reward: 5

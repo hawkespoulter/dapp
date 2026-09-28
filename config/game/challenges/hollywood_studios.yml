@@ -3,3 +3,11 @@
 # - title:
 #   description:
 #   reward: 1
+
+- title: Use the force
+  description: Ride Smugglers Run with your eyes closed, you must personally score above 3000.
+  reward: 6
+
+- title: Jedi Master
+  description: Complete the Smugglers Run challenge with a perfect score.
+  reward: 10

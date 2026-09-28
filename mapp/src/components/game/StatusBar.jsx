@@ -29,7 +29,6 @@ function StatusBar({ game, villain, onVillainDue }) {
           <span className="h-3 w-3 rounded-full" style={{ backgroundColor: villainColor(villain.key) }} />
           <span className="font-bold text-white">{villain.name}</span>
         </div>
-        <span className="text-xs text-slate-400">Game {game.code}</span>
       </div>
       <div className="mt-2 grid grid-cols-3 gap-1">
         <Stat label="Villain moves" value={formatDuration(nextMove)} warn={nextMove != null && nextMove < 60} />

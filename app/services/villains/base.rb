@@ -53,7 +53,7 @@ module Villains
       1
     end
 
-    # Influence each neighbor receives when one of her areas spills over.
+    # Influence each neighbor receives when one of the villain areas spills over.
     def outbreak_spread
       1
     end
