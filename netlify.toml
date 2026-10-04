@@ -1,0 +1,9 @@
+# Netlify builds only the React frontend in mapp/ (the Rails API is on Heroku).
+# These settings override the ones in the Netlify dashboard.
+[build]
+  base = "mapp"
+  command = "npm run build"
+  publish = "dist" # relative to base: mapp/dist
+
+[build.environment]
+  NODE_VERSION = "22"
