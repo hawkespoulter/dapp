@@ -15,6 +15,7 @@ sprint:
   risings: 1
   outbreak_at: 3
   youngling_max: 2
+  shared_hand: true
   hard_mode: true
   price_forecast: 1
   price_stall: 2
@@ -32,6 +33,7 @@ full_day:
   risings: 4
   outbreak_at: 3
   youngling_max: 2
+  shared_hand: true
   hard_mode: true
   price_forecast: 1
   price_stall: 2
@@ -51,6 +53,7 @@ multi_day:
   risings: 6
   outbreak_at: 3
   youngling_max: 2
+  shared_hand: true
   hard_mode: true
   price_forecast: 1
   price_stall: 2

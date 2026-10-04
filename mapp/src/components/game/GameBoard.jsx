@@ -119,7 +119,7 @@ function GameBoard({ state, refetch }) {
       )}
 
       {me ? (
-        <Section title="Your challenges">
+        <Section title={game.shared_hand ? "Team challenges" : "Your challenges"}>
           <div className="flex flex-col gap-3">
             {me.hand.map((card) => (
               <HandCard

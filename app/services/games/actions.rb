@@ -47,7 +47,7 @@ module Games
         raise Invalid, "This game is over" if game.finished?
 
         @player = game.players.create!(name:)
-        if game.active?
+        if game.active? && !game.shared_hand?
           @player.deal(game.draw_challenges(game.hand_size), game.rng)
           @player.save!
         end
@@ -70,7 +70,7 @@ module Games
         game.next_tick_at = game.clock.advance(now, game.tick_seconds)
         game.villain_draw = VillainEngine.build_deck(game.board, game.settings["risings"], game.rng)
         game.villain.setup!(now)
-        game.players.each do |player|
+        hand_holders.each do |player|
           player.deal(game.draw_challenges(game.hand_size), game.rng)
           player.save!
         end
@@ -96,21 +96,22 @@ module Games
         coins *= 2 if doubled
         game.coins += coins
         me.coins += coins
-        hand_before = [me.hand, me.card_lists]
+        hand_before = [holder.hand, holder.card_lists]
         replace_card(challenge)
         note = doubled ? ", doubled by Double Down" : ""
         record("completed", "#{me.name} completed \"#{challenge.title}\" (+#{coins} coins#{note}).", now,
-               "coins" => coins, "earned" => coins, "hand" => hand_before, "discard" => challenge.id,
-               "double_down" => doubled || nil)
+               "coins" => coins, "earned" => coins, "hand" => hand_before, "hand_after" => holder.hand,
+               "discard" => challenge.id, "double_down" => doubled || nil)
       end
     end
 
     def fail!(challenge_id, now = Time.current)
       locked(now, playing: true) do
         challenge = playable(challenge_id)
-        hand_before = [me.hand, me.card_lists]
+        hand_before = [holder.hand, holder.card_lists]
         replace_card(challenge)
-        failed("#{me.name} failed \"#{challenge.title}\".", now, "hand" => hand_before, "discard" => challenge.id)
+        failed("#{me.name} failed \"#{challenge.title}\".", now,
+               "hand" => hand_before, "hand_after" => holder.hand, "discard" => challenge.id)
       end
     end
 
@@ -209,6 +210,9 @@ module Games
         end
         raise Invalid, "The team has already spent those coins" if game.coins < undo.fetch("coins", 0)
         raise Invalid, "The team has already placed that influence" if game.influence_stash < undo.fetch("stash", 0)
+        if undo["hand_after"] && holder.hand != undo["hand_after"]
+          raise Invalid, "The challenges have changed since then, so this can't be undone"
+        end
 
         if undo["won"]
           game.status = "active"
@@ -224,10 +228,11 @@ module Games
         # games stored [hand before, hand after] without list items.)
         if undo["hand"]
           hand, lists = undo["hand"]
-          me.hand = hand
-          me.card_lists = lists if lists.is_a?(Hash)
+          holder.hand = hand
+          holder.card_lists = lists if lists.is_a?(Hash)
         end
         me.save!
+        holder.save!
         game.challenge_discard = game.challenge_discard - [undo["discard"]] if undo["discard"]
         %w[double_down safety_net].each { give_charge(_1) if undo[_1] }
         event.update!(data: event.data.merge("undone" => true))
@@ -283,6 +288,7 @@ module Games
         message = send("power_#{power}", area, now)
         game.coins -= price
         me.save!
+        holder.save!
         game.log!("power", "#{me.name} used #{POWER_NAMES[power]}: #{message}", at: now, player: me,
                                                                             power:, coins: price)
         game.save!
@@ -337,12 +343,12 @@ module Games
     end
 
     def power_redraw(_area, _now)
-      old = me.hand
+      old = holder.hand
       raise Invalid, "You have no cards to redraw" if old.empty?
 
       fresh = game.draw_challenges(old.size)
       old.each { game.discard_challenge(_1) }
-      me.deal(fresh, game.rng)
+      holder.deal(fresh, game.rng)
       "a whole new hand."
     end
 
@@ -379,6 +385,7 @@ module Games
                undo.merge("safety_net" => true))
       elsif game.hard_mode?
         me.save!
+        holder.save!
         game.log!("failed", message, at: now, player: me)
         VillainEngine.new(game).handle(:challenge_failed, at: now)
         game.save!
@@ -402,7 +409,7 @@ module Games
 
     # Deals extra cards to short hands and discards the last cards of long ones.
     def resize_hands
-      game.players.each do |player|
+      hand_holders.each do |player|
         hand = player.hand
         if hand.size > game.hand_size
           hand.drop(game.hand_size).each { game.discard_challenge(_1) }
@@ -428,6 +435,17 @@ module Games
       @me ||= game.players.find { _1.id == player&.id } || raise(Invalid, "You are not in this game")
     end
 
+    # Whose hand the acting player plays from: the team's shared hand (held
+    # by the host) or their own.
+    def holder
+      game.hand_holder(me)
+    end
+
+    # Everyone who holds a hand: just the host when the hand is shared.
+    def hand_holders
+      game.shared_hand? ? game.players.first(1) : game.players
+    end
+
     def locked(now = Time.current, playing: false)
       game.with_lock do
         @me = nil
@@ -440,12 +458,11 @@ module Games
 
     def playable(challenge_id)
       challenge_id = challenge_id.to_i
-      raise Invalid, "That challenge isn't in your hand" unless me.hand.include?(challenge_id)
+      raise Invalid, "That challenge isn't in your hand" unless holder.hand.include?(challenge_id)
 
       Challenge.find(challenge_id)
     end
 
-    # Moves an area one point toward the players.
     # Moves an area one point toward the players: a villain area weakens (at 0
     # it's unclaimed) and one of theirs grows. Claiming takes a claim challenge.
     def push_toward_players(state)
@@ -478,6 +495,7 @@ module Games
         event.save!
       end
       me.save!
+      holder.save!
       game.save!
     end
 
@@ -486,7 +504,7 @@ module Games
     def replace_card(challenge)
       game.discard_challenge(challenge.id)
       fresh = game.draw_challenges(1).first
-      me.deal(me.hand.flat_map { _1 == challenge.id ? [fresh].compact : [_1] }, game.rng)
+      holder.deal(holder.hand.flat_map { _1 == challenge.id ? [fresh].compact : [_1] }, game.rng)
     end
 
     def snapshot(state)

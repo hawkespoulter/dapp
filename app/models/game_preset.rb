@@ -18,6 +18,7 @@ class GamePreset < ApplicationRecord
     "risings" => { label: "Villain Rising cards in the deck (each adds a card per turn)", range: 0..12 },
     "outbreak_at" => { label: "Area spills over at", range: 1..50 },
     "youngling_max" => { label: "Youngling (Darth Vader) takes areas with influence at or below", range: 0..20 },
+    "shared_hand" => { label: "Everyone shares one hand of challenges (turn off for separate groups)", boolean: true },
     "hard_mode" => { label: "Hard mode: the villain also moves when you fail a challenge", boolean: true },
     "price_forecast" => { label: "Forecast price (coins)", range: 0..50 },
     "price_stall" => { label: "Stall price (coins)", range: 0..50 },
@@ -28,7 +29,7 @@ class GamePreset < ApplicationRecord
   }.freeze
   # Settings that can still change once a game is under way. The others set
   # the game up (the split, the villain deck, multi-day windows).
-  LIVE_FIELDS = (FIELDS.keys - %w[days day_start day_end starting_strength risings]).freeze
+  LIVE_FIELDS = (FIELDS.keys - %w[days day_start day_end starting_strength risings shared_hand]).freeze
 
   validates :key, presence: true, uniqueness: true
   validate :settings_in_range

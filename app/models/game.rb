@@ -85,6 +85,20 @@ class Game < ApplicationRecord
     settings["outbreak_at"]
   end
 
+  # Whether everyone plays from one shared hand of challenges (the host's).
+  # Games from before this setting gave each player their own hand.
+  def shared_hand?
+    snapshot = rules["settings"]
+    return settings["shared_hand"] == true unless snapshot
+
+    snapshot.fetch("shared_hand", false) == true
+  end
+
+  # The player whose hand this player plays from.
+  def hand_holder(player)
+    shared_hand? ? players.first : player
+  end
+
   # Hard mode: the villain also takes a turn when a challenge is failed.
   # Games from before it was a preset setting kept it in rules.
   def hard_mode?
@@ -171,7 +185,7 @@ class Game < ApplicationRecord
       game: {
         code: join_code, park:, preset:, preset_label: settings["label"], status:, result:,
         started_at:, ends_at:, next_tick_at:, server_time: Time.current,
-        tick_minutes: settings["tick_minutes"], hand_size:, hard_mode: hard_mode?,
+        tick_minutes: settings["tick_minutes"], hand_size:, hard_mode: hard_mode?, shared_hand: shared_hand?,
         tick_count:, escalation:, villain_rate: Games::VillainEngine.rate_for(escalation),
         coins:, influence_stash:, influence_price:,
         villain_cards_left: villain_draw.size, windows: rules["windows"] || [],
@@ -185,7 +199,7 @@ class Game < ApplicationRecord
       end,
       powers: powers_for(player),
       players:,
-      me: player && player.as_json.merge(hand: player.hand_cards, undo: undoable_message(player)),
+      me: player && player.as_json.merge(hand: hand_holder(player).hand_cards, undo: undoable_message(player)),
       events: game_events.last(40).reverse,
       villain_turns:,
       balance: balance_form,

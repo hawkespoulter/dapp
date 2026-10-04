@@ -141,7 +141,7 @@ class GameActionsTest < ActiveSupport::TestCase
 
   test "late joiners get a hand" do
     player = act(nil).join!("Wife")
-    assert_equal 3, player.reload.hand.size
+    assert_equal 3, @game.reload.state_for(player.reload)[:me][:hand].size
   end
 
   test "multi-day games only run the clock during park hours" do
