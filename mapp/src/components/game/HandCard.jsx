@@ -1,6 +1,29 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
 import PaidIcon from "@mui/icons-material/Paid";
 
+// A challenge photo (e.g. GeoGuessr). Tap it to see it full screen; tap
+// again to shrink it back.
+function Photo({ photo }) {
+  const [full, setFull] = useState(false);
+  return (
+    <>
+      <button type="button" className="mt-2 block w-full" onClick={() => setFull(true)} aria-label="Show the photo full screen">
+        <img className="w-full rounded-lg" src={photo.image} alt="Where was this taken?" loading="lazy" />
+      </button>
+      {full && (
+        <button
+          type="button"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+          onClick={() => setFull(false)}
+          aria-label="Shrink the photo"
+        >
+          <img className="max-h-full max-w-full object-contain" src={photo.image} alt="Where was this taken?" />
+        </button>
+      )}
+    </>
+  );
+}
 
 function HandCard({ card, busy, onComplete, onFail }) {
   const items = card.list || [];
@@ -19,13 +42,7 @@ function HandCard({ card, busy, onComplete, onFail }) {
       {/* Photos (e.g. GeoGuessr) show on their own; the answer and credit
           appear when the card is failed (see AnswerPopup). */}
       {photos.map((photo) => (
-        <img
-          key={photo.image}
-          className="mt-2 w-full rounded-lg"
-          src={photo.image}
-          alt="Where was this taken?"
-          loading="lazy"
-        />
+        <Photo key={photo.image} photo={photo} />
       ))}
       {words.length > 0 && (
         <ul className="mt-2 grid list-disc grid-cols-2 gap-x-4 pl-5 text-sm text-slate-200">
@@ -62,3 +79,4 @@ HandCard.propTypes = {
   onComplete: PropTypes.func.isRequired,
   onFail: PropTypes.func.isRequired,
 };
+Photo.propTypes = { photo: PropTypes.object.isRequired };
