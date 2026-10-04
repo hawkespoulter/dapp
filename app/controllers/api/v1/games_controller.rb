@@ -92,14 +92,9 @@ class Api::V1::GamesController < ApplicationController
     render_state
   end
 
-  # POST /games/:code/claim (area) and /claim_fail (area)
+  # POST /games/:code/claim (area)
   def claim
     actions.complete_claim!(params.require(:area))
-    render_state
-  end
-
-  def claim_fail
-    actions.fail_claim!(params.require(:area))
     render_state
   end
 

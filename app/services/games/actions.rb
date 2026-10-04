@@ -129,16 +129,6 @@ module Games
       end
     end
 
-    # A failed claim challenge counts as a failed challenge.
-    def fail_claim!(area, now = Time.current)
-      locked(now, playing: true) do
-        claimable(area)
-        card = game.claim_card(area)
-        game.claim_attempted!(area)
-        failed("#{me.name} failed \"#{card.title}\" in #{area}.", now, {})
-      end
-    end
-
     # Turns team coins into influence in the team stash.
     def buy_influence!(count, now = Time.current)
       locked(now, playing: true) do
@@ -377,7 +367,7 @@ module Games
       true
     end
 
-    # Logs a failed challenge (a hand card or a claim challenge). In hard mode
+    # Logs a failed challenge from the hand. In hard mode
     # the villain takes a turn unless the player's Safety Net catches it.
     def failed(message, now, undo)
       if game.hard_mode? && take_charge("safety_net")

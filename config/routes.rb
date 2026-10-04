@@ -30,7 +30,6 @@ Rails.application.routes.draw do
           post :forecast
           patch :balance
           post :claim
-          post :claim_fail
         end
       end
     end

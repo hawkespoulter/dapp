@@ -71,7 +71,6 @@ const gameApi = createApi({
       forecastDiscard: action(builder, "forecast", "POST", ({ index }) => ({ index })),
       updateBalance: action(builder, "balance", "PATCH", ({ settings }) => ({ settings })),
       completeClaim: action(builder, "claim", "POST", ({ area }) => ({ area })),
-      failClaim: action(builder, "claim_fail", "POST", ({ area }) => ({ area })),
     };
   },
 });
@@ -96,7 +95,6 @@ export const {
   useForecastDiscardMutation,
   useUpdateBalanceMutation,
   useCompleteClaimMutation,
-  useFailClaimMutation,
 } = gameApi;
 
 export { gameApi };

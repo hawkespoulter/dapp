@@ -25,11 +25,8 @@ function ClaimChallenge({ area, villain, busy, onClaim }) {
       <h3 className="font-bold">{area.claim.title}</h3>
       {area.claim.description && <p className="text-sm text-slate-300">{area.claim.description}</p>}
       <div className="mt-2 flex gap-2">
-        <button className={`${button} flex-1 bg-emerald-600`} disabled={busy} onClick={() => onClaim(true)}>
-          Completed · claim it
-        </button>
-        <button className={`${button} bg-slate-700 px-4`} disabled={busy} onClick={() => onClaim(false)}>
-          Failed
+        <button className={`${button} flex-1 bg-emerald-600`} disabled={busy} onClick={onClaim}>
+          Claim
         </button>
       </div>
     </div>

@@ -50,19 +50,6 @@ class ClaimTest < ActiveSupport::TestCase
     assert_nil @game.state_for(@host)[:areas].find { _1[:area] == "Tomorrowland" }[:claim]
   end
 
-  test "failing a claim challenge is a failed challenge: the villain moves in hard mode" do
-    act.fail_claim!("Liberty Square", @now)
-    assert_equal 1, @game.reload.tick_count
-    assert @game.area("Liberty Square").neutral?
-  end
-
-  test "outside hard mode a failed claim just gets logged" do
-    @game.update!(rules: @game.rules.merge("settings" => @game.settings.merge("hard_mode" => false)))
-    act.fail_claim!("Liberty Square", @now)
-    assert_equal 0, @game.reload.tick_count
-    assert_equal "failed", @game.game_events.last.kind
-  end
-
   test "an area with no claim challenge gets a stand-in" do
     card = ClaimChallenge.cards("Epcot", "World Showcase").first
     assert_equal "Stake your claim", card.title
