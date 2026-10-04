@@ -1,5 +1,14 @@
 module GameTestHelper
-  def start_game(preset: "full_day", rules: {}, at: Time.zone.parse("2026-10-01 09:00"), seed: 1, park: "Magic Kingdom")
+  # Games in these tests start on a fixed morning; the clock is held just
+  # before it so they don't depend on the real date.
+  START = Time.zone.parse("2026-10-01 09:00")
+
+  def self.included(base)
+    base.include ActiveSupport::Testing::TimeHelpers
+    base.setup { travel_to START - 1.minute }
+  end
+
+  def start_game(preset: "full_day", rules: {}, at: START, seed: 1, park: "Magic Kingdom")
     game, host = Games::Actions.create!(park:, preset:, host_name: "Hawkes", rules:)
     game.rng = Random.new(seed)
     Games::Actions.new(game, host).start!(at)
