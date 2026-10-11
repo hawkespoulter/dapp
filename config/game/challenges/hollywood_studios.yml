@@ -11,3 +11,37 @@
 - title: Jedi Master
   description: Complete the Smugglers Run challenge with a perfect score.
   reward: 10
+
+- title: Andy's Mom
+  description: Score a combined 300,000 points on toy story mania.
+  reward: 5
+
+- title: It belongs in a museum
+  description: Watch the Indiana Jones Stunt Spectacular show.
+  reward: 3
+
+- title: Face your fears
+  description: Ride the Tower of Terror.
+  reward: 5
+
+- title: Star touring
+  description: Ride Star Tours until you get one of the following characters. You may retry.
+  list: {from: star_tours_villains, count: 1}
+  reward: 3
+
+- title: Bounty hunting
+  description: Collect one bounty.
+  reward: 2
+
+- title:  Spot the villian
+  description: During the villians show spot one of the following villians.
+  list: {from: unfairly_everafter_villains, count: 2}
+  reward: 2
+
+- title: Gertie's treat
+  description: Get a snack from Dinosaur Gertie's Ice Cream of Extinction at Echo Lake.
+  reward: 1
+
+- title: Nothing can stop us now
+  description: On Runaway Railway, dance along during the whole dance.
+  reward: 2

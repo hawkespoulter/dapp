@@ -18,7 +18,7 @@
 
 - title: Guess the queue time
   description: Accurately guess the wait time of a ride. Timer stops when you get off the ride. You must be within 10%
-  reward: 1
+  reward: 3
 
 - title: Wait It Out
   description: Ride an attraction with a wait of 45 minutes or more.
@@ -40,3 +40,7 @@
 - title: Pin Trading
   description: Trade a mystery pin for a pin from the park. 
   reward: 5
+
+- title: Focus
+  description: Close your eyes on a ride. After 30 seconds correctly identify where you are on the ride. 
+  reward: 2
