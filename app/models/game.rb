@@ -191,7 +191,7 @@ class Game < ApplicationRecord
       areas: board.areas.map do |name|
         state = area(name)
         state.as_json.merge(neighbors: board.neighbors(name), placement_cost: villain.placement_cost(name), shielded: shielded?(name),
-                            claim: state.players? ? nil : claim_card(name), enterable: villain.enterable?(state))
+                            claim: state.neutral? ? claim_card(name) : nil)
       end,
       powers: powers_for(player),
       players:,

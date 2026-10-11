@@ -127,8 +127,8 @@ module Games
       end
     end
 
-    # Completing an area's claim challenge there takes the area at strength 1,
-    # whether it was unclaimed or the villain's.
+    # Completing an unclaimed area's claim challenge there takes it at
+    # strength 1.
     def complete_claim!(area, now = Time.current)
       locked(now, playing: true) do
         state = claimable(area)
@@ -379,15 +379,14 @@ module Games
       end
     end
 
-    # An area the team can go and claim.
+    # Only an unclaimed area can be claimed; a villain area has to be worn
+    # down to unclaimed with coins first.
     def claimable(area)
       raise Invalid, "#{area} is not in #{game.park}" unless game.board.areas.include?(area)
 
       state = game.area(area)
       raise Invalid, "#{area} is already yours" if state.players?
-      unless game.villain.enterable?(state)
-        raise Invalid, "You can't enter #{area} while #{game.villain.display_name} holds it"
-      end
+      raise Invalid, "Wear #{area} down to unclaimed with coins before claiming it" if state.villain?
 
       state
     end

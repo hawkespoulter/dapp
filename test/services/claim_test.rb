@@ -29,19 +29,11 @@ class ClaimTest < ActiveSupport::TestCase
     assert_match "claimed Liberty Square", @game.game_events.last.message
   end
 
-  test "it takes a villain area outright, at strength 1 (Scar has no Thorn Wall)" do
-    game, host = start_game(park: "Animal Kingdom")
-    set_area(game, "Africa", owner: "villain", strength: 6)
-    Games::Actions.new(game, host).complete_claim!("Africa", @now)
-
-    assert_equal ["players", 1], game.area("Africa").reload.then { [_1.owner, _1.strength] }
-  end
-
-  test "Thorn Wall: you can't claim an area while Maleficent holds it" do
-    set_area(@game, "Fantasyland", owner: "villain", strength: 2)
-    error = assert_raises(Games::Actions::Invalid) { act.complete_claim!("Fantasyland", @now) }
-    assert_match "can't enter Fantasyland", error.message
-    refute @game.state_for(@host)[:areas].find { _1[:area] == "Fantasyland" }[:enterable]
+  test "a villain area can't be claimed until it's worn down to unclaimed" do
+    set_area(@game, "Adventureland", owner: "villain", strength: 6)
+    error = assert_raises(Games::Actions::Invalid) { act.complete_claim!("Adventureland", @now) }
+    assert_match "unclaimed", error.message
+    assert_nil @game.state_for(@host)[:areas].find { _1[:area] == "Adventureland" }[:claim]
   end
 
   test "your own areas have nothing to claim" do

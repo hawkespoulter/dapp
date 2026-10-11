@@ -9,16 +9,9 @@ const OWNER_STYLES = {
 
 const button = "rounded-lg py-2 text-sm font-bold disabled:opacity-40";
 
-// An area you don't hold is claimed by going there and completing its claim
-// challenge.
-function ClaimChallenge({ area, villain, busy, onClaim }) {
-  if (!area.enterable) {
-    return (
-      <p className="mt-2 text-sm text-amber-400">
-        You can&apos;t enter {area.area} while {villain.name} holds it. Weaken it to unclaimed first.
-      </p>
-    );
-  }
+// An unclaimed area is claimed by going there and completing its claim
+// challenge; that's the only thing to do with it.
+function ClaimChallenge({ area, busy, onClaim }) {
   return (
     <div className="mt-2 rounded-lg bg-slate-900 p-3">
       <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Claim challenge · go to {area.area}</p>
@@ -78,10 +71,11 @@ function AreaPanel({ state, area, busy, onPlace, onClaim }) {
         </span>
       </div>
 
-      {area.owner !== "players" && area.claim && (
-        <ClaimChallenge area={area} villain={villain} busy={busy} onClaim={onClaim} />
+      {area.owner === "neutral" ? (
+        area.claim && <ClaimChallenge area={area} busy={busy} onClaim={onClaim} />
+      ) : (
+        <Influence state={state} area={area} busy={busy} onPlace={onPlace} />
       )}
-      <Influence state={state} area={area} busy={busy} onPlace={onPlace} />
     </div>
   );
 }
@@ -97,7 +91,6 @@ AreaPanel.propTypes = {
 };
 ClaimChallenge.propTypes = {
   area: PropTypes.object.isRequired,
-  villain: PropTypes.object.isRequired,
   busy: PropTypes.bool,
   onClaim: PropTypes.func.isRequired,
 };
