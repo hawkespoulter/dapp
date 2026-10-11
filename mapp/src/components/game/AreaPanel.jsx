@@ -38,10 +38,10 @@ function Influence({ state, area, busy, onPlace }) {
   if (plan.goal === "strengthen") {
     const short = coins > 0 ? `Need ${plan.step} coins per point here` : "No coins to place";
     main = { count: all, label: all >= plan.step ? `Place ${all}` : short };
-  } else if (all >= plan.cost) {
-    main = { count: plan.cost, label: `Place ${plan.cost}` };
   } else {
-    main = { count: 0, label: `Need ${plan.cost} coins to ${plan.goal}` };
+    // Enough to knock the villain's area to unclaimed; greyed out until the
+    // team can afford it.
+    main = { count: all >= plan.cost ? plan.cost : 0, label: `Place ${plan.cost}` };
   }
 
   return (
