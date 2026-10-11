@@ -17,6 +17,7 @@ import {
   useBuyInfluenceMutation,
   useCompleteChallengeMutation,
   useFailChallengeMutation,
+  useSkipChallengeMutation,
   useForceVillainTurnMutation,
   useUsePowerUpMutation,
   useForecastDiscardMutation,
@@ -44,6 +45,7 @@ function GameBoard({ state, refetch }) {
 
   const [complete, completeStatus] = useCompleteChallengeMutation();
   const [fail, failStatus] = useFailChallengeMutation();
+  const [skip, skipStatus] = useSkipChallengeMutation();
   const [buy, buyStatus] = useBuyInfluenceMutation();
   const [place, placeStatus] = usePlaceInfluenceMutation();
   const [undo, undoStatus] = useUndoChallengeMutation();
@@ -56,6 +58,7 @@ function GameBoard({ state, refetch }) {
   const busy = [
     completeStatus,
     failStatus,
+    skipStatus,
     buyStatus,
     placeStatus,
     undoStatus,
@@ -125,6 +128,7 @@ function GameBoard({ state, refetch }) {
                 busy={busy}
                 onComplete={(c) => run(complete({ code, challengeId: c.id }))}
                 onFail={failCard}
+                onSkip={(c) => run(skip({ code, challengeId: c.id }))}
               />
             ))}
           </div>

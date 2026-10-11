@@ -56,6 +56,12 @@ class Api::V1::GamesController < ApplicationController
     render_state
   end
 
+  # POST /games/:code/skip
+  def skip
+    actions.skip!(params.require(:challenge_id))
+    render_state
+  end
+
   # POST /games/:code/buy
   def buy
     actions.buy_influence!(params.require(:count))

@@ -25,7 +25,7 @@ function Photo({ photo }) {
   );
 }
 
-function HandCard({ card, busy, onComplete, onFail }) {
+function HandCard({ card, busy, onComplete, onFail, onSkip }) {
   const items = card.list || [];
   const photos = items.filter((item) => typeof item === "object");
   const words = items.filter((item) => typeof item === "string");
@@ -66,6 +66,14 @@ function HandCard({ card, busy, onComplete, onFail }) {
         >
           Failed
         </button>
+        <button
+          className="rounded-lg border border-slate-600 px-3 py-2 text-sm text-slate-300 disabled:opacity-40"
+          disabled={busy}
+          onClick={() => onSkip(card)}
+          title="Can't be done? Swap it for a new one with no penalty."
+        >
+          Skip
+        </button>
       </div>
     </div>
   );
@@ -78,5 +86,6 @@ HandCard.propTypes = {
   busy: PropTypes.bool,
   onComplete: PropTypes.func.isRequired,
   onFail: PropTypes.func.isRequired,
+  onSkip: PropTypes.func.isRequired,
 };
 Photo.propTypes = { photo: PropTypes.object.isRequired };

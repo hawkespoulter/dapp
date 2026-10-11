@@ -10,7 +10,7 @@ module Games
   class Actions
     class Invalid < StandardError; end
 
-    UNDOABLE = %w[completed failed bought placed claimed].freeze
+    UNDOABLE = %w[completed failed skipped bought placed claimed].freeze
     # Bought with team coins; prices are the price_<key> game settings.
     POWERS = %w[forecast stall shield redraw double_down safety_net].freeze
     POWER_NAMES = {
@@ -102,6 +102,18 @@ module Games
         record("completed", "#{me.name} completed \"#{challenge.title}\" (+#{coins} coins#{note}).", now,
                "coins" => coins, "earned" => coins, "hand" => hand_before, "hand_after" => holder.hand,
                "discard" => challenge.id, "double_down" => doubled || nil)
+      end
+    end
+
+    # Swaps out a challenge that can't be done (closed ride, cancelled show)
+    # with no penalty: no coins, no villain turn.
+    def skip!(challenge_id, now = Time.current)
+      locked(now, playing: true) do
+        challenge = playable(challenge_id)
+        hand_before = [holder.hand, holder.card_lists]
+        replace_card(challenge)
+        record("skipped", "#{me.name} skipped \"#{challenge.title}\".", now,
+               "hand" => hand_before, "hand_after" => holder.hand, "discard" => challenge.id)
       end
     end
 

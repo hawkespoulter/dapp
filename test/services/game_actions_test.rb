@@ -125,6 +125,26 @@ class GameActionsTest < ActiveSupport::TestCase
     assert_equal 3, hand.size
   end
 
+  test "skipping a challenge swaps it with no penalty, even in hard mode" do
+    give(@host, :anywhere_easy)
+    act.skip!(challenges(:anywhere_easy).id, @now)
+
+    @game.reload
+    refute_includes @host.reload.hand, challenges(:anywhere_easy).id
+    assert_equal 1, @host.hand.size
+    assert_equal 0, @game.coins
+    assert_equal 0, @game.tick_count, "the villain doesn't move"
+    assert_equal "skipped", @game.game_events.last.kind
+  end
+
+  test "a skip can be undone" do
+    give(@host, :anywhere_easy)
+    act.skip!(challenges(:anywhere_easy).id, @now)
+    act.undo!(@now)
+
+    assert_equal [challenges(:anywhere_easy).id], @host.reload.hand
+  end
+
   test "failing a challenge swaps the card" do
     give(@host, :anywhere_easy)
     act.fail!(challenges(:anywhere_easy).id, @now)
