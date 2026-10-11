@@ -77,10 +77,6 @@ class Game < ApplicationRecord
     settings["hand_size"]
   end
 
-  def influence_price
-    settings["influence_price"]
-  end
-
   def outbreak_at
     settings["outbreak_at"]
   end
@@ -187,7 +183,7 @@ class Game < ApplicationRecord
         started_at:, ends_at:, next_tick_at:, server_time: Time.current,
         tick_minutes: settings["tick_minutes"], hand_size:, hard_mode: hard_mode?, shared_hand: shared_hand?,
         tick_count:, escalation:, villain_rate: Games::VillainEngine.rate_for(escalation),
-        coins:, influence_stash:, influence_price:,
+        coins:,
         villain_cards_left: villain_draw.size, windows: rules["windows"] || [],
       },
       villain: villain,

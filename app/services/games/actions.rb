@@ -2,10 +2,10 @@
 # and first plays any villain turns that came due, so phones acting at the
 # same moment see one consistent order of events.
 #
-# Challenges pay coins into a team pool. Coins buy influence into a team
-# stash, and each influence placed on an area moves it one point toward the
-# players: it weakens a villain area (at 0 it's unclaimed), claims an
-# unclaimed area at strength 1, or strengthens one of ours, with no cap.
+# Challenges pay coins into a team pool, and coins are the only currency:
+# each coin placed on an area moves it one point toward the players. It
+# strengthens one of ours (no cap) or weakens a villain area, stopping at
+# unclaimed. Claiming an area takes its claim challenge.
 module Games
   class Actions
     class Invalid < StandardError; end
@@ -141,28 +141,13 @@ module Games
       end
     end
 
-    # Turns team coins into influence in the team stash.
-    def buy_influence!(count, now = Time.current)
-      locked(now, playing: true) do
-        count = count.to_i
-        cost = count * game.influence_price
-        raise Invalid, "Buy at least 1 influence" if count < 1
-        raise Invalid, "That costs #{cost} coins and the team has #{game.coins}" if cost > game.coins
-
-        game.coins -= cost
-        game.influence_stash += count
-        record("bought", "#{me.name} bought #{count} influence for #{cost} coins.", now,
-               "coins" => -cost, "stash" => count)
-      end
-    end
-
-    # Spends influence from the stash on an area.
-    def place_influence!(area, count, now = Time.current)
+    # Spends team coins on an area, a point per coin.
+    def place_coins!(area, count, now = Time.current)
       locked(now, playing: true) do
         count = count.to_i
         raise Invalid, "#{area} is not in #{game.park}" unless game.board.areas.include?(area)
-        raise Invalid, "Place at least 1 influence" if count < 1
-        raise Invalid, "The team only has #{game.influence_stash} influence" if count > game.influence_stash
+        raise Invalid, "Place at least 1 coin" if count < 1
+        raise Invalid, "The team only has #{game.coins} #{'coin'.pluralize(game.coins)}" if count > game.coins
 
         state = game.area(area)
         if state.villain? && game.board.neighbors(area).none? { game.area(_1).players? }
@@ -173,7 +158,7 @@ module Games
 
         step_cost = game.villain.placement_cost(area)
         if count < step_cost
-          raise Invalid, "#{game.villain.display_name} makes each point in #{area} cost #{step_cost} influence"
+          raise Invalid, "#{game.villain.display_name} makes each point in #{area} cost #{step_cost} coins"
         end
 
         before = snapshot(state)
@@ -182,10 +167,10 @@ module Games
         spent = points * step_cost
         points.times { push_toward_players(state) }
         state.save!
-        game.influence_stash -= spent
+        game.coins -= spent
 
         record("placed", placement_message(state, before, spent), now,
-               "stash" => -spent, "areas" => { area => [before, snapshot(state)] })
+               "coins" => -spent, "areas" => { area => [before, snapshot(state)] })
       end
     end
 
@@ -211,7 +196,6 @@ module Games
           raise Invalid, "#{name} has changed since then, so this can't be undone" unless snapshot(game.area(name)) == after
         end
         raise Invalid, "The team has already spent those coins" if game.coins < undo.fetch("coins", 0)
-        raise Invalid, "The team has already placed that influence" if game.influence_stash < undo.fetch("stash", 0)
         if undo["hand_after"] && holder.hand != undo["hand_after"]
           raise Invalid, "The challenges have changed since then, so this can't be undone"
         end
@@ -224,7 +208,6 @@ module Games
         end
         areas.each { |name, (before, _after)| game.area(name).update!(before) }
         game.coins -= undo.fetch("coins", 0)
-        game.influence_stash -= undo.fetch("stash", 0)
         me.coins -= undo.fetch("earned", 0)
         # The hand comes back exactly as it was, list items included. (Older
         # games stored [hand before, hand after] without list items.)
@@ -484,7 +467,7 @@ module Games
         elsif state.neutral? then "and drove #{villain} out"
         else "(#{villain}'s strength #{state.strength})"
         end
-      "#{me.name} placed #{spent} influence in #{state.area} #{result}"
+      "#{me.name} placed #{spent} #{'coin'.pluralize(spent)} in #{state.area} #{result}"
     end
 
     # Logs an undoable action and ends the game if the players just won.

@@ -19,8 +19,7 @@ function FinishedGame({ game: g }) {
       </p>
       {g.summary && <p className="mt-1 text-sm text-slate-300">{g.summary}</p>}
       <p className="mt-1 text-xs text-slate-500">
-        Villain every {g.settings.tick_minutes} min · start strength {g.settings.starting_strength} ·{" "}
-        {g.settings.influence_price} coin/influence
+        Villain every {g.settings.tick_minutes} min · start strength {g.settings.starting_strength}
       </p>
     </Link>
   );

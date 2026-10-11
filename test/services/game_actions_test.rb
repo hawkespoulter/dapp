@@ -13,8 +13,8 @@ class GameActionsTest < ActiveSupport::TestCase
 
   def act(player = @host) = Games::Actions.new(@game, player)
 
-  def stash!(count)
-    @game.update!(influence_stash: count)
+  def coins!(count)
+    @game.update!(coins: count)
   end
 
   test "only parks with a villain can be created" do
@@ -41,56 +41,56 @@ class GameActionsTest < ActiveSupport::TestCase
     assert_equal 1, @game.reload.coins
   end
 
-  test "coins buy influence at the preset price" do
-    price = @game.influence_price
-    @game.update!(coins: (2 * price) + price - 1)
-    act.buy_influence!(2, @now)
+  test "placing coins costs a coin per point, and you need the coins" do
+    set_area(@game, "Adventureland", owner: "players", strength: 1)
+    coins!(2)
+    act.place_coins!("Adventureland", 2, @now)
 
-    assert_equal price - 1, @game.reload.coins
-    assert_equal 2, @game.influence_stash
-    assert_raises(Games::Actions::Invalid) { act.buy_influence!(1, @now) }
+    assert_equal 3, @game.area("Adventureland").reload.strength
+    assert_equal 0, @game.reload.coins
+    assert_raises(Games::Actions::Invalid) { act.place_coins!("Adventureland", 1, @now) }
   end
 
-  test "influence can't claim an unclaimed area" do
-    stash!(1)
-    error = assert_raises(Games::Actions::Invalid) { act.place_influence!("Adventureland", 1, @now) }
+  test "coins can't claim an unclaimed area" do
+    coins!(1)
+    error = assert_raises(Games::Actions::Invalid) { act.place_coins!("Adventureland", 1, @now) }
     assert_match "claim challenge", error.message
   end
 
-  test "more influence makes an area stronger, with no cap" do
+  test "more coins make an area stronger, with no cap" do
     set_area(@game, "Adventureland", owner: "players", strength: 2)
-    stash!(6)
-    act.place_influence!("Adventureland", 6, @now)
+    coins!(6)
+    act.place_coins!("Adventureland", 6, @now)
 
     assert_equal 8, @game.area("Adventureland").reload.strength
   end
 
-  test "influence wears a villain area down to unclaimed and stops there" do
+  test "coins wear a villain area down to unclaimed and stop there" do
     set_area(@game, "Frontierland", owner: "villain", strength: 2)
     set_area(@game, "Adventureland", owner: "players", strength: 1)
-    stash!(4)
-    act.place_influence!("Frontierland", 4, @now)
+    coins!(4)
+    act.place_coins!("Frontierland", 4, @now)
 
     assert @game.area("Frontierland").reload.neutral?
-    assert_equal 2, @game.reload.influence_stash, "only what it took is spent"
+    assert_equal 2, @game.reload.coins, "only what it took is spent"
   end
 
   test "attacking a villain area needs an adjacent players area" do
     set_area(@game, "Frontierland", owner: "villain", strength: 2)
-    stash!(3)
-    assert_raises(Games::Actions::Invalid) { act.place_influence!("Frontierland", 3, @now) }
+    coins!(3)
+    assert_raises(Games::Actions::Invalid) { act.place_coins!("Frontierland", 3, @now) }
 
     set_area(@game, "Adventureland", owner: "players", strength: 1)
-    act.place_influence!("Frontierland", 3, @now)
+    act.place_coins!("Frontierland", 3, @now)
     assert @game.area("Frontierland").reload.neutral?
   end
 
-  test "Thorn Wall is a rule for the park, not the board: influence costs 1 everywhere" do
+  test "Thorn Wall is a rule for the park, not the board: a point costs 1 coin everywhere" do
     set_area(@game, "Fantasyland", owner: "villain", strength: 3)
     set_area(@game, "Tomorrowland", owner: "players", strength: 1)
-    stash!(2)
-    act.place_influence!("Tomorrowland", 1, @now)
-    act.place_influence!("Fantasyland", 1, @now)
+    coins!(2)
+    act.place_coins!("Tomorrowland", 1, @now)
+    act.place_coins!("Fantasyland", 1, @now)
 
     assert_equal 2, @game.area("Tomorrowland").reload.strength
     assert_equal 2, @game.area("Fantasyland").reload.strength
@@ -208,20 +208,20 @@ class GameUndoTest < ActiveSupport::TestCase
     assert_match "spent", error.message
   end
 
-  test "undo returns placed influence to the stash" do
+  test "undo gives placed coins back" do
     set_area(@game, "Adventureland", owner: "players", strength: 1)
-    @game.update!(influence_stash: 2)
-    act.place_influence!("Adventureland", 2, @now)
+    @game.update!(coins: 2)
+    act.place_coins!("Adventureland", 2, @now)
     act.undo!(@now)
 
-    assert_equal 2, @game.reload.influence_stash
+    assert_equal 2, @game.reload.coins
     assert_equal 1, @game.area("Adventureland").strength
   end
 
   test "undo is refused once the villain has touched the area" do
     set_area(@game, "Adventureland", owner: "players", strength: 1)
-    @game.update!(influence_stash: 3)
-    act.place_influence!("Adventureland", 3, @now)
+    @game.update!(coins: 3)
+    act.place_coins!("Adventureland", 3, @now)
     Games::VillainEngine.new(@game).push("Adventureland", 1, @now)
 
     error = assert_raises(Games::Actions::Invalid) { act.undo!(@now) }

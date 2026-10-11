@@ -30,10 +30,6 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal card["reward"], response.parsed_body.dig("game", "coins")
 
-    post buy_api_v1_game_url(code), params: { count: 1 }, headers: host, as: :json
-    assert_response :success
-    assert_equal 1, response.parsed_body.dig("game", "influence_stash")
-
     ours = response.parsed_body["areas"].find { _1["owner"] == "players" && _1["placement_cost"] == 1 }
     if ours
       post place_api_v1_game_url(code), params: { area: ours["area"], count: 1 }, headers: host, as: :json

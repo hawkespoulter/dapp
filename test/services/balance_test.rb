@@ -13,11 +13,11 @@ class BalanceTest < ActiveSupport::TestCase
 
   test "a running game's balance can be changed, and it's logged" do
     old_tick = @game.settings["tick_minutes"]
-    act.update_balance!({ "tick_minutes" => "99", "influence_price" => "2", "hard_mode" => "false" }, @now)
+    act.update_balance!({ "tick_minutes" => "99", "price_stall" => "4", "hard_mode" => "false" }, @now)
     @game.reload
 
     assert_equal 99, @game.settings["tick_minutes"]
-    assert_equal 2, @game.influence_price
+    assert_equal 4, @game.settings["price_stall"]
     refute @game.hard_mode?
     assert_match "Villain moves every (minutes) #{old_tick} → 99", @game.game_events.last.message
     assert_match "Hard mode: the villain also moves when you fail a challenge on → off", @game.game_events.last.message

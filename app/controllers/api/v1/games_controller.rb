@@ -62,15 +62,9 @@ class Api::V1::GamesController < ApplicationController
     render_state
   end
 
-  # POST /games/:code/buy
-  def buy
-    actions.buy_influence!(params.require(:count))
-    render_state
-  end
-
   # POST /games/:code/place
   def place
-    actions.place_influence!(params.require(:area), params.require(:count))
+    actions.place_coins!(params.require(:area), params.require(:count))
     render_state
   end
 

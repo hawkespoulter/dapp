@@ -1,10 +1,10 @@
-// Mirrors the server's influence rules (app/services/games/actions.rb) so the
-// area panel can say what placing influence would do. The server decides.
+// Mirrors the server's placement rules (app/services/games/actions.rb) so the
+// area panel can say what placing coins would do. The server decides.
 
 export const OWNER_LABELS = { players: "Yours", neutral: "Unclaimed", villain: "Villain" };
 
-// What placing influence in an area would do: `step` is the influence per
-// point of strength, `cost` what it takes to reach the goal.
+// What placing coins in an area would do: `step` is the coins per point of
+// strength, `cost` what it takes to reach the goal.
 export function placementPlan(state, name) {
   const { villain, areas } = state;
   const byName = Object.fromEntries(areas.map((a) => [a.area, a]));

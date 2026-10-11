@@ -13,7 +13,6 @@ class GamePreset < ApplicationRecord
     "day_end" => { label: "Each day ends", time: true },
     "tick_minutes" => { label: "Villain moves every (minutes)", range: 1..240 },
     "starting_strength" => { label: "Starting strength per side", range: 1..100 },
-    "influence_price" => { label: "Coins per influence", range: 1..20 },
     "hand_size" => { label: "Challenge cards in hand", range: 1..8 },
     "risings" => { label: "Villain Rising cards in the deck (each adds a card per turn)", range: 0..12 },
     "outbreak_at" => { label: "Area spills over at", range: 1..50 },

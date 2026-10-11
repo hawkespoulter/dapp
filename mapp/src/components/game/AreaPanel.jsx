@@ -33,27 +33,27 @@ function ClaimChallenge({ area, villain, busy, onClaim }) {
   );
 }
 
-// Placing influence: strengthens your areas and wears the villain's down.
+// Placing coins: strengthens your areas and wears the villain's down.
 function Influence({ state, area, busy, onPlace }) {
   const plan = placementPlan(state, area.area);
   if (plan.claimOnly) return null;
   if (plan.blocked) return <p className="mt-2 text-sm text-amber-400">{plan.blocked}</p>;
 
-  const stash = state.game.influence_stash;
-  const all = stash - (stash % plan.step);
+  const coins = state.game.coins;
+  const all = coins - (coins % plan.step);
   let main;
   if (plan.goal === "strengthen") {
-    const short = stash > 0 ? `Need ${plan.step} per point here` : "No influence to place";
+    const short = coins > 0 ? `Need ${plan.step} coins per point here` : "No coins to place";
     main = { count: all, label: all >= plan.step ? `Place ${all}` : short };
   } else if (all >= plan.cost) {
     main = { count: plan.cost, label: `Place ${plan.cost}` };
   } else {
-    main = { count: 0, label: `Need ${plan.cost} influence to ${plan.goal}` };
+    main = { count: 0, label: `Need ${plan.cost} coins to ${plan.goal}` };
   }
 
   return (
     <div className="mt-2 flex gap-2">
-      <button className={`${button} bg-slate-700 px-4`} disabled={busy || stash < plan.step} onClick={() => onPlace(plan.step)}>
+      <button className={`${button} bg-slate-700 px-4`} disabled={busy || coins < plan.step} onClick={() => onPlace(plan.step)}>
         Place {plan.step}
       </button>
       <button className={`${button} flex-1 bg-sky-600`} disabled={busy || main.count < plan.step} onClick={() => onPlace(main.count)}>

@@ -24,7 +24,6 @@ Rails.application.routes.draw do
           post :fail, action: :fail_challenge
           post :skip
           post :undo
-          post :buy
           post :place
           post :villain_turn
           post :power

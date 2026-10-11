@@ -14,7 +14,6 @@ import SettingsForm from "./SettingsForm";
 import useUnseenVillainTurns from "./useUnseenVillainTurns";
 import { errorMessage } from "./playerStorage";
 import {
-  useBuyInfluenceMutation,
   useCompleteChallengeMutation,
   useFailChallengeMutation,
   useSkipChallengeMutation,
@@ -23,7 +22,7 @@ import {
   useForecastDiscardMutation,
   useUpdateBalanceMutation,
   useCompleteClaimMutation,
-  usePlaceInfluenceMutation,
+  usePlaceCoinsMutation,
   useUndoChallengeMutation,
 } from "~/store/apis/gameApi";
 
@@ -46,8 +45,7 @@ function GameBoard({ state, refetch }) {
   const [complete, completeStatus] = useCompleteChallengeMutation();
   const [fail, failStatus] = useFailChallengeMutation();
   const [skip, skipStatus] = useSkipChallengeMutation();
-  const [buy, buyStatus] = useBuyInfluenceMutation();
-  const [place, placeStatus] = usePlaceInfluenceMutation();
+  const [place, placeStatus] = usePlaceCoinsMutation();
   const [undo, undoStatus] = useUndoChallengeMutation();
   const [forceTurn, forceTurnStatus] = useForceVillainTurnMutation();
   const [buyPower, powerStatus] = useUsePowerUpMutation();
@@ -59,7 +57,6 @@ function GameBoard({ state, refetch }) {
     completeStatus,
     failStatus,
     skipStatus,
-    buyStatus,
     placeStatus,
     undoStatus,
     forceTurnStatus,
@@ -143,7 +140,6 @@ function GameBoard({ state, refetch }) {
             state={state}
             area={currentArea}
             busy={busy}
-            onBuyInfluence={(count) => run(buy({ code, count }))}
             onUsePower={(power, area) => run(buyPower({ code, power, area }))}
           />
         </Section>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_27_000001) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_11_000001) do
   create_table "area_states", force: :cascade do |t|
     t.integer "game_id", null: false
     t.string "area", null: false
@@ -80,7 +80,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_27_000001) do
     t.integer "escalation", default: 0, null: false
     t.integer "outbreaks", default: 0, null: false
     t.integer "coins", default: 0, null: false
-    t.integer "influence_stash", default: 0, null: false
     t.json "villain_draw", default: [], null: false
     t.json "villain_discard", default: [], null: false
     t.json "challenge_discard", default: [], null: false
