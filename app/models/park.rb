@@ -9,13 +9,16 @@ module Park
     "Epcot",
     "Hollywood Studios",
     "Universal Orlando",
+    "Wizarding World",
     "Disneyland Resort",
     "Sea World",
   ].freeze
 
-  # Game parks made of more than one tracker park.
+  # Game parks made of more than one tracker park. The Wizarding World board
+  # is Diagon Alley (Universal Studios) plus Hogsmeade (Islands of Adventure).
   TRACKER_PARKS = {
     "Universal Orlando" => ["Universal Studios", "Islands Of Adventure"],
+    "Wizarding World" => ["Universal Studios", "Islands Of Adventure"],
     "Disneyland Resort" => ["Disneyland", "California Adventure"],
   }.freeze
 

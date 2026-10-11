@@ -1,0 +1,26 @@
+# Claim challenges for the Wizarding World board: touch something in the
+# area. Rough draft. See README.md.
+Carkitt Market:
+  - title: Market Day
+    description: Touch one of the market stalls in Carkitt Market.
+Diagon Alley:
+  - title: Gringotts Doors
+    description: Touch the doors of Gringotts bank.
+Knockturn Alley:
+  - title: Dark Arts
+    description: Touch the window of Borgin and Burkes.
+King's Cross:
+  - title: Platform Pillar
+    description: Touch one of the columns at the front of King's Cross station.
+Hagrid's Hut:
+  - title: Hagrid's Fence
+    description: Touch the fence outside Hagrid's Hut.
+Hogsmeade Station:
+  - title: All Aboard
+    description: Touch the railing on the Hogsmeade Station platform.
+Hogwarts Castle:
+  - title: Winged Boars
+    description: Touch one of the winged boar pillars at the Hogwarts gates.
+Hogsmeade Village:
+  - title: Three Broomsticks
+    description: Touch the door of the Three Broomsticks.

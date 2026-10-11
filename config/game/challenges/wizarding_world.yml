@@ -1,0 +1,26 @@
+# Wizarding World challenges (Diagon Alley + Hogsmeade). Rough draft: rewrite
+# freely. See README.md for the fields.
+
+- title: Break into Gringotts
+  description: Ride Harry Potter and the Escape from Gringotts.
+  reward: 5
+
+- title: Round trip
+  description: Ride the Hogwarts Express both ways, King's Cross to Hogsmeade and back.
+  reward: 4
+
+- title: Forbidden Journey
+  description: Ride Harry Potter and the Forbidden Journey.
+  reward: 5
+
+- title: Creature care
+  description: Ride Hagrid's Magical Creatures Motorbike Adventure.
+  reward: 6
+
+- title: Butterbeer
+  description: Drink a Butterbeer, any style.
+  reward: 2
+
+- title: Next stop
+  description: Spot the Knight Bus and get a photo with it.
+  reward: 1

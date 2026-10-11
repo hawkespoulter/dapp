@@ -28,3 +28,15 @@ Hollywood Studios:
     Echo Lake: [Hollywood Boulevard, Muppet Courtyard]
     Muppet Courtyard: [Hollywood Boulevard, Echo Lake, "Galaxy's Edge"]
     "Galaxy's Edge": [Hollywood Boulevard, Toy Story Land, Muppet Courtyard]
+# Diagon Alley (Universal Studios) and Hogsmeade (Islands of Adventure) on one
+# board; the Hogwarts Express joins King's Cross and Hogsmeade Station.
+Wizarding World:
+  adjacency:
+    Carkitt Market: [Diagon Alley, Knockturn Alley]
+    Diagon Alley: [Carkitt Market, Knockturn Alley, King's Cross]
+    Knockturn Alley: [Carkitt Market, Diagon Alley, King's Cross]
+    King's Cross: [Diagon Alley, Knockturn Alley, Hogsmeade Station]
+    Hogsmeade Station: [King's Cross, Hagrid's Hut, Hogsmeade Village]
+    Hagrid's Hut: [Hogsmeade Station, Hogwarts Castle]
+    Hogwarts Castle: [Hagrid's Hut, Hogsmeade Village]
+    Hogsmeade Village: [Hogsmeade Station, Hogwarts Castle]

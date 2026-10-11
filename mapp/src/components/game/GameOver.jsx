@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import IMAGES from "~/images/Images";
 import { toCamelCase } from "~/constants.js";
 import GameMap from "./GameMap";
+import { logoPark } from "./boardLayout";
 import VillainTurnReplay from "./VillainTurnReplay";
 import useUnseenVillainTurns from "./useUnseenVillainTurns";
 
@@ -25,7 +26,7 @@ function GameOver({ state }) {
       <div className="flex flex-col items-center gap-2 p-6 text-center">
         <img
           className="h-28"
-          src={IMAGES[`${toCamelCase(game.park)}${result.logo}`]}
+          src={IMAGES[`${toCamelCase(logoPark(game.park))}${result.logo}`]}
           style={{ filter: result.filter }}
           alt={result.title}
         />

@@ -2,8 +2,7 @@ import { useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import ShieldIcon from "@mui/icons-material/Shield";
 import IMAGES from "~/images/Images";
-import { toCamelCase } from "~/constants.js";
-import { BOARD_LAYOUT, IMAGE_SIZE, villainColor } from "./boardLayout";
+import { BOARD_LAYOUT, IMAGE_SIZE, areaImage, linesImage, villainColor } from "./boardLayout";
 
 const pct = (value, total) => `${(value / total) * 100}%`;
 
@@ -15,14 +14,14 @@ const OWNER_FILTERS = {
 
 // Reads each area image's pixels once so a tap can be matched to the area
 // whose overlay is opaque at that point.
-function useAreaHitTest(areaNames) {
+function useAreaHitTest(park, areaNames) {
   const masks = useRef({});
 
   useEffect(() => {
     areaNames.forEach((name) => {
       if (masks.current[name]) return;
       const img = new Image();
-      img.src = IMAGES[toCamelCase(name)];
+      img.src = areaImage(park, name);
       img.onload = () => {
         const canvas = document.createElement("canvas");
         canvas.width = img.width;
@@ -32,7 +31,7 @@ function useAreaHitTest(areaNames) {
         masks.current[name] = ctx.getImageData(0, 0, img.width, img.height);
       };
     });
-  }, [areaNames]);
+  }, [park, areaNames]);
 
   return (x, y) =>
     areaNames.find((name) => {
@@ -56,7 +55,7 @@ function GameMap({ park, areas, villainKey, onSelect, highlights = [], markers =
   const layout = BOARD_LAYOUT[park];
   const color = villainColor(villainKey);
   const areaNames = areas.map((a) => a.area);
-  const hitTest = useAreaHitTest(areaNames);
+  const hitTest = useAreaHitTest(park, areaNames);
   const { crop } = layout;
 
   const handleTap = (event) => {
@@ -94,7 +93,7 @@ function GameMap({ park, areas, villainKey, onSelect, highlights = [], markers =
       >
         <img src={IMAGES.mapBackground} style={fill} alt="" draggable={false} />
         {areas.map((area) => {
-          const src = IMAGES[toCamelCase(area.area)];
+          const src = areaImage(park, area.area);
           return (
             <div key={area.area}>
               <img src={src} style={{ ...fill, filter: OWNER_FILTERS[area.owner] }} alt="" draggable={false} />
@@ -107,7 +106,7 @@ function GameMap({ park, areas, villainKey, onSelect, highlights = [], markers =
             </div>
           );
         })}
-        <img src={IMAGES[`${toCamelCase(park)}Lines`]} style={fill} alt="" draggable={false} />
+        <img src={linesImage(park)} style={fill} alt="" draggable={false} />
 
         {areas
           .filter((area) => area.owner !== "neutral")
