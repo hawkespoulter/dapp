@@ -71,6 +71,18 @@ class Api::V1::GamesController < ApplicationController
     render_state
   end
 
+  # POST /games/:code/pause
+  def pause
+    actions.pause!
+    render_state
+  end
+
+  # POST /games/:code/resume
+  def resume
+    actions.resume!
+    render_state
+  end
+
   # POST /games/:code/abandon
   def abandon
     actions.abandon!

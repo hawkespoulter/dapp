@@ -159,6 +159,32 @@ class GameActionsTest < ActiveSupport::TestCase
     20.times { refute_includes @game.draw_challenges(3), other }
   end
 
+  test "pausing stops the clock, and resuming pushes the villain and the end back" do
+    next_tick, ends_at = @game.next_tick_at, @game.ends_at
+    act.pause!(@now)
+
+    assert @game.reload.paused?
+    assert_raises(Games::Actions::Invalid) { act.pause!(@now + 1.minute) }
+    assert_raises(Games::Actions::Invalid) { act.place_coins!("Adventureland", 1, @now + 1.minute) }
+    # Hours go by without the villain moving or the game ending.
+    @game.advance!(ends_at + 1.hour)
+    assert @game.reload.active?
+    assert_equal 0, @game.tick_count
+
+    act.resume!(ends_at + 1.hour)
+    @game.reload
+    shift = ends_at + 1.hour - @now
+    refute @game.paused?
+    assert_equal next_tick + shift, @game.next_tick_at
+    assert_equal ends_at + shift, @game.ends_at
+    assert_match "resumed the game", @game.game_events.last.message
+    assert_raises(Games::Actions::Invalid) { act.resume!(ends_at + 2.hours) }
+    @game.reload
+
+    act.update_balance!({ "hours" => "4" }, ends_at + 1.hour)
+    assert_equal @game.started_at + 4.hours + shift, @game.reload.ends_at, "a new length keeps the paused time"
+  end
+
   test "abandoning ends the game for everyone and leaves it out of the record" do
     act.abandon!(@now)
     @game.reload

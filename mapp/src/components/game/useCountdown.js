@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
 // Seconds until `target`, corrected for the gap between this phone's clock
-// and the server's.
-export default function useCountdown(target, serverTime) {
+// and the server's. While paused, it stands still at `pausedAt`.
+export default function useCountdown(target, serverTime, pausedAt) {
   const [now, setNow] = useState(Date.now());
   const [offset, setOffset] = useState(0);
 
@@ -16,6 +16,7 @@ export default function useCountdown(target, serverTime) {
   }, []);
 
   if (!target) return null;
+  if (pausedAt) return Math.max(0, Math.round((Date.parse(target) - Date.parse(pausedAt)) / 1000));
   return Math.max(0, Math.round((Date.parse(target) - (now + offset)) / 1000));
 }
 

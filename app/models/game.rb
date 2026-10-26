@@ -74,6 +74,13 @@ class Game < ApplicationRecord
     GameClock.new(rules.fetch("windows", []))
   end
 
+  # While paused, the villain's timer and the game clock stand still.
+  def paused_at
+    rules["paused_at"] && Time.zone.parse(rules["paused_at"].to_s)
+  end
+
+  def paused? = paused_at.present?
+
   def rng
     @rng ||= Random.new
   end
@@ -157,7 +164,7 @@ class Game < ApplicationRecord
 
   # Plays every villain turn that has come due, then ends the game if time is up.
   def advance!(now = Time.current)
-    return unless active?
+    return unless active? && !paused?
 
     engine = Games::VillainEngine.new(self)
     while active? && next_tick_at && next_tick_at < ends_at && next_tick_at <= now
@@ -190,7 +197,7 @@ class Game < ApplicationRecord
     {
       game: {
         code: join_code, park:, preset:, preset_label: settings["label"], status:, result:,
-        started_at:, ends_at:, next_tick_at:, server_time: Time.current,
+        started_at:, ends_at:, next_tick_at:, server_time: Time.current, paused_at:,
         tick_minutes: settings["tick_minutes"], hand_size:, hard_mode: hard_mode?, shared_hand: shared_hand?,
         tick_count:, escalation:, villain_rate: Games::VillainEngine.rate_for(escalation),
         coins:,

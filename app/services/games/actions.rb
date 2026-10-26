@@ -83,6 +83,41 @@ module Games
     end
 
     # For testing: the villain takes a turn right now. Her timer is unchanged.
+    # Stops the villain's timer and the game clock, e.g. for a meal. Nobody
+    # can play until it's resumed.
+    def pause!(now = Time.current)
+      locked(now, playing: true) do
+        game.rules = game.rules.merge("paused_at" => now.iso8601(3))
+        game.log!("paused", "#{me.name} paused the game.", at: now, player: me)
+        game.save!
+      end
+    end
+
+    # Restarts the clock. The villain's next move and the end of the game
+    # move later by however long the game was paused.
+    def resume!(now = Time.current)
+      locked(now) do
+        raise Invalid, "The game isn't paused" unless game.active? && game.paused?
+
+        paused_at = game.paused_at
+        shift = now - paused_at
+        windows = game.clock.windows.map do |s, e|
+          if s >= paused_at then [s + shift, e + shift]
+          elsif e > paused_at then [s, e + shift]
+          else [s, e]
+          end
+        end
+        game.rules = game.rules.except("paused_at").merge(
+          "windows" => windows.map { |w| w.map { _1.iso8601(3) } },
+          "paused_seconds" => game.rules.fetch("paused_seconds", 0) + shift.round,
+        )
+        game.ends_at = game.clock.ends_at
+        game.next_tick_at += shift if game.next_tick_at
+        game.log!("resumed", "#{me.name} resumed the game after #{(shift / 60).round} min.", at: now, player: me)
+        game.save!
+      end
+    end
+
     # Ends a game nobody wants to finish. It's over for everyone, can't be
     # undone, and doesn't count toward the win/loss record.
     def abandon!(now = Time.current)
@@ -262,7 +297,7 @@ module Games
 
         game.rules = game.rules.merge("settings" => after)
         if changed.key?("hours") && game.active?
-          ends_at = game.started_at + after["hours"].hours
+          ends_at = game.started_at + after["hours"].hours + game.rules.fetch("paused_seconds", 0).seconds
           raise Invalid, "That would end the game before now" if ends_at <= now
 
           game.rules = game.rules.merge("windows" => [[game.started_at, ends_at]])
@@ -452,6 +487,7 @@ module Games
         @me = nil
         game.advance!(now)
         raise Invalid, "The game isn't running" if playing && !game.active?
+        raise Invalid, "The game is paused" if playing && game.paused?
 
         yield
       end

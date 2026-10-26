@@ -21,6 +21,8 @@ import {
   useSkipChallengeMutation,
   useForceVillainTurnMutation,
   useAbandonGameMutation,
+  usePauseGameMutation,
+  useResumeGameMutation,
   useUsePowerUpMutation,
   useForecastDiscardMutation,
   useUpdateBalanceMutation,
@@ -53,6 +55,8 @@ function GameBoard({ state, refetch }) {
   const [undo, undoStatus] = useUndoChallengeMutation();
   const [forceTurn, forceTurnStatus] = useForceVillainTurnMutation();
   const [abandon, abandonStatus] = useAbandonGameMutation();
+  const [pause, pauseStatus] = usePauseGameMutation();
+  const [resume, resumeStatus] = useResumeGameMutation();
   const [buyPower, powerStatus] = useUsePowerUpMutation();
   const [forecastDiscard, forecastStatus] = useForecastDiscardMutation();
   const [updateBalance] = useUpdateBalanceMutation();
@@ -69,6 +73,8 @@ function GameBoard({ state, refetch }) {
     forecastStatus,
     completeClaimStatus,
     abandonStatus,
+    pauseStatus,
+    resumeStatus,
   ].some((s) => s.isLoading);
 
   useEffect(() => {
@@ -98,7 +104,14 @@ function GameBoard({ state, refetch }) {
       {/* One solid background, extended up under the fixed navbar so no gap or
           seam shows the page behind it while scrolling. */}
       <div className="sticky top-[56px] z-40 bg-slate-900 shadow-lg before:absolute before:inset-x-0 before:bottom-full before:h-4 before:bg-slate-900 before:content-['']">
-        <StatusBar game={game} villain={villain} onVillainDue={refetch} />
+        <StatusBar
+          game={game}
+          villain={villain}
+          onVillainDue={refetch}
+          busy={busy}
+          onPause={me ? () => run(pause({ code })) : undefined}
+          onResume={me ? () => run(resume({ code })) : undefined}
+        />
         <TeamPool game={game} />
       </div>
 
