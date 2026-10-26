@@ -23,3 +23,7 @@
 - title: Float wave
   description: During a parade, wave at a character on a float and get a wave back.
   reward: 3
+
+- title: Mr. Toad's grave
+  description: Find Mr. Toad's tombstone in the Haunted Mansion pet cemetery.
+  reward: 3
