@@ -27,3 +27,8 @@
 - title: Mr. Toad's grave
   description: Find Mr. Toad's tombstone in the Haunted Mansion pet cemetery.
   reward: 3
+
+- title: Sensory overload
+  description: During Mickey's PhilharMagic, everyone has to notice both of these effects.
+  list: {from: philharmagic_effects, count: 2}
+  reward: 2
