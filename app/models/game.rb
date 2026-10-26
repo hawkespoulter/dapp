@@ -61,6 +61,11 @@ class Game < ApplicationRecord
     @villain ||= Villains.find(villain_key).new(self)
   end
 
+  # Villain Rising cards in the deck: the game length's plus the villain's own.
+  def risings
+    settings["risings"] + villain.extra_risings
+  end
+
   def clock
     GameClock.new(rules.fetch("windows", []))
   end

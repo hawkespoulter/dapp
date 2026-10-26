@@ -4,6 +4,8 @@
 module Villains
   class Base
     class_attribute :key, :display_name, :park, :lair, :rules_text
+    # Villain Rising cards this villain adds on top of the game length's.
+    class_attribute :extra_risings, default: 0
 
     def self.as_json(*)
       { key:, name: display_name, park:, lair:, rules: rules_text }

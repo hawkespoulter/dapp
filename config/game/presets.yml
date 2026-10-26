@@ -11,7 +11,7 @@ sprint:
   tick_minutes: 36
   hand_size: 3
   starting_strength: 12
-  risings: 1
+  risings: 2
   outbreak_at: 3
   youngling_max: 2
   shared_hand: true

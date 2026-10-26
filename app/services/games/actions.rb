@@ -73,7 +73,7 @@ module Games
         game.started_at = now
         game.ends_at = game.clock.ends_at
         game.next_tick_at = game.clock.advance(now, game.tick_seconds)
-        game.villain_draw = VillainEngine.build_deck(game.board, game.settings["risings"], game.rng)
+        game.villain_draw = VillainEngine.build_deck(game.board, game.risings, game.rng)
         game.villain.setup!(now)
         hand_holders.each do |player|
           player.deal(game.draw_challenges(game.hand_size), game.rng)

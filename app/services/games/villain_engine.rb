@@ -13,6 +13,8 @@
 #   * rising     -> escalation +1: the villain plays one more card per turn,
 #                   starting with the turn it's drawn on. It doesn't count as
 #                   one of the turn's cards.
+# When the deck runs out, the played cards, Risings included, are shuffled
+# back in with the Risings spread out again, so she keeps escalating.
 #
 # Everything the villain does starts from `handle(trigger)`, so new triggers
 # (e.g. a failed challenge, in hard mode) can be switched on per preset.
@@ -26,10 +28,17 @@ module Games
     end
 
     def self.build_deck(board, risings, rng)
-      areas = (board.areas.map { "area:#{_1}" } * 2).shuffle(random: rng)
+      stack(board.areas.map { "area:#{_1}" } * 2, risings, rng)
+    end
+
+    # Shuffles area cards and spreads the Risings evenly through them: one
+    # in each of `risings` equal piles.
+    def self.stack(areas, risings, rng)
+      areas = areas.shuffle(random: rng)
       return areas if risings.zero?
 
       piles = areas.each_slice((areas.size / risings.to_f).ceil).to_a
+      piles += [[]] * (risings - piles.size) if piles.size < risings
       piles.flat_map { |pile| (pile + [RISING]).shuffle(random: rng) }
     end
 
@@ -37,13 +46,13 @@ module Games
     # under the villain's own rules on the players' phones.
     def self.general_rules(game)
       s = game.settings
-      risings = s["risings"]
+      risings = game.risings
       [
         "The villain takes a turn every #{s['tick_minutes']} minutes#{', and if you fail a challenge' if game.hard_mode?}.",
         "Each turn the villain plays area cards from a deck with two cards for every area.",
         "An area card puts 1 influence point into that area.",
         "If a villain's area is already at #{s['outbreak_at']} or more, it spills over. That area and every adjacent area get one influence.",
-        ("The deck also hides #{risings} Villain Rising #{'card'.pluralize(risings)}. Each one makes the villain play one more card per turn." if risings.positive?),
+        ("The deck also hides #{risings} Villain Rising #{'card'.pluralize(risings)}. Each one makes the villain play one more card per turn. When the deck runs out, every card, Risings included, is shuffled back in." if risings.positive?),
         "You lose if the villain claims the whole park, or if time runs out while the villain holds more areas than you.",
       ].compact
     end
@@ -181,10 +190,10 @@ module Games
     def play_card(card, at)
       name = card == RISING ? "Villain Rising" : card.delete_prefix("area:")
       game.log!("villain_card", "#{villain.display_name} plays #{name}.", at:, card: name, **(card == RISING ? {} : { area: name }))
+      game.villain_discard = game.villain_discard + [card]
       if card == RISING
         escalate(at)
       else
-        game.villain_discard = game.villain_discard + [card]
         name = card.delete_prefix("area:")
         push(name, villain.card_push(game.area(name)), at)
       end
@@ -204,7 +213,8 @@ module Games
 
     # Deals the discard pile back into an empty deck (also used by Forecast).
     def reshuffle_discard(at)
-      game.villain_draw = game.villain_discard.shuffle(random: game.rng)
+      areas, risings = game.villain_discard.partition { _1 != RISING }
+      game.villain_draw = self.class.stack(areas, risings.size, game.rng)
       game.villain_discard = []
       game.log!("villain", "#{villain.display_name} regroups and reshuffles the villain deck.", at:)
     end

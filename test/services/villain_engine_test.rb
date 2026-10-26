@@ -39,6 +39,30 @@ class VillainEngineTest < ActiveSupport::TestCase
     assert starts.uniq.size > 1
   end
 
+  test "a Sprint has 2 Villain Risings by default" do
+    assert_equal 2, GamePreset.for("sprint").settings["risings"]
+  end
+
+  test "when the deck runs out, the Risings are shuffled back in, spread out again" do
+    @game.villain_draw = []
+    @game.villain_discard = [*@game.board.areas.map { "area:#{_1}" } * 2, "rising", "rising", "rising"]
+    @engine.send(:reshuffle_discard, @now)
+
+    deck = @game.villain_draw
+    assert_equal 15, deck.size
+    assert_equal 3, deck.count("rising")
+    assert_empty @game.villain_discard
+    gaps = deck.each_index.select { deck[_1] == "rising" }.each_cons(2).map { _2 - _1 }
+    assert gaps.all? { _1 <= 9 }, "one Rising in each third of the deck"
+  end
+
+  test "a played Rising goes to the discard pile to come back later" do
+    @game.villain_draw = ["rising", "area:Adventureland", "area:Tomorrowland", "area:Frontierland"]
+    @game.villain_discard = []
+    @engine.handle(:timer, at: @now)
+    assert_includes @game.villain_discard, "rising"
+  end
+
   test "a deck can have no Villain Risings" do
     deck = Games::VillainEngine.build_deck(@game.board, 0, Random.new(1))
     assert_equal 12, deck.size
@@ -46,8 +70,9 @@ class VillainEngineTest < ActiveSupport::TestCase
   end
 
   test "starting sets up the deck, clock and hands" do
-    assert_equal 12 + 4, @game.villain_draw.size
-    assert_equal 4, @game.villain_draw.count("rising")
+    # Full Day's 4 Risings, plus Maleficent's 2 extra
+    assert_equal 12 + 6, @game.villain_draw.size
+    assert_equal 6, @game.villain_draw.count("rising")
     assert_equal @game.started_at + @game.tick_seconds, @game.next_tick_at
     assert_equal @game.started_at + 10.hours, @game.ends_at
     assert_equal 3, @host.hand.size
@@ -226,10 +251,11 @@ class VillainEngineTest < ActiveSupport::TestCase
 
     assert_includes rules.first, "every #{@game.settings['tick_minutes']} minutes, and if you fail a challenge"
     assert_includes rules.fourth, "at #{@game.outbreak_at} or more"
-    assert_includes rules.fifth, "hides 4 Villain Rising cards. Each one makes the villain play one more card per turn."
+    assert_includes rules.fifth, "hides 6 Villain Rising cards. Each one makes the villain play one more card per turn."
+    assert_includes rules.fifth, "Risings included, is shuffled back in"
 
     @game.rules = @game.rules.merge("settings" => @game.settings.merge("risings" => 0))
-    refute(Games::VillainEngine.general_rules(@game).any? { _1.include?("Rising") })
+    assert_includes Games::VillainEngine.general_rules(@game).fifth, "hides 2 Villain Rising cards", "Maleficent's own two"
 
     @game.rules = @game.rules.merge("settings" => @game.settings.merge("hard_mode" => false))
     refute_includes Games::VillainEngine.general_rules(@game).first, "fail"

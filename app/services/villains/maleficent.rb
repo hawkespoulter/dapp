@@ -4,9 +4,11 @@ module Villains
     self.display_name = "Maleficent"
     self.park = "Magic Kingdom"
     self.lair = "Fantasyland"
+    self.extra_risings = 2
     self.rules_text = [
       "Thorn Wall: you can't set foot in any area Maleficent controls. Stay in the rest of the park until you win it back (you can still place influence there).",
       "Dragon Form: from her second Villain Rising on, when her strong areas spill over they push 2 into each neighbor instead of 1.",
+      "Her deck has 2 extra Villain Rising cards.",
     ]
 
     def outbreak_spread
