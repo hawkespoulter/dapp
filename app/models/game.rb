@@ -7,7 +7,7 @@
 # lock (see Games::Actions).
 class Game < ApplicationRecord
   STATUSES = %w[lobby active finished].freeze
-  RESULTS = %w[gold silver bronze lost].freeze
+  RESULTS = %w[gold silver bronze lost abandoned].freeze
   CODE_CHARS = ("A".."Z").to_a - %w[I O]
   # Event data the villain turn replay uses: the card played (or other named
   # action), the board when the turn began, and each area after a change.

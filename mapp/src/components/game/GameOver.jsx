@@ -12,6 +12,7 @@ const RESULTS = {
   silver: { title: "Silver", logo: "Color", filter: "grayscale(1) brightness(1.3)" },
   bronze: { title: "Bronze", logo: "Bronze", filter: "none" },
   lost: { title: "Defeated", logo: "Grayscale", filter: "none" },
+  abandoned: { title: "Abandoned", logo: "Grayscale", filter: "none" },
 };
 
 function GameOver({ state }) {

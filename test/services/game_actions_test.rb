@@ -159,6 +159,18 @@ class GameActionsTest < ActiveSupport::TestCase
     20.times { refute_includes @game.draw_challenges(3), other }
   end
 
+  test "abandoning ends the game for everyone and leaves it out of the record" do
+    act.abandon!(@now)
+    @game.reload
+
+    assert @game.finished?
+    assert_equal "abandoned", @game.result
+    assert_nil @game.next_tick_at
+    assert_match "abandoned the game", @game.game_events.last.message
+    assert_raises(Games::Actions::Invalid) { act.abandon!(@now) }
+    assert_raises(Games::Actions::Invalid) { act.undo!(@now) }
+  end
+
   test "late joiners get a hand" do
     player = act(nil).join!("Wife")
     assert_equal 3, @game.reload.state_for(player.reload)[:me][:hand].size

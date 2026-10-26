@@ -40,4 +40,5 @@ export const RESULT_STYLES = {
   silver: "text-slate-200",
   bronze: "text-orange-400",
   lost: "text-red-400",
+  abandoned: "text-slate-400",
 };

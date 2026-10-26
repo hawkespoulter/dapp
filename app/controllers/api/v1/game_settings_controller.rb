@@ -14,7 +14,7 @@ class Api::V1::GameSettingsController < ApplicationController
       challenges: { counts: Challenge.group(:park).count.transform_keys { _1 || Challenge::ANYWHERE }, problem: },
       claims: { counts: ClaimChallenge.group(:park).count },
       presets: GamePreset.seeded,
-      record: finished.group(:preset, :result).count.each_with_object({}) { |((preset, result), n), all| (all[preset] ||= {})[result] = n },
+      record: finished.where.not(result: "abandoned").group(:preset, :result).count.each_with_object({}) { |((preset, result), n), all| (all[preset] ||= {})[result] = n },
       # Results by difficulty, then any old game lengths that have results.
       record_rows: (GamePreset::DIFFICULTIES.keys + (finished.distinct.pluck(:preset) - GamePreset::DIFFICULTIES.keys))
         .map { { key: _1, label: GamePreset.label_for(_1) } },

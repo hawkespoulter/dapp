@@ -20,6 +20,7 @@ import {
   useFailChallengeMutation,
   useSkipChallengeMutation,
   useForceVillainTurnMutation,
+  useAbandonGameMutation,
   useUsePowerUpMutation,
   useForecastDiscardMutation,
   useUpdateBalanceMutation,
@@ -51,6 +52,7 @@ function GameBoard({ state, refetch }) {
   const [place, placeStatus] = usePlaceCoinsMutation();
   const [undo, undoStatus] = useUndoChallengeMutation();
   const [forceTurn, forceTurnStatus] = useForceVillainTurnMutation();
+  const [abandon, abandonStatus] = useAbandonGameMutation();
   const [buyPower, powerStatus] = useUsePowerUpMutation();
   const [forecastDiscard, forecastStatus] = useForecastDiscardMutation();
   const [updateBalance] = useUpdateBalanceMutation();
@@ -66,6 +68,7 @@ function GameBoard({ state, refetch }) {
     powerStatus,
     forecastStatus,
     completeClaimStatus,
+    abandonStatus,
   ].some((s) => s.isLoading);
 
   useEffect(() => {
@@ -241,6 +244,20 @@ function GameBoard({ state, refetch }) {
           Make {villain.name} move now
         </button>
       </Section>
+
+      {me && (
+        <div className="mx-3 mt-8">
+          <button
+            className="w-full rounded-lg border border-red-900 py-2 text-sm text-red-400 disabled:opacity-40"
+            disabled={busy}
+            onClick={() =>
+              window.confirm("Abandon this game? It ends for everyone and can't be undone.") && run(abandon({ code }))
+            }
+          >
+            Abandon game
+          </button>
+        </div>
+      )}
     </div>
   );
 }

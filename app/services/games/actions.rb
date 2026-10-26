@@ -83,6 +83,20 @@ module Games
     end
 
     # For testing: the villain takes a turn right now. Her timer is unchanged.
+    # Ends a game nobody wants to finish. It's over for everyone, can't be
+    # undone, and doesn't count toward the win/loss record.
+    def abandon!(now = Time.current)
+      locked(now) do
+        raise Invalid, "This game is over" if game.finished?
+
+        game.status = "finished"
+        game.result = "abandoned"
+        game.next_tick_at = nil
+        game.log!("finished", "#{me.name} abandoned the game.", at: now, player: me, result: "abandoned")
+        game.save!
+      end
+    end
+
     def force_villain_turn!(now = Time.current)
       locked(now, playing: true) do
         VillainEngine.new(game).villain_turn(now)

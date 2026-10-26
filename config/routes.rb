@@ -38,6 +38,7 @@ Rails.application.routes.draw do
           post :undo
           post :place
           post :villain_turn
+          post :abandon
           post :power
           post :forecast
           patch :balance
