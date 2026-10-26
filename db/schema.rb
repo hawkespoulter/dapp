@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_10_11_000001) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_26_000001) do
   create_table "area_states", force: :cascade do |t|
     t.integer "game_id", null: false
     t.string "area", null: false
@@ -31,6 +31,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_11_000001) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "challenge_lists", force: :cascade do |t|
+    t.string "name", null: false
+    t.json "items", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_challenge_lists_on_name", unique: true
+  end
+
   create_table "challenges", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -42,6 +50,24 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_11_000001) do
     t.integer "list_count"
     t.index ["park"], name: "index_challenges_on_park"
     t.index ["title"], name: "index_challenges_on_title", unique: true
+  end
+
+  create_table "claim_challenges", force: :cascade do |t|
+    t.string "park", null: false
+    t.string "area", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["park", "area"], name: "index_claim_challenges_on_park_and_area"
+  end
+
+  create_table "content_seeds", force: :cascade do |t|
+    t.string "key", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_content_seeds_on_key", unique: true
   end
 
   create_table "game_events", force: :cascade do |t|

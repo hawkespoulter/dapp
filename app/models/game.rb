@@ -118,6 +118,7 @@ class Game < ApplicationRecord
   # The claim challenge up next in an area; the game takes turns through an
   # area's cards as they're attempted.
   def claim_card(area)
+    GameContent.ensure!
     cards = ClaimChallenge.cards(park, area)
     cards[rules.dig("claim_attempts", area).to_i % cards.size]
   end
@@ -161,7 +162,7 @@ class Game < ApplicationRecord
 
   # Draws challenge ids for a hand, avoiding cards already held or recently used.
   def draw_challenges(count)
-    Challenge.refresh
+    GameContent.ensure!
     held = players.flat_map(&:hand)
     pool = Challenge.for_park(park).where.not(id: held).select { _1.dealable_in?(park) }.map(&:id)
     fresh = pool - challenge_discard

@@ -60,10 +60,10 @@ class ChallengeListTest < ActiveSupport::TestCase
   test "a list that doesn't exist or is too short is a mistake" do
     missing = Challenge.new(title: "X", reward: 1, list_from: "nope", list_count: 3)
     refute missing.valid?
-    assert_match "lists/nope.yml doesn't exist", missing.errors.full_messages.to_sentence
+    assert_match "list nope doesn't exist", missing.errors.full_messages.to_sentence
 
     greedy = Challenge.new(title: "Y", reward: 1, list_from: "tree_of_life_animals", list_count: 500)
     refute greedy.valid?
-    assert_match "count is 500 but lists/tree_of_life_animals.yml only has", greedy.errors.full_messages.to_sentence
+    assert_match "count is 500 but list tree_of_life_animals only has", greedy.errors.full_messages.to_sentence
   end
 end

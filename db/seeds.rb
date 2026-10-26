@@ -1795,5 +1795,5 @@ Restaurant.create!([
 p "Created #{Attraction.count} Attractions"
 p "Created #{Show.count} Shows"
 p "Created #{Restaurant.count} Restaurants"
-Challenge.sync!
-p "Loaded #{Challenge.count} park game challenges from config/game/challenges"
+GameContent.seed!
+p "Loaded #{Challenge.count} park game challenges"

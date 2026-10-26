@@ -26,7 +26,7 @@ const action = (builder, path, method, body = () => undefined) =>
 const gameApi = createApi({
   reducerPath: "gameApi",
   baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
-  tagTypes: ["GameSettings"],
+  tagTypes: ["GameSettings", "GameContent"],
   endpoints(builder) {
     return {
       fetchGameParks: builder.query({
@@ -48,6 +48,20 @@ const gameApi = createApi({
       resetGameSettings: builder.mutation({
         invalidatesTags: ["GameSettings"],
         query: (key) => ({ url: `/game_settings/${key}/reset`, method: "POST" }),
+      }),
+      fetchGameContent: builder.query({
+        providesTags: ["GameContent"],
+        query: (park) => ({ url: "/game_content", params: { park } }),
+      }),
+      // kind is challenges, claim_challenges or challenge_lists; with an id
+      // it's an edit.
+      saveContent: builder.mutation({
+        invalidatesTags: ["GameContent", "GameSettings"],
+        query: ({ kind, id, body }) => ({ url: id ? `/${kind}/${id}` : `/${kind}`, method: id ? "PATCH" : "POST", body }),
+      }),
+      deleteContent: builder.mutation({
+        invalidatesTags: ["GameContent", "GameSettings"],
+        query: ({ kind, id }) => ({ url: `/${kind}/${id}`, method: "DELETE" }),
       }),
       fetchGame: builder.query({
         query: (code) => ({ url: `/games/${code}`, headers: withToken(code) }),
@@ -79,6 +93,9 @@ export const {
   useFetchGameParksQuery,
   useFetchGameSettingsQuery,
   useFetchFinishedGamesQuery,
+  useFetchGameContentQuery,
+  useSaveContentMutation,
+  useDeleteContentMutation,
   useUpdateGameSettingsMutation,
   useResetGameSettingsMutation,
   useFetchGameQuery,

@@ -39,6 +39,7 @@ class VoldemortTest < ActiveSupport::TestCase
 
   test "its challenges and claim cards load" do
     assert_operator Challenge.for_park("Wizarding World").count, :>=, 6
+    GameContent.seed_claims(GameContent::CLAIMS_DIR, Set.new)
     assert_equal "Gringotts Doors", ClaimChallenge.cards("Wizarding World", "Diagon Alley").first.title
   end
 end

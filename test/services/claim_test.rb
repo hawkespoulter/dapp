@@ -8,12 +8,13 @@ class ClaimTest < ActiveSupport::TestCase
     @game, @host = start_game(park: "Magic Kingdom")
     @game.update!(villain_draw: [])
     neutral_board!(@game)
+    GameContent.seed_claims(GameContent::CLAIMS_DIR, Set.new)
     @now = @game.started_at + 1.minute
   end
 
   def act = Games::Actions.new(@game, @host)
 
-  test "each area's claim challenge comes from the park's claims file" do
+  test "each area's claim challenge comes from the claim cards" do
     card = @game.claim_card("Liberty Square")
     assert_equal "Let Freedom Ring", card.title
 
@@ -47,9 +48,9 @@ class ClaimTest < ActiveSupport::TestCase
     assert_equal "Stake your claim", card.title
   end
 
-  test "claims file mistakes are reported, not raised" do
-    summary = ClaimChallenge.summary
-    assert_nil summary[:problem]
-    assert_equal 6, summary[:counts]["Magic Kingdom"]
+  test "claim cards are edited in the app" do
+    ClaimChallenge.where(park: "Magic Kingdom", area: "Liberty Square").delete_all
+    ClaimChallenge.create!(park: "Magic Kingdom", area: "Liberty Square", title: "Ring the bell")
+    assert_equal "Ring the bell", @game.claim_card("Liberty Square").title
   end
 end

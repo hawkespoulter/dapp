@@ -67,27 +67,26 @@ function ChallengeFile({ challenges, claims }) {
   const counts = Object.entries(challenges.counts);
   const claimCounts = Object.entries(claims?.counts || {});
   return (
-    <div className={section}>
-      <h2 className="mb-1 text-lg font-bold">Challenges</h2>
+    <Link to="/game/challenges" className={`${section} block`}>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold">Challenges</h2>
+        <span className="flex items-center gap-1 text-sm text-sky-400">
+          Edit <ChevronRightIcon />
+        </span>
+      </div>
       <p className="text-sm text-slate-400">
-        Loaded: {counts.map(([group, n]) => `${n} ${group}`).join(" · ") || "none yet"}
+        Hand: {counts.map(([group, n]) => `${n} ${group}`).join(" · ") || "none yet"}
       </p>
       <p className="text-sm text-slate-400">
-        Claim challenges: {claimCounts.map(([park, n]) => `${n} ${park}`).join(" · ") || "none yet"}
+        Claim: {claimCounts.map(([park, n]) => `${n} ${park}`).join(" · ") || "none yet"}
       </p>
-      {claims?.problem && (
-        <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-red-950 p-2 text-xs text-red-200">
-          {claims.problem}
-          {"\n\n"}Areas in that file use a stand-in claim challenge until this is fixed.
-        </pre>
-      )}
       {challenges.problem && (
         <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-red-950 p-2 text-xs text-red-200">
           {challenges.problem}
-          {"\n\n"}Games keep using the last good version until this is fixed.
+          {"\n\n"}These entries from the files weren&apos;t added yet. Everything else is in play.
         </pre>
       )}
-    </div>
+    </Link>
   );
 }
 

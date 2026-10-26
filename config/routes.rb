@@ -13,6 +13,17 @@ Rails.application.routes.draw do
 
       get '/game_parks', to: 'games#parks'
       get '/finished_games', to: 'game_settings#finished'
+      get '/game_content', to: 'game_content#index'
+      get '/game_content/export', to: 'game_content#export'
+      post '/challenges', to: 'game_content#create_challenge'
+      patch '/challenges/:id', to: 'game_content#update_challenge'
+      delete '/challenges/:id', to: 'game_content#destroy_challenge'
+      post '/claim_challenges', to: 'game_content#create_claim'
+      patch '/claim_challenges/:id', to: 'game_content#update_claim'
+      delete '/claim_challenges/:id', to: 'game_content#destroy_claim'
+      post '/challenge_lists', to: 'game_content#create_list'
+      patch '/challenge_lists/:id', to: 'game_content#update_list'
+      delete '/challenge_lists/:id', to: 'game_content#destroy_list'
       resources :game_settings, only: %i[ index update ], param: :key do
         post :reset, on: :member
       end
