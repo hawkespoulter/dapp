@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       get '/game_parks', to: 'games#parks'
       get '/finished_games', to: 'game_settings#finished'
       get '/game_content', to: 'game_content#index'
+      resources :bug_reports, only: %i[index create update destroy]
       get '/game_content/export', to: 'game_content#export'
       post '/challenges', to: 'game_content#create_challenge'
       patch '/challenges/:id', to: 'game_content#update_challenge'

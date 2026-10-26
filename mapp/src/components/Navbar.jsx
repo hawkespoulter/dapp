@@ -2,6 +2,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FlagIcon from '@mui/icons-material/Flag';
 import { Link } from "react-router-dom";
+import BugList from "./BugList";
 
 function Navbar() {
   return (
@@ -18,6 +19,7 @@ function Navbar() {
       <Link to="/attractions">Rides</Link>
       <Link to="/shows">Shows</Link>
       <Link to="/restaurants">Restaurants</Link>
+      <BugList />
     </div>
   );
 }

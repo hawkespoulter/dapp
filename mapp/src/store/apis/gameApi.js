@@ -26,7 +26,7 @@ const action = (builder, path, method, body = () => undefined) =>
 const gameApi = createApi({
   reducerPath: "gameApi",
   baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
-  tagTypes: ["GameSettings", "GameContent"],
+  tagTypes: ["GameSettings", "GameContent", "Bugs"],
   endpoints(builder) {
     return {
       fetchGameParks: builder.query({
@@ -63,6 +63,18 @@ const gameApi = createApi({
         invalidatesTags: ["GameContent", "GameSettings"],
         query: ({ kind, id }) => ({ url: `/${kind}/${id}`, method: "DELETE" }),
       }),
+      fetchBugs: builder.query({
+        providesTags: ["Bugs"],
+        query: () => "/bug_reports",
+      }),
+      saveBug: builder.mutation({
+        invalidatesTags: ["Bugs"],
+        query: ({ id, ...bug }) => ({ url: id ? `/bug_reports/${id}` : "/bug_reports", method: id ? "PATCH" : "POST", body: { bug } }),
+      }),
+      deleteBug: builder.mutation({
+        invalidatesTags: ["Bugs"],
+        query: (id) => ({ url: `/bug_reports/${id}`, method: "DELETE" }),
+      }),
       fetchGame: builder.query({
         query: (code) => ({ url: `/games/${code}`, headers: withToken(code) }),
       }),
@@ -94,6 +106,9 @@ export const {
   useFetchGameSettingsQuery,
   useFetchFinishedGamesQuery,
   useFetchGameContentQuery,
+  useFetchBugsQuery,
+  useSaveBugMutation,
+  useDeleteBugMutation,
   useSaveContentMutation,
   useDeleteContentMutation,
   useUpdateGameSettingsMutation,

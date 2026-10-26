@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_10_26_000001) do
+ActiveRecord::Schema[7.1].define(version: 2026_10_26_000002) do
   create_table "area_states", force: :cascade do |t|
     t.integer "game_id", null: false
     t.string "area", null: false
@@ -27,6 +27,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_10_26_000001) do
     t.string "park"
     t.string "area"
     t.boolean "completed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "bug_reports", force: :cascade do |t|
+    t.text "note", null: false
+    t.string "page"
+    t.datetime "fixed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
