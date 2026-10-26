@@ -62,9 +62,10 @@ function BugPanel({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex justify-end bg-black/60" onClick={onClose} role="presentation">
+    // Full screen on phones; a drawer from the right on wider screens.
+    <div className="fixed inset-0 z-[60] flex justify-end sm:bg-black/60" onClick={onClose} role="presentation">
       <div
-        className="flex h-full w-full max-w-sm flex-col gap-3 overflow-y-auto bg-slate-800 p-4 font-normal text-white shadow-xl"
+        className="flex h-full w-full flex-col gap-3 overflow-y-auto bg-slate-800 p-4 pt-[max(1rem,env(safe-area-inset-top))] font-normal text-white shadow-xl sm:max-w-sm"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
