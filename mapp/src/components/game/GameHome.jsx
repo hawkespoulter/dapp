@@ -49,15 +49,21 @@ function NewGameForm() {
   const [park, setPark] = useState("");
   const [preset, setPreset] = useState("full_day");
   const [days, setDays] = useState(3);
+  const [hours, setHours] = useState({});
 
   const parks = data?.parks || [];
   const chosenPark = park || parks[0]?.park;
   const villain = parks.find((p) => p.park === chosenPark)?.villain;
+  // Timed presets (Sprint, Full Day) start at their usual length; the host
+  // can change it for this game.
+  const presetHours = (data?.presets || []).find((p) => p.key === preset)?.hours;
+  const chosenHours = hours[preset] ?? presetHours;
 
   const submit = async (event) => {
     event.preventDefault();
     const rules = {};
     if (preset === "multi_day") rules.days = days;
+    if (presetHours && chosenHours) rules.hours = chosenHours;
     try {
       const { token, state } = await createGame({ name: name.trim(), park: chosenPark, preset, rules }).unwrap();
       savePlayer(state.game.code, token, name.trim(), state.game.park);
@@ -99,6 +105,21 @@ function NewGameForm() {
           </button>
         ))}
       </div>
+      {presetHours && (
+        <label className={label}>
+          Hours
+          <input
+            className={`${input} mt-1`}
+            type="number"
+            inputMode="decimal"
+            min={1}
+            max={72}
+            step={0.5}
+            value={chosenHours ?? ""}
+            onChange={(e) => setHours({ ...hours, [preset]: e.target.value })}
+          />
+        </label>
+      )}
       {preset === "multi_day" && (
         <label className={label}>
           Days (9am–9pm each day)

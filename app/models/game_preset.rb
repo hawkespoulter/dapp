@@ -7,7 +7,7 @@ class GamePreset < ApplicationRecord
 
   # Every tunable setting: what it means and the values it may take.
   FIELDS = {
-    "hours" => { label: "Game length (hours)", range: 1..72 },
+    "hours" => { label: "Game length (hours)", range: 1..72, step: 0.5 },
     "days" => { label: "Days", range: 1..14 },
     "day_start" => { label: "Each day starts", time: true },
     "day_end" => { label: "Each day ends", time: true },
@@ -72,7 +72,8 @@ class GamePreset < ApplicationRecord
     changes.to_h.slice(*allowed).to_h do |field, value|
       spec = FIELDS[field] || {}
       value =
-        if spec[:range] then value.to_s.strip.then { Integer(_1, exception: false) || _1 }
+        if spec[:step] then value.to_s.strip.then { Float(_1, exception: false)&.then { |f| f % 1 == 0 ? f.to_i : f } || _1 }
+        elsif spec[:range] then value.to_s.strip.then { Integer(_1, exception: false) || _1 }
         elsif spec[:boolean] then ActiveModel::Type::Boolean.new.cast(value)
         else value.to_s.strip
         end
@@ -86,7 +87,11 @@ class GamePreset < ApplicationRecord
     problems << "Settings need a label" if settings["label"].blank?
     settings.each do |field, value|
       spec = FIELDS[field] or next
-      if spec[:range] && !(value.is_a?(Integer) && spec[:range].cover?(value))
+      if spec[:step]
+        unless value.is_a?(Numeric) && spec[:range].cover?(value) && (value / spec[:step]) % 1 == 0
+          problems << "#{spec[:label]} must be from #{spec[:range].min} to #{spec[:range].max}, in steps of #{spec[:step]}"
+        end
+      elsif spec[:range] && !(value.is_a?(Integer) && spec[:range].cover?(value))
         problems << "#{spec[:label]} must be a whole number from #{spec[:range].min} to #{spec[:range].max}"
       elsif spec[:boolean] && ![true, false].include?(value)
         problems << "#{spec[:label]} must be on or off"
@@ -105,7 +110,7 @@ class GamePreset < ApplicationRecord
     FIELDS.filter_map do |field, spec|
       next unless keys.include?(field)
 
-      spec.except(:range).merge(key: field, min: spec[:range]&.min, max: spec[:range]&.max)
+      spec.except(:range).merge(key: field, min: spec[:range]&.min, max: spec[:range]&.max, step: spec[:step])
     end
   end
 

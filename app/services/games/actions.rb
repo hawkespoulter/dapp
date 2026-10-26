@@ -22,6 +22,11 @@ module Games
       villain = Villains.for_park(park) or raise Invalid, "#{park} doesn't have a villain yet"
       Game.transaction do
         preset_settings = GamePreset.for(preset).settings.merge(rules.slice("days", "day_start", "day_end"))
+        if rules["hours"].present? && preset_settings.key?("hours")
+          preset_settings = preset_settings.merge(GamePreset.coerce({ "hours" => rules["hours"] }, ["hours"]))
+          problems = GamePreset.problems(preset_settings)
+          raise Invalid, problems.to_sentence if problems.any?
+        end
         game = Game.create!(park:, preset:, villain_key: villain.key,
                             rules: { "settings" => preset_settings })
         game.board.areas.each { game.area_states.create!(area: _1) }

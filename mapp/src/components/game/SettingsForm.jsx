@@ -79,9 +79,10 @@ function SettingsForm({ id, fields, settings, defaults, note, onSave, onReset })
                   id={`${id}-${field.key}`}
                   className={input}
                   type={field.time ? "time" : "number"}
-                  inputMode={field.time ? undefined : "numeric"}
+                  inputMode={field.time ? undefined : field.step ? "decimal" : "numeric"}
                   min={field.min}
                   max={field.max}
+                  step={field.step || undefined}
                   value={values[field.key] ?? ""}
                   onChange={(e) => edit(field.key, e.target.value)}
                 />
