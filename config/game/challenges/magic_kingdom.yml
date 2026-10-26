@@ -11,3 +11,31 @@
 - title: Kidney Stone Cure
   description: Ride Big Thunder Mountain twice in a row.
   reward: 3
+
+- title: Star Command
+  description: Personally score over 300,000 on Buzz Lightyear's Space Ranger Spin.
+  reward: 4
+
+- title: Hitchhikers
+  description: Ride the Haunted Mansion and, before you get off, name all three hitchhiking ghosts (Ezra, Phineas and Gus) out loud.
+  reward: 2
+
+- title: Yo ho
+  description: Sing along to "Yo Ho (A Pirate's Life for Me)" through the whole Pirates of the Caribbean ride.
+  reward: 2
+
+- title: End of line
+  description: Ride TRON Lightcycle / Run.
+  reward: 6
+
+- title: Hi-ho
+  description: Ride Seven Dwarfs Mine Train.
+  reward: 5
+
+- title: Cinderella's horse
+  description: Find Cinderella's horse on Prince Charming Regal Carrousel (the one with the gold ribbon on its tail) and ride it.
+  reward: 3
+
+- title: Float wave
+  description: During a parade, wave at a character on a float and get a wave back.
+  reward: 3
