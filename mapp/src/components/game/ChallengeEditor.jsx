@@ -292,7 +292,7 @@ function Lists({ data }) {
       )}
       {data.photo_lists.length > 0 && (
         <p className="mt-2 text-xs text-slate-500">
-          Photo lists ({data.photo_lists.join(", ")}) are still edited in the files.
+          Per-park lists ({data.photo_lists.join(", ")}) are still edited in the files.
         </p>
       )}
     </div>

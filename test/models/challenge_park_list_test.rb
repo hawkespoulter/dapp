@@ -46,7 +46,7 @@ class ChallengeParkListTest < ActiveSupport::TestCase
       refute challenge.valid?
       messages = challenge.errors.full_messages.to_sentence
       assert_match "lists/geoguessr/narnia.yml isn't named for a park", messages
-      assert_match "lists/geoguessr/epcot.yml item 1 is a photo without an image", messages
+      assert_match "lists/geoguessr/epcot.yml item 1 needs an image: link or text:", messages
     end
   end
 

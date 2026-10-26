@@ -1,0 +1,9 @@
+# Rides for "Date a ride": the card shows the ride, and Reveal shows the
+# year this version of it opened. Rides that were renamed or rebuilt in a
+# way that makes the year debatable are left out.
+
+- {text: "Harry Potter and the Forbidden Journey", answer: "2010"}
+- {text: "Harry Potter and the Escape from Gringotts", answer: "2014"}
+- {text: "Hagrid's Magical Creatures Motorbike Adventure", answer: "2019"}
+- {text: "Hogwarts Express", answer: "2014"}
+- {text: "Flight of the Hippogriff", answer: "2010"}

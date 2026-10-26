@@ -32,3 +32,8 @@
   description: During Mickey's PhilharMagic, everyone has to notice this effect.
   list: {from: philharmagic_effects, count: 1}
   reward: 2
+
+- title: Presidential roll call
+  description: In The Hall of Presidents, correctly spot each of these presidents. You may use your phone.
+  list: {from: presidents, count: 5}
+  reward: 3

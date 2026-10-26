@@ -87,7 +87,8 @@ class Challenge < ApplicationRecord
   end
 
   # The items this challenge deals from in a park: an edited list from the
-  # database, or a file (photos: {image:, credit:, answer:}).
+  # database, or a file (photos: {image:, credit:, answer:}; text with a
+  # hidden answer: {text:, answer:}).
   def list_items(in_park = park)
     stored = ChallengeList.find_by(name: list_from)&.items
     return stored if stored
@@ -162,7 +163,7 @@ class Challenge < ApplicationRecord
     if items.size < list_count
       errors.add(:list, "count is #{list_count} but #{label} only has #{items.size} item#{'s' unless items.size == 1}")
     end
-    bad = items.index { _1.is_a?(Hash) && _1["image"].blank? }
-    errors.add(:list, "#{label} item #{bad + 1} is a photo without an image: link") if bad
+    bad = items.index { _1.is_a?(Hash) && _1["image"].blank? && _1["text"].blank? }
+    errors.add(:list, "#{label} item #{bad + 1} needs an image: link or text:") if bad
   end
 end

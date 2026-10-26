@@ -1,0 +1,16 @@
+# Rides for "Date a ride": the card shows the ride, and Reveal shows the
+# year this version of it opened. Rides that were renamed or rebuilt in a
+# way that makes the year debatable are left out.
+
+- {text: "The Twilight Zone Tower of Terror", answer: "1994"}
+- {text: "Star Tours – The Adventures Continue", answer: "2011"}
+- {text: "Toy Story Mania!", answer: "2008"}
+- {text: "Slinky Dog Dash", answer: "2018"}
+- {text: "Alien Swirling Saucers", answer: "2018"}
+- {text: "Millennium Falcon: Smugglers Run", answer: "2019"}
+- {text: "Star Wars: Rise of the Resistance", answer: "2019"}
+- {text: "Mickey & Minnie's Runaway Railway", answer: "2020"}
+- {text: "Indiana Jones Epic Stunt Spectacular!", answer: "1989"}
+- {text: "Beauty and the Beast – Live on Stage", answer: "1991"}
+- {text: "Fantasmic!", answer: "1998"}
+- {text: "For the First Time in Forever: A Frozen Sing-Along Celebration", answer: "2014"}

@@ -1,6 +1,6 @@
 # Epcot challenges. See README.md for the fields.
 # Not playable yet: these are dealt once the park has a board and a villain.
 
-# - title:
-#   description:
-#   reward: 1
+- title: It's five o'clock somewhere
+  description: Without your phone, guess what time it is right now (to the hour) in the country of the World Showcase pavilion you're standing in. If you're wrong, you may try again at a different pavilion.
+  reward: 2

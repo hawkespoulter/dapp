@@ -1,0 +1,19 @@
+# Rides for "Date a ride": the card shows the ride, and Reveal shows the
+# year this version of it opened. Rides that were renamed or rebuilt in a
+# way that makes the year debatable are left out.
+
+- {text: "Spaceship Earth", answer: "1982"}
+- {text: "Soarin'", answer: "2005"}
+- {text: "Guardians of the Galaxy: Cosmic Rewind", answer: "2022"}
+- {text: "Mission: SPACE", answer: "2003"}
+- {text: "Frozen Ever After", answer: "2016"}
+- {text: "Remy's Ratatouille Adventure", answer: "2021"}
+- {text: "Gran Fiesta Tour Starring The Three Caballeros", answer: "2007"}
+- {text: "The Seas with Nemo & Friends", answer: "2007"}
+- {text: "Turtle Talk with Crush", answer: "2004"}
+- {text: "Journey into Imagination with Figment", answer: "2002"}
+- {text: "The American Adventure", answer: "1982"}
+- {text: "Reflections of China", answer: "2003"}
+- {text: "Impressions de France", answer: "1982"}
+- {text: "Canada Far and Wide", answer: "2020"}
+- {text: "Journey of Water, Inspired by Moana", answer: "2023"}

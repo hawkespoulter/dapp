@@ -25,9 +25,28 @@ function Photo({ photo }) {
   );
 }
 
+// Text with a hidden answer (e.g. a ride and the year it opened): guess,
+// then tap Reveal.
+function Fact({ fact }) {
+  const [shown, setShown] = useState(false);
+  return (
+    <div className="mt-2 flex items-center justify-between gap-2 rounded-lg bg-slate-900 px-3 py-2">
+      <span className="font-bold">{fact.text}</span>
+      {shown ? (
+        <span className="text-lg font-black text-amber-300">{fact.answer}</span>
+      ) : (
+        <button type="button" className="text-sm font-bold text-sky-400" onClick={() => setShown(true)}>
+          Reveal
+        </button>
+      )}
+    </div>
+  );
+}
+
 function HandCard({ card, busy, onComplete, onFail, onSkip }) {
   const items = card.list || [];
-  const photos = items.filter((item) => typeof item === "object");
+  const photos = items.filter((item) => typeof item === "object" && item.image);
+  const facts = items.filter((item) => typeof item === "object" && !item.image);
   const words = items.filter((item) => typeof item === "string");
 
   return (
@@ -43,6 +62,9 @@ function HandCard({ card, busy, onComplete, onFail, onSkip }) {
           appear when the card is failed (see AnswerPopup). */}
       {photos.map((photo) => (
         <Photo key={photo.image} photo={photo} />
+      ))}
+      {facts.map((fact) => (
+        <Fact key={fact.text} fact={fact} />
       ))}
       {words.length > 0 && (
         <ul className="mt-2 grid list-disc grid-cols-2 gap-x-4 pl-5 text-sm text-slate-200">
@@ -89,3 +111,4 @@ HandCard.propTypes = {
   onSkip: PropTypes.func.isRequired,
 };
 Photo.propTypes = { photo: PropTypes.object.isRequired };
+Fact.propTypes = { fact: PropTypes.object.isRequired };

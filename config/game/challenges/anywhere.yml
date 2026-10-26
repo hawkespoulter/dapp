@@ -51,3 +51,24 @@
 - title: Blind taste test
   description: One teammate secretly buys a snack. Another teammate must correctly identify it with their eyes closed.
   reward: 2
+
+- title: Date a ride
+  description: Guess the year this ride opened, without your phone. You must be within 3 years. Tap Reveal once you've guessed.
+  list: {from: ride_openings, count: 1}
+  reward: 3
+
+- title: Find each other
+  description: Split up for 5 minutes, then find each other within 10 minutes. No phones, and no planning where to meet.
+  reward: 4
+
+- title: Spot an influencer
+  description: Spot an influencer. They must be actively filming.
+  reward: 2
+
+- title: Coaster portrait
+  description: Photograph a moving roller coaster with the nose of the train in frame. Stand perpendicular to the track, as close as you can get.
+  reward: 3
+
+- title: Ride a mile of coasters
+  description: Ride roller coasters until you've covered 1 mile of track in total. You may look up track lengths.
+  reward: 8

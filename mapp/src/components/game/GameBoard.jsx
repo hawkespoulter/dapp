@@ -76,7 +76,7 @@ function GameBoard({ state, refetch }) {
 
   // Failing a photo card reveals where the photos were taken.
   const failCard = (card) => {
-    const photos = (card.list || []).filter((item) => typeof item === "object");
+    const photos = (card.list || []).filter((item) => typeof item === "object" && item.image);
     fail({ code, challengeId: card.id })
       .unwrap()
       .then(() => photos.length > 0 && setAnswers(photos))
