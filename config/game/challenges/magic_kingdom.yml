@@ -29,6 +29,6 @@
   reward: 3
 
 - title: Sensory overload
-  description: During Mickey's PhilharMagic, everyone has to notice both of these effects.
-  list: {from: philharmagic_effects, count: 2}
+  description: During Mickey's PhilharMagic, everyone has to notice this effect.
+  list: {from: philharmagic_effects, count: 1}
   reward: 2
