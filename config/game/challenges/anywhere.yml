@@ -44,3 +44,6 @@
 - title: Focus
   description: Close your eyes on a ride. After 30 seconds correctly identify where you are on the ride. 
   reward: 2
+- title: Hide and Seek
+  description: One player rolls a number from 1 to 5 and hides. The rest of the team has that many minutes to find them.
+  reward: 3
