@@ -47,3 +47,7 @@
 - title: Hide and Seek
   description: One player rolls a number from 1 to 5 and hides. The rest of the team has that many minutes to find them.
   reward: 3
+
+- title: Blind taste test
+  description: One teammate secretly buys a snack. Another teammate must correctly identify it with their eyes closed.
+  reward: 2
