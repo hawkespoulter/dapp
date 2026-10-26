@@ -1,4 +1,4 @@
-# The Game settings page: tune each preset's balance and see the win/loss
+# The Game settings page: tune the game's balance and see the win/loss
 # record. Finished games (with the settings they were played under) have
 # their own paged list.
 class Api::V1::GameSettingsController < ApplicationController
@@ -15,6 +15,9 @@ class Api::V1::GameSettingsController < ApplicationController
       claims: { counts: ClaimChallenge.group(:park).count },
       presets: GamePreset.seeded,
       record: finished.group(:preset, :result).count.each_with_object({}) { |((preset, result), n), all| (all[preset] ||= {})[result] = n },
+      # Results by difficulty, then any old game lengths that have results.
+      record_rows: (GamePreset::DIFFICULTIES.keys + (finished.distinct.pluck(:preset) - GamePreset::DIFFICULTIES.keys))
+        .map { { key: _1, label: GamePreset.label_for(_1) } },
       finished_count: finished.count,
     }
   end

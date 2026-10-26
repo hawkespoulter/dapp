@@ -39,8 +39,8 @@ class VillainEngineTest < ActiveSupport::TestCase
     assert starts.uniq.size > 1
   end
 
-  test "a Sprint has 2 Villain Risings by default" do
-    assert_equal 2, GamePreset.for("sprint").settings["risings"]
+  test "a game has 2 Villain Risings by default" do
+    assert_equal 2, GamePreset.standard.settings["risings"]
   end
 
   test "when the deck runs out, the Risings are shuffled back in, spread out again" do
@@ -70,11 +70,11 @@ class VillainEngineTest < ActiveSupport::TestCase
   end
 
   test "starting sets up the deck, clock and hands" do
-    # Full Day's 4 Risings, plus Maleficent's 2 extra
-    assert_equal 12 + 6, @game.villain_draw.size
-    assert_equal 6, @game.villain_draw.count("rising")
+    # The game's 2 Risings, plus Maleficent's 2 extra
+    assert_equal 12 + 4, @game.villain_draw.size
+    assert_equal 4, @game.villain_draw.count("rising")
     assert_equal @game.started_at + @game.tick_seconds, @game.next_tick_at
-    assert_equal @game.started_at + 10.hours, @game.ends_at
+    assert_equal @game.started_at + 3.hours, @game.ends_at
     assert_equal 3, @host.hand.size
   end
 
@@ -251,7 +251,7 @@ class VillainEngineTest < ActiveSupport::TestCase
 
     assert_includes rules.first, "every #{@game.settings['tick_minutes']} minutes, and if you fail a challenge"
     assert_includes rules.fourth, "at #{@game.outbreak_at} or more"
-    assert_includes rules.fifth, "hides 6 Villain Rising cards. Each one makes the villain play one more card per turn."
+    assert_includes rules.fifth, "hides 4 Villain Rising cards. Each one makes the villain play one more card per turn."
     assert_includes rules.fifth, "Risings included, is shuffled back in"
 
     @game.rules = @game.rules.merge("settings" => @game.settings.merge("risings" => 0))

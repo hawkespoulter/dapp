@@ -28,7 +28,7 @@ class PowerUpsTest < ActiveSupport::TestCase
     @game.update!(rules: @game.rules.merge("settings" => @game.settings.except("price_stall")))
     act.use_power!("stall", now: @now)
 
-    assert_equal 20 - GamePreset::DEFAULTS["full_day"]["price_stall"], @game.reload.coins
+    assert_equal 20 - GamePreset::DEFAULTS["standard"]["price_stall"], @game.reload.coins
   end
 
   test "Forecast shows the next three cards and throws away the one you pick" do

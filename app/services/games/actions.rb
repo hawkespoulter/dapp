@@ -18,17 +18,15 @@ module Games
       "redraw" => "Redraw", "double_down" => "Double Down", "safety_net" => "Safety Net"
     }.freeze
 
-    def self.create!(park:, preset:, host_name:, rules: {})
+    def self.create!(park:, difficulty:, host_name:, rules: {})
       villain = Villains.for_park(park) or raise Invalid, "#{park} doesn't have a villain yet"
       Game.transaction do
-        preset_settings = GamePreset.for(preset).settings.merge(rules.slice("days", "day_start", "day_end"))
-        if rules["hours"].present? && preset_settings.key?("hours")
-          preset_settings = preset_settings.merge(GamePreset.coerce({ "hours" => rules["hours"] }, ["hours"]))
-          problems = GamePreset.problems(preset_settings)
-          raise Invalid, problems.to_sentence if problems.any?
-        end
-        game = Game.create!(park:, preset:, villain_key: villain.key,
-                            rules: { "settings" => preset_settings })
+        settings = GamePreset.for_game(difficulty, hours: rules["hours"])
+        problems = GamePreset.problems(settings)
+        raise Invalid, problems.to_sentence if problems.any?
+
+        game = Game.create!(park:, preset: difficulty, villain_key: villain.key,
+                            rules: { "settings" => settings })
         game.board.areas.each { game.area_states.create!(area: _1) }
         host = game.players.create!(name: host_name, host: true)
         game.log!("joined", "#{host.name} created the game.", player: host)

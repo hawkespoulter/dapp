@@ -1,13 +1,24 @@
-# A game length preset (Sprint, Full Day, Multi-day) and its balance
-# settings, tuned from the Game settings page. Defaults come from
-# config/game/presets.yml. Each game copies its preset's settings when it's
-# created, so changing a preset never affects a game already being played.
+# The game's balance settings, tuned from the Game settings page. Defaults
+# come from config/game/presets.yml. There's one preset ("standard"); the
+# host picks the length and a difficulty, which sets how often the villain
+# moves. Each game copies the settings when it's created, so changing them
+# never affects a game already being played.
 class GamePreset < ApplicationRecord
   DEFAULTS = YAML.load_file(Rails.root.join("config/game/presets.yml")).freeze
 
+  STANDARD = "standard".freeze
+  # How fast the villain moves; each has its own minutes setting.
+  DIFFICULTIES = { "easy" => "Easy", "normal" => "Normal", "hard" => "Hard" }.freeze
+  DIFFICULTY_FIELDS = DIFFICULTIES.keys.map { "#{_1}_minutes" }.freeze
+  # Game lengths from before there was one game type; old games keep them.
+  OLD_LENGTHS = { "sprint" => "Sprint", "full_day" => "Full Day", "multi_day" => "Multi-day" }.freeze
+
   # Every tunable setting: what it means and the values it may take.
   FIELDS = {
-    "hours" => { label: "Game length (hours)", range: 1..72, step: 0.5 },
+    "hours" => { label: "Default game length (hours)", range: 1..72, step: 0.5 },
+    "easy_minutes" => { label: "Easy: villain moves every (minutes)", range: 1..240 },
+    "normal_minutes" => { label: "Normal: villain moves every (minutes)", range: 1..240 },
+    "hard_minutes" => { label: "Hard: villain moves every (minutes)", range: 1..240 },
     "days" => { label: "Days", range: 1..14 },
     "day_start" => { label: "Each day starts", time: true },
     "day_end" => { label: "Each day ends", time: true },
@@ -28,7 +39,7 @@ class GamePreset < ApplicationRecord
   }.freeze
   # Settings that can still change once a game is under way. The others set
   # the game up (the split, the villain deck, multi-day windows).
-  LIVE_FIELDS = (FIELDS.keys - %w[days day_start day_end starting_strength risings shared_hand]).freeze
+  LIVE_FIELDS = (FIELDS.keys - %w[days day_start day_end starting_strength risings shared_hand] - DIFFICULTY_FIELDS).freeze
 
   validates :key, presence: true, uniqueness: true
   validate :settings_in_range
@@ -45,7 +56,8 @@ class GamePreset < ApplicationRecord
   # keeping them in step with it: settings the file has gained are added and
   # ones it dropped are removed, without touching values that were tuned.
   def self.seeded
-    seed_defaults! unless exists?
+    where.not(key: DEFAULTS.keys).delete_all # the old Sprint / Full Day / Multi-day
+    seed_defaults! if DEFAULTS.keys.any? { !exists?(key: _1) }
     all.each do |preset|
       defaults = DEFAULTS.fetch(preset.key, {})
       synced = defaults.merge(preset.settings.slice(*defaults.keys))
@@ -55,7 +67,25 @@ class GamePreset < ApplicationRecord
   end
 
   def self.for(key)
-    seeded.find_by(key:) or raise ArgumentError, "Unknown game length #{key}"
+    seeded.find_by(key:) or raise ArgumentError, "Unknown settings #{key}"
+  end
+
+  def self.standard
+    self.for(STANDARD)
+  end
+
+  # What a new game starts with: the settings, with the villain's pace for
+  # this difficulty and the host's length.
+  def self.for_game(difficulty, hours: nil)
+    label = DIFFICULTIES.fetch(difficulty) { raise ArgumentError, "Pick Easy, Normal or Hard" }
+    settings = standard.settings
+    snapshot = settings.except(*DIFFICULTY_FIELDS).merge("label" => label, "tick_minutes" => settings["#{difficulty}_minutes"])
+    snapshot = snapshot.merge(coerce({ "hours" => hours }, ["hours"])) if hours.present?
+    snapshot
+  end
+
+  def self.label_for(key)
+    DIFFICULTIES[key] || OLD_LENGTHS[key] || key
   end
 
   def self.keys

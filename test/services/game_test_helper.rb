@@ -8,8 +8,8 @@ module GameTestHelper
     base.setup { travel_to START - 1.minute }
   end
 
-  def start_game(preset: "full_day", rules: {}, at: START, seed: 1, park: "Magic Kingdom")
-    game, host = Games::Actions.create!(park:, preset:, host_name: "Hawkes", rules:)
+  def start_game(difficulty: "normal", rules: {}, at: START, seed: 1, park: "Magic Kingdom")
+    game, host = Games::Actions.create!(park:, difficulty:, host_name: "Hawkes", rules:)
     game.rng = Random.new(seed)
     Games::Actions.new(game, host).start!(at)
     [game, host.reload]

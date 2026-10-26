@@ -5,7 +5,7 @@ class SharedHandTest < ActiveSupport::TestCase
   include GameTestHelper
 
   def two_player_game(shared:)
-    game, host = Games::Actions.create!(park: "Magic Kingdom", preset: "full_day", host_name: "Hawkes")
+    game, host = Games::Actions.create!(park: "Magic Kingdom", difficulty: "normal", host_name: "Hawkes")
     game.update!(rules: game.rules.merge("settings" => game.settings.merge("shared_hand" => shared)))
     guest = Games::Actions.new(game).join!("Sam")
     Games::Actions.new(game, host).start!(START)

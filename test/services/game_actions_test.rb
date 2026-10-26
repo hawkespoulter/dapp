@@ -19,7 +19,7 @@ class GameActionsTest < ActiveSupport::TestCase
 
   test "only parks with a villain can be created" do
     error = assert_raises(Games::Actions::Invalid) do
-      Games::Actions.create!(park: "Epcot", preset: "sprint", host_name: "Hawkes")
+      Games::Actions.create!(park: "Epcot", difficulty: "normal", host_name: "Hawkes")
     end
     assert_match "villain", error.message
   end
@@ -164,8 +164,12 @@ class GameActionsTest < ActiveSupport::TestCase
     assert_equal 3, @game.reload.state_for(player.reload)[:me][:hand].size
   end
 
-  test "multi-day games only run the clock during park hours" do
-    game, = start_game(preset: "multi_day", at: Time.zone.parse("2026-10-01 20:30"))
+  test "old multi-day games only run the clock during park hours" do
+    game, host = Games::Actions.create!(park: "Magic Kingdom", difficulty: "easy", host_name: "Hawkes")
+    game.update!(preset: "multi_day", rules: game.rules.merge("settings" => game.settings.except("hours")
+      .merge("days" => 3, "day_start" => "09:00", "day_end" => "21:00")))
+    Games::Actions.new(game, host).start!(Time.zone.parse("2026-10-01 20:30"))
+    game.reload
     windows = game.clock.windows
 
     assert_equal 3, windows.size

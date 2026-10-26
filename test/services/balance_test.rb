@@ -5,7 +5,7 @@ class BalanceTest < ActiveSupport::TestCase
   include GameTestHelper
 
   setup do
-    @game, @host = start_game(preset: "full_day")
+    @game, @host = start_game(difficulty: "normal")
     @now = @game.started_at + 1.minute
   end
 
@@ -24,11 +24,11 @@ class BalanceTest < ActiveSupport::TestCase
   end
 
   test "only settings that still matter mid-game can change" do
-    act.update_balance!({ "starting_strength" => "99", "risings" => "0", "tick_minutes" => "30" }, @now)
+    act.update_balance!({ "starting_strength" => "99", "risings" => "0", "tick_minutes" => "40" }, @now)
     @game.reload
 
-    assert_equal 30, @game.settings["tick_minutes"]
-    assert_equal GamePreset::DEFAULTS["full_day"]["starting_strength"], @game.settings["starting_strength"]
+    assert_equal 40, @game.settings["tick_minutes"]
+    assert_equal GamePreset::DEFAULTS["standard"]["starting_strength"], @game.settings["starting_strength"]
     refute_includes @game.state_for(@host)[:balance][:fields].pluck(:key), "risings"
   end
 
@@ -43,7 +43,7 @@ class BalanceTest < ActiveSupport::TestCase
     act.update_balance!({ "hours" => "4" }, @now)
     assert_equal @game.started_at + 4.hours, @game.reload.ends_at
 
-    error = assert_raises(Games::Actions::Invalid) { act.update_balance!({ "hours" => "1" }, @game.started_at + 2.hours) }
+    error = assert_raises(Games::Actions::Invalid) { act.update_balance!({ "hours" => "1" }, @game.started_at + 65.minutes) }
     assert_match "before now", error.message
   end
 

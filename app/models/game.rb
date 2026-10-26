@@ -18,7 +18,8 @@ class Game < ApplicationRecord
   has_many :game_events, -> { order(:occurred_at, :id) }, dependent: :destroy
 
   validates :join_code, presence: true, uniqueness: true
-  validates :preset, inclusion: { in: ->(_) { GamePreset.keys } }
+  # The difficulty (easy / normal / hard), or an old game's length.
+  validates :preset, inclusion: { in: GamePreset::DIFFICULTIES.keys + GamePreset::OLD_LENGTHS.keys }
   validates :status, inclusion: { in: STATUSES }
   validates :result, inclusion: { in: RESULTS }, allow_nil: true
   validate :park_is_playable, on: :create
@@ -49,8 +50,11 @@ class Game < ApplicationRecord
   # The balance settings this game was created with (see GamePreset).
   # Settings added since the game was created come from the defaults file.
   def settings
-    snapshot = rules["settings"]
-    snapshot ? GamePreset::DEFAULTS.fetch(preset, {}).merge(snapshot) : GamePreset.for(preset).settings
+    snapshot = rules["settings"] || {}
+    defaults = GamePreset::DEFAULTS.fetch(GamePreset::STANDARD).except(*GamePreset::DIFFICULTY_FIELDS)
+    # Old multi-day games run by days, not hours.
+    defaults = defaults.except("hours") if snapshot.key?("days")
+    defaults.merge(snapshot)
   end
 
   def board

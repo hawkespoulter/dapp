@@ -5,7 +5,7 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     get api_v1_game_parks_url
     assert_equal ["Animal Kingdom", "Magic Kingdom", "Hollywood Studios", "Wizarding World"], response.parsed_body["parks"].map { _1["park"] }
 
-    post api_v1_games_url, params: { park: "Magic Kingdom", preset: "sprint", name: "Hawkes" }, as: :json
+    post api_v1_games_url, params: { park: "Magic Kingdom", difficulty: "normal", name: "Hawkes" }, as: :json
     assert_response :created
     host_token = response.parsed_body["token"]
     code = response.parsed_body.dig("state", "game", "code")

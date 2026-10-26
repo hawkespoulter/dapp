@@ -47,25 +47,20 @@ function NewGameForm() {
   const [createGame, { isLoading, error }] = useCreateGameMutation();
   const [name, setName] = useState("");
   const [park, setPark] = useState("");
-  const [preset, setPreset] = useState("full_day");
-  const [days, setDays] = useState(3);
-  const [hours, setHours] = useState({});
+  const [difficulty, setDifficulty] = useState("normal");
+  const [hours, setHours] = useState(null);
 
   const parks = data?.parks || [];
   const chosenPark = park || parks[0]?.park;
   const villain = parks.find((p) => p.park === chosenPark)?.villain;
-  // Timed presets (Sprint, Full Day) start at their usual length; the host
-  // can change it for this game.
-  const presetHours = (data?.presets || []).find((p) => p.key === preset)?.hours;
-  const chosenHours = hours[preset] ?? presetHours;
+  // Games start at the usual length; the host can change it for this game.
+  const chosenHours = hours ?? data?.hours;
 
   const submit = async (event) => {
     event.preventDefault();
-    const rules = {};
-    if (preset === "multi_day") rules.days = days;
-    if (presetHours && chosenHours) rules.hours = chosenHours;
+    const rules = chosenHours ? { hours: chosenHours } : {};
     try {
-      const { token, state } = await createGame({ name: name.trim(), park: chosenPark, preset, rules }).unwrap();
+      const { token, state } = await createGame({ name: name.trim(), park: chosenPark, difficulty, rules }).unwrap();
       savePlayer(state.game.code, token, name.trim(), state.game.park);
       navigate(`/game/${state.game.code}`);
     } catch {
@@ -92,40 +87,33 @@ function NewGameForm() {
         </p>
       )}
 
-      <div className={label}>Length</div>
+      <div className={label}>Difficulty</div>
       <div className="grid grid-cols-3 gap-2">
-        {(data?.presets || []).map((p) => (
+        {(data?.difficulties || []).map((d) => (
           <button
             type="button"
-            key={p.key}
-            className={`rounded-lg px-2 py-2 text-sm font-bold ${preset === p.key ? "bg-sky-600" : "bg-slate-900 text-slate-300"}`}
-            onClick={() => setPreset(p.key)}
+            key={d.key}
+            className={`rounded-lg px-2 py-2 text-sm font-bold ${difficulty === d.key ? "bg-sky-600" : "bg-slate-900 text-slate-300"}`}
+            onClick={() => setDifficulty(d.key)}
           >
-            {p.label}
+            {d.label}
+            <span className="block text-[10px] font-normal opacity-80">villain every {d.minutes} min</span>
           </button>
         ))}
       </div>
-      {presetHours && (
-        <label className={label}>
-          Hours
-          <input
-            className={`${input} mt-1`}
-            type="number"
-            inputMode="decimal"
-            min={1}
-            max={72}
-            step={0.5}
-            value={chosenHours ?? ""}
-            onChange={(e) => setHours({ ...hours, [preset]: e.target.value })}
-          />
-        </label>
-      )}
-      {preset === "multi_day" && (
-        <label className={label}>
-          Days (9am–9pm each day)
-          <input className={`${input} mt-1`} type="number" min={2} max={7} value={days} onChange={(e) => setDays(Number(e.target.value))} />
-        </label>
-      )}
+      <label className={label}>
+        Hours
+        <input
+          className={`${input} mt-1`}
+          type="number"
+          inputMode="decimal"
+          min={1}
+          max={72}
+          step={0.5}
+          value={chosenHours ?? ""}
+          onChange={(e) => setHours(e.target.value)}
+        />
+      </label>
 
       {error && <p className="text-sm text-red-300">{errorMessage(error)}</p>}
       <button className="rounded-lg bg-emerald-600 py-2 font-bold disabled:opacity-40" disabled={isLoading || !name.trim() || !chosenPark}>

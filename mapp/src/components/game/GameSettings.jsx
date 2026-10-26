@@ -1,4 +1,3 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -15,7 +14,7 @@ const RESULTS = ["gold", "silver", "bronze", "lost"];
 
 const section = "rounded-xl bg-slate-800 p-4";
 
-// Edit one preset's balance: the defaults for new games of that length.
+// Edit the game's balance: the defaults for new games.
 function PresetForm({ preset }) {
   const [update] = useUpdateGameSettingsMutation();
   const [reset] = useResetGameSettingsMutation();
@@ -35,21 +34,21 @@ function PresetForm({ preset }) {
   );
 }
 
-function Record({ presets, record }) {
+function Record({ rows, record }) {
   return (
     <div className={section}>
       <h2 className="mb-2 text-lg font-bold">Results so far</h2>
       <table className="w-full text-sm">
         <thead>
           <tr className="text-xs uppercase text-slate-400">
-            <th className="text-left font-normal">Length</th>
+            <th className="text-left font-normal">Difficulty</th>
             {RESULTS.map((r) => (
               <th key={r} className={`font-normal ${RESULT_STYLES[r]}`}>{r}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {presets.map((p) => (
+          {rows.map((p) => (
             <tr key={p.key}>
               <td className="py-1">{p.label}</td>
               {RESULTS.map((r) => (
@@ -103,12 +102,11 @@ function FinishedGamesLink({ count }) {
 
 function GameSettings() {
   const { data, error, isLoading } = useFetchGameSettingsQuery();
-  const [tab, setTab] = useState(null);
 
   if (isLoading) return <div className="min-h-screen bg-slate-950 p-4 text-white">Loading…</div>;
   if (error) return <div className="min-h-screen bg-slate-950 p-4 text-red-300">{errorMessage(error)}</div>;
 
-  const current = data.presets.find((p) => p.key === tab) || data.presets[0];
+  const current = data.presets[0];
 
   return (
     <div className="flex min-h-screen flex-col gap-4 bg-slate-950 p-4 text-white">
@@ -119,21 +117,10 @@ function GameSettings() {
         <h1 className="text-2xl font-black">Game settings</h1>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        {data.presets.map((p) => (
-          <button
-            key={p.key}
-            className={`rounded-lg px-2 py-2 text-sm font-bold ${p.key === current.key ? "bg-sky-600" : "bg-slate-800 text-slate-300"}`}
-            onClick={() => setTab(p.key)}
-          >
-            {p.label}
-          </button>
-        ))}
-      </div>
       <PresetForm key={current.key} preset={current} />
 
       <ChallengeFile challenges={data.challenges} claims={data.claims} />
-      <Record presets={data.presets} record={data.record} />
+      <Record rows={data.record_rows} record={data.record} />
       <FinishedGamesLink count={data.finished_count} />
     </div>
   );
@@ -142,6 +129,6 @@ function GameSettings() {
 export default GameSettings;
 
 PresetForm.propTypes = { preset: PropTypes.object.isRequired };
-Record.propTypes = { presets: PropTypes.array.isRequired, record: PropTypes.object.isRequired };
+Record.propTypes = { rows: PropTypes.array.isRequired, record: PropTypes.object.isRequired };
 FinishedGamesLink.propTypes = { count: PropTypes.number.isRequired };
 ChallengeFile.propTypes = { challenges: PropTypes.object.isRequired, claims: PropTypes.object };

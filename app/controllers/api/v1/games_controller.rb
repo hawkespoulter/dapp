@@ -11,7 +11,10 @@ class Api::V1::GamesController < ApplicationController
   def parks
     render json: {
       parks: Game.playable_parks.map { |park| { park:, villain: Villains.for_park(park) } },
-      presets: GamePreset.seeded.map { _1.settings.merge("key" => _1.key) },
+      difficulties: GamePreset.standard.settings.then do |s|
+        GamePreset::DIFFICULTIES.map { |key, label| { key:, label:, minutes: s["#{key}_minutes"] } }
+      end,
+      hours: GamePreset.standard.settings["hours"],
     }
   end
 
@@ -19,9 +22,9 @@ class Api::V1::GamesController < ApplicationController
   def create
     game, player = Games::Actions.create!(
       park: params.require(:park),
-      preset: params.require(:preset),
+      difficulty: params.require(:difficulty),
       host_name: params.require(:name),
-      rules: params.fetch(:rules, {}).permit(:days, :day_start, :day_end, :hours).to_h,
+      rules: params.fetch(:rules, {}).permit(:hours).to_h,
     )
     render json: { token: player.auth_token, state: game.state_for(player) }, status: :created
   end
