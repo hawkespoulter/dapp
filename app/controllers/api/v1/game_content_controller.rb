@@ -83,9 +83,12 @@ class Api::V1::GameContentController < ApplicationController
 
   def challenge_params
     attrs = params.require(:challenge).permit(:title, :description, :reward, :park, :list_from, :list_count)
-    attrs[:park] = nil if attrs[:park].blank? || attrs[:park] == Challenge::ANYWHERE
-    attrs[:list_from] = attrs[:list_from].presence
-    attrs[:list_count] = attrs[:list_from] ? Integer(attrs[:list_count].to_s, exception: false) : nil
+    # Only what was sent changes (the in-game editor sends just the text).
+    attrs[:park] = nil if attrs.key?(:park) && (attrs[:park].blank? || attrs[:park] == Challenge::ANYWHERE)
+    if attrs.key?(:list_from)
+      attrs[:list_from] = attrs[:list_from].presence
+      attrs[:list_count] = attrs[:list_from] ? Integer(attrs[:list_count].to_s, exception: false) : nil
+    end
     attrs[:reward] = Integer(attrs[:reward].to_s, exception: false) || attrs[:reward] if attrs.key?(:reward)
     attrs
   end

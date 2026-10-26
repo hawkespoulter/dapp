@@ -22,6 +22,16 @@ class GameContentControllerTest < ActionDispatch::IntegrationTest
     refute Challenge.exists?(id)
   end
 
+  test "editing just the text keeps the list and park" do
+    ChallengeList.create!(name: "smells", items: %w[Pie Smoke])
+    challenge = Challenge.create!(title: "Sniff", reward: 1, park: "Epcot", list_from: "smells", list_count: 1)
+
+    patch "/api/v1/challenges/#{challenge.id}", params: { challenge: { title: "Sniff it", reward: 2 } }, as: :json
+    assert_response :success
+    assert_equal ["Sniff it", 2, "Epcot", "smells", 1],
+                 challenge.reload.slice(:title, :reward, :park, :list_from, :list_count).values
+  end
+
   test "a bad challenge comes back with the problem" do
     post "/api/v1/challenges", params: { challenge: { title: "Greedy", reward: 50 } }, as: :json
     assert_response 422

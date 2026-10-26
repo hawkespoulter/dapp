@@ -1,6 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import { API_URL } from "~/constants";
@@ -308,12 +308,23 @@ function ChallengeEditor() {
   const tab = TABS[params.get("tab")] ? params.get("tab") : "hand";
   const park = params.get("park") || "Magic Kingdom";
   const { data, error } = useFetchGameContentQuery(park);
-  const go = (changes) => setParams({ tab, park, ...changes });
+  const go = (changes) => setParams({ tab, park, ...changes }, { replace: true });
+  const navigate = useNavigate();
+  const cameFromApp = useLocation().key !== "default";
 
   return (
     <div className="flex min-h-screen flex-col gap-4 bg-slate-950 p-4 pb-[calc(2.5rem+env(safe-area-inset-bottom))] text-white">
       <div className="flex items-center gap-2">
-        <Link to="/game/settings" className="text-sky-400" aria-label="Back to game settings">
+        <Link
+          to="/game/settings"
+          onClick={(e) => {
+            if (!cameFromApp) return;
+            e.preventDefault();
+            navigate(-1);
+          }}
+          className="text-sky-400"
+          aria-label="Back"
+        >
           <ArrowBackIcon />
         </Link>
         <h1 className="text-2xl font-black">Challenges</h1>

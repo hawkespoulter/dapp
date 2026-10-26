@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 import UndoIcon from "@mui/icons-material/Undo";
 import GameMap from "./GameMap";
 import StatusBar from "./StatusBar";
@@ -11,6 +12,7 @@ import VillainTurnReplay from "./VillainTurnReplay";
 import Store from "./Store";
 import ForecastPopup from "./ForecastPopup";
 import SettingsForm from "./SettingsForm";
+import QuickEdit from "./QuickEdit";
 import useUnseenVillainTurns from "./useUnseenVillainTurns";
 import { errorMessage } from "./playerStorage";
 import {
@@ -40,6 +42,7 @@ function GameBoard({ state, refetch }) {
   const [selected, setSelected] = useState(null);
   const [error, setError] = useState(null);
   const [answers, setAnswers] = useState(null);
+  const [editing, setEditing] = useState(null);
   const [newTurns, markTurnsSeen] = useUnseenVillainTurns(state);
 
   const [complete, completeStatus] = useCompleteChallengeMutation();
@@ -109,6 +112,7 @@ function GameBoard({ state, refetch }) {
         busy={busy || !me}
         onPlace={(count) => run(place({ code, area: current, count }))}
         onClaim={() => run(completeClaim({ code, area: current }))}
+        onEditClaim={(a) => setEditing({ kind: "claim", card: a.claim, park: game.park, area: a.area })}
       />
 
       {error && (
@@ -126,6 +130,7 @@ function GameBoard({ state, refetch }) {
                 onComplete={(c) => run(complete({ code, challengeId: c.id }))}
                 onFail={failCard}
                 onSkip={(c) => run(skip({ code, challengeId: c.id }))}
+                onEdit={(c) => setEditing({ kind: "challenge", card: c })}
               />
             ))}
           </div>
@@ -160,6 +165,7 @@ function GameBoard({ state, refetch }) {
         <VillainTurnReplay turns={newTurns} villain={villain} areas={areas} park={game.park} onClose={markTurnsSeen} />
       )}
       {answers && <AnswerPopup photos={answers} onClose={() => setAnswers(null)} />}
+      {editing && <QuickEdit edit={editing} onSaved={refetch} onClose={() => setEditing(null)} />}
       {state.powers?.forecast && (
         <ForecastPopup
           cards={state.powers.forecast}
@@ -206,6 +212,12 @@ function GameBoard({ state, refetch }) {
           >
             {showBalance ? "Hide" : "Tweak this game's balance"}
           </button>
+          <Link
+            to={`/game/challenges?park=${encodeURIComponent(game.park)}`}
+            className="mt-2 block w-full rounded-lg border border-slate-700 py-2 text-center text-sm text-slate-300"
+          >
+            Edit all challenges
+          </Link>
           {showBalance && (
             <div className="mt-3 rounded-xl bg-slate-800 p-4 text-white">
               <SettingsForm

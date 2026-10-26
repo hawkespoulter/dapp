@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import EditIcon from "@mui/icons-material/Edit";
 import { OWNER_LABELS, placementPlan } from "./gameRules";
 import { villainColor } from "./boardLayout";
 
@@ -11,11 +12,18 @@ const button = "rounded-lg py-2 text-sm font-bold disabled:opacity-40";
 
 // An unclaimed area is claimed by going there and completing its claim
 // challenge; that's the only thing to do with it.
-function ClaimChallenge({ area, busy, onClaim }) {
+function ClaimChallenge({ area, busy, onClaim, onEdit }) {
   return (
     <div className="mt-2 rounded-lg bg-slate-900 p-3">
       <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Claim challenge · go to {area.area}</p>
-      <h3 className="font-bold">{area.claim.title}</h3>
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="font-bold">{area.claim.title}</h3>
+        {onEdit && (
+          <button type="button" className="text-slate-500" onClick={onEdit} aria-label="Edit this claim challenge">
+            <EditIcon sx={{ fontSize: 16 }} />
+          </button>
+        )}
+      </div>
       {area.claim.description && <p className="text-sm text-slate-300">{area.claim.description}</p>}
       <div className="mt-2 flex gap-2">
         <button className={`${button} flex-1 bg-emerald-600`} disabled={busy} onClick={onClaim}>
@@ -56,7 +64,7 @@ function Influence({ state, area, busy, onPlace }) {
   );
 }
 
-function AreaPanel({ state, area, busy, onPlace, onClaim }) {
+function AreaPanel({ state, area, busy, onPlace, onClaim, onEditClaim }) {
   const { villain } = state;
 
   return (
@@ -72,7 +80,7 @@ function AreaPanel({ state, area, busy, onPlace, onClaim }) {
       </div>
 
       {area.owner === "neutral" ? (
-        area.claim && <ClaimChallenge area={area} busy={busy} onClaim={onClaim} />
+        area.claim && <ClaimChallenge area={area} busy={busy} onClaim={onClaim} onEdit={onEditClaim && (() => onEditClaim(area))} />
       ) : (
         <Influence state={state} area={area} busy={busy} onPlace={onPlace} />
       )}
@@ -88,11 +96,13 @@ AreaPanel.propTypes = {
   busy: PropTypes.bool,
   onPlace: PropTypes.func.isRequired,
   onClaim: PropTypes.func.isRequired,
+  onEditClaim: PropTypes.func,
 };
 ClaimChallenge.propTypes = {
   area: PropTypes.object.isRequired,
   busy: PropTypes.bool,
   onClaim: PropTypes.func.isRequired,
+  onEdit: PropTypes.func,
 };
 Influence.propTypes = {
   state: PropTypes.object.isRequired,

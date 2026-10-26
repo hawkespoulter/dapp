@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import PaidIcon from "@mui/icons-material/Paid";
+import EditIcon from "@mui/icons-material/Edit";
 
 // A challenge photo (e.g. GeoGuessr). Tap it to see it full screen; tap
 // again to shrink it back.
@@ -43,7 +44,7 @@ function Fact({ fact }) {
   );
 }
 
-function HandCard({ card, busy, onComplete, onFail, onSkip }) {
+function HandCard({ card, busy, onComplete, onFail, onSkip, onEdit }) {
   const items = card.list || [];
   const photos = items.filter((item) => typeof item === "object" && item.image);
   const facts = items.filter((item) => typeof item === "object" && !item.image);
@@ -53,8 +54,15 @@ function HandCard({ card, busy, onComplete, onFail, onSkip }) {
     <div className="rounded-xl bg-slate-800 p-3 text-white shadow">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-bold leading-tight">{card.title}</h3>
-        <span className="flex items-center gap-0.5 whitespace-nowrap text-sm font-bold text-amber-300">
-          <PaidIcon sx={{ fontSize: 16 }} />+{card.reward}
+        <span className="flex items-center gap-2 whitespace-nowrap">
+          <span className="flex items-center gap-0.5 text-sm font-bold text-amber-300">
+            <PaidIcon sx={{ fontSize: 16 }} />+{card.reward}
+          </span>
+          {onEdit && (
+            <button type="button" className="text-slate-500" onClick={() => onEdit(card)} aria-label={`Edit ${card.title}`}>
+              <EditIcon sx={{ fontSize: 16 }} />
+            </button>
+          )}
         </span>
       </div>
       {card.description && <p className="mt-1 text-sm text-slate-300">{card.description}</p>}
@@ -109,6 +117,7 @@ HandCard.propTypes = {
   onComplete: PropTypes.func.isRequired,
   onFail: PropTypes.func.isRequired,
   onSkip: PropTypes.func.isRequired,
+  onEdit: PropTypes.func,
 };
 Photo.propTypes = { photo: PropTypes.object.isRequired };
 Fact.propTypes = { fact: PropTypes.object.isRequired };
