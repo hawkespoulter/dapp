@@ -311,7 +311,7 @@ function ChallengeEditor() {
   const go = (changes) => setParams({ tab, park, ...changes });
 
   return (
-    <div className="flex min-h-screen flex-col gap-4 bg-slate-950 p-4 text-white">
+    <div className="flex min-h-screen flex-col gap-4 bg-slate-950 p-4 pb-[calc(2.5rem+env(safe-area-inset-bottom))] text-white">
       <div className="flex items-center gap-2">
         <Link to="/game/settings" className="text-sky-400" aria-label="Back to game settings">
           <ArrowBackIcon />
